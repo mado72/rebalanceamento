@@ -8,7 +8,7 @@ import { DespesaProgramada } from '../models/despesa';
   styleUrls: ['./despesa-form.component.scss']
 })
 export class DespesaFormComponent implements OnInit {
-  despesa: DespesaProgramada = { id: null, valor: 10, diaVencimento: 1, nome: '', get pagamentoAntecipado() { return this.diaVencimento < 20; } }; // Preencha com valores iniciais
+  despesa: DespesaProgramada = { id: null, valor: 10, diaVencimento: 1, nome: '' }; // Preencha com valores iniciais
 
   constructor(private despesasService: DespesasService) {} // Injete o serviço de despesas
 
@@ -25,7 +25,7 @@ export class DespesaFormComponent implements OnInit {
     if (this.despesa.id === 0) { // Nova despesa
       this.despesasService.adicionarDespesa(this.despesa).subscribe(() => {
         // Exiba mensagem de sucesso e atualize a lista de despesas
-        this.despesa = { id: 0, valor: 0, nome: '', diaVencimento: 1, pagamentoAntecipado: false }; // Limpe o formulário
+        this.despesa = { id: 0, valor: 0, nome: '', diaVencimento: 1 }; // Limpe o formulário
       });
     } else { // Editar despesa existente
       this.despesasService.atualizarDespesa(this.despesa).subscribe(() => {

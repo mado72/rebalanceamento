@@ -1,6 +1,6 @@
 <p>despesas-list works!</p>
 
-<table *ngIf="!!despesasProgramadas.length">
+<table *ngIf="!!pagamentos">
     <thead>
         <tr>
             <td>Despesa</td>
@@ -11,7 +11,7 @@
         </tr>
     </thead>
     <tbody>
-        <tr *ngFor="let despesa of despesasProgramadas">
+        <tr *ngFor="let despesa of despesasProgramadas | async">
             <td>{{despesa.nome}}</td>
             <td>{{despesa.diaVencimento}}</td>
             <td *ngFor="let mes of meses">

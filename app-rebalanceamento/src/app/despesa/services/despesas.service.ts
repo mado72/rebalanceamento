@@ -9,9 +9,12 @@ export class DespesasService {
 
   private sequence = 0;
 
-  private despesas: DespesaProgramada[] = [];
+  private despesas: DespesaProgramada[] = Object.assign([], DESPESAS);
 
-  constructor() { }
+  constructor() { 
+    // TODO remover código
+    this.despesas.sort((a,b)=>(a.id||0)-(b.id||0));
+  }
 
   /**
    * Retorna um Observable que emite o array de todas as despesas.
@@ -70,3 +73,67 @@ export class DespesasService {
   }
 
 }
+
+
+const DESPESAS: DespesaProgramada[] = [
+  {
+    id: 1,
+    nome: 'Aluguel',
+    valor: 1200.00,
+    diaVencimento: 10,
+  },
+  {
+    id: 2,
+    nome: 'Plano de Saúde',
+    valor: 250.00,
+    diaVencimento: 5
+  },
+  {
+    id: 3,
+    nome: 'Internet e Luz',
+    valor: 200.00,
+    diaVencimento: 20
+  },
+  {
+    id: 4,
+    nome: 'Telefone Celular',
+    valor: 80.00,
+    diaVencimento: 15
+  },
+  {
+    id: 5,
+    nome: 'Supermercado',
+    valor: 500.00,
+    diaVencimento: 25
+  },
+  {
+    id: 6,
+    nome: 'Academia',
+    valor: 100.00,
+    diaVencimento: 7
+  },
+  {
+    id: 7,
+    nome: 'Streaming',
+    valor: 50.00,
+    diaVencimento: 1
+  },
+  {
+    id: 8,
+    nome: 'Transporte',
+    valor: 300.00,
+    diaVencimento: 18
+  },
+  {
+    id: 9,
+    nome: 'Lazer',
+    valor: 200.00,
+    diaVencimento: 22
+  },
+  {
+    id: 10,
+    nome: 'Outros',
+    valor: 150.00,
+    diaVencimento: 30
+  }
+];

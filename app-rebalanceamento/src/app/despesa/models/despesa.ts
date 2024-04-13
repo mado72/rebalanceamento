@@ -3,7 +3,6 @@ export interface DespesaProgramada {
     nome: string;
     valor: number;
     diaVencimento: number;
-    pagamentoAntecipado: boolean;
 }
 
 export enum Meses {
