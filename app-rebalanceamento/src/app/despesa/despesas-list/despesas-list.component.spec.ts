@@ -2,6 +2,7 @@ import { ComponentFixture, TestBed } from '@angular/core/testing';
 
 import { DespesasListComponent } from './despesas-list.component';
 import { Mes, Meses, Pagamento, obterMes } from '../models/despesa';
+import { FormsModule } from '@angular/forms';
 
 describe('DespesasListComponent', () => {
   let component: DespesasListComponent;
@@ -11,7 +12,8 @@ describe('DespesasListComponent', () => {
     
       beforeEach(async () => {
         await TestBed.configureTestingModule({
-          declarations: [ DespesasListComponent ]
+          declarations: [ DespesasListComponent ],
+          imports: [FormsModule]
         })
         .compileComponents();
     
@@ -26,14 +28,13 @@ describe('DespesasListComponent', () => {
     
       it('deve conter 12 listas de pagamentos', ()=>{
         
-        const entries = [...component.matriz];
+        const entries = Object.values(component.pagamentos);
         expect(entries.length).toBe(12);
+
         entries.forEach(entry=>{
-          const pagamentos = component.matriz.get(entry[0]);
+          expect(Object.keys(entry).length).toBeGreaterThan(0);
+          const pagamentos = entry["1"];
           expect(pagamentos).toBeTruthy();
-          if (!!pagamentos) {
-            expect(pagamentos.length).toBeGreaterThan(0);
-          }
         });
       });
       

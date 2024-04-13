@@ -16,14 +16,14 @@
             <td>{{despesa.diaVencimento}}</td>
             <td *ngFor="let mes of meses | keyvalue">
                 <ng-container *ngIf="!! despesa.id">
-                    {{pagamentos['' + mes.value][despesa.id].valor}}
+                    <input type="number" required step="0.01" [name]="'pagto_'+mes+'_'+(despesa.id || 0)" [(ngModel)]="pagamentos['' + mes.value][despesa.id].valor" />
                 </ng-container>
             </td>
         </tr>
     </tbody>
 </table>
 
-<pre>{{ pagamentos | json }}</pre>
+<pre class="debug">{{ pagamentos | json }}</pre>
 <a routerLink="/despesas/edit">Criar</a>
 |
 <a routerLink="/despesas/edit/1">Editar</a>

@@ -8,15 +8,21 @@ import { DespesaProgramada, Meses, Pagamento, obterMes } from '../models/despesa
 })
 export class DespesasListComponent implements OnInit {
 
-  matriz = new Map<Meses, Pagamento[]>();
+  pagamentos : {[key: string] : {[id: string] : Pagamento}} = {};
 
   ngOnInit(): void {
-    Object.values(Meses).forEach((mes)=>{
-      this.matriz.set(mes, this.getPagamentos());
+    const auxPagamentos = this.buildPagamentos();
+    Object.keys(Meses).forEach((mes)=>{
+      if (!this.pagamentos[mes]) {
+        this.pagamentos[mes] ={};
+      }
+      auxPagamentos.forEach(pagto=>{
+        this.pagamentos[mes][pagto.despesaProgramadaId] = pagto;
+      })
     });
   }
 
-  private getPagamentos(): Pagamento[] {
+  private buildPagamentos(): Pagamento[] {
     let contador = 0;
     return despesasProgramadas.map(dp => {
       const dpId = dp.id || 0;
@@ -37,20 +43,6 @@ export class DespesasListComponent implements OnInit {
 
   get despesasProgramadas() {
     return despesasProgramadas;
-  }
-
-  get pagamentos() {
-    const a : {[key: string] : {[id: string] : Pagamento}} = {};
-    Object.values(Meses).forEach((mes)=>{
-      const pagamentos = this.matriz.get(mes) || [];
-      if (!a[mes]) {
-        a[mes] = {};
-      }
-      pagamentos.forEach(pagto=>{
-        a[mes][pagto.despesaProgramadaId] = pagto;
-      })
-    });
-    return a;
   }
 
 }
