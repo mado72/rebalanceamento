@@ -1,11 +1,11 @@
-<pre>
-    DESPESA:
-    {{ despesa | json}}
-</pre>
 <form (ngSubmit)="onSubmit()">
     <div class="form-group">
+        <label for="paga">Despesa:</label>
+        <input type="text" class="form-control" id="nome" [(ngModel)]="despesa.nome" name="nome">
+    </div>
+    <div class="form-group">
         <label for="valor">Valor:</label>
-        <input type="number" class="form-control" id="valor" [(ngModel)]="despesa.valor" required name="valor">
+        <input type="number" class="form-control" id="valor" [(ngModel)]="despesa.valor" required name="valor" step=".01">
     </div>
     <div class="form-group">
         <label for="diaVencimento">Dia de Vencimento:</label>
@@ -13,12 +13,8 @@
             max="31" required name="diaNascimento">
     </div>
     <div class="form-group">
-        <input type="checkbox" id="paga" [(ngModel)]="despesa.paga" name="paga">
-        <label for="paga">Paga</label>
-    </div>
-    <div class="form-group">
         <input type="checkbox" id="pagamentoAntecipado" disabled="true" [ngModel]="despesa.pagamentoAntecipado" name="pagamentoAntecipado">
         <label for="pagamentoAntecipado">Pagamento Antecipado (até dia 20 calculado)</label>
     </div>
-    <button type="submit" class="btn btn-primary">Ação {{despesa.id ? 'Salvar' : 'Adicionar'}}</button>
+    <button type="submit" class="btn btn-primary">Ação {{despesa.id != null? 'Salvar' : 'Adicionar'}}</button>
 </form>

@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { Observable, of } from 'rxjs';
-import { Despesa } from 'src/app/despesa/models/despesa';
+import { DespesaProgramada } from 'src/app/despesa/models/despesa';
 
 @Injectable({
   providedIn: 'root'
@@ -9,16 +9,16 @@ export class DespesasService {
 
   private sequence = 0;
 
-  private despesas: Despesa[] = [];
+  private despesas: DespesaProgramada[] = [];
 
   constructor() { }
 
   /**
    * Retorna um Observable que emite o array de todas as despesas.
    *
-   * @returns {Observable<Despesa[]>} Um Observable que emite o array de todas as despesas.
+   * @returns {Observable<DespesaProgramada[]>} Um Observable que emite o array de todas as despesas.
    */
-  getDespesas(): Observable<Despesa[]> {
+  getDespesas(): Observable<DespesaProgramada[]> {
     return of(this.despesas);
   }
 
@@ -26,9 +26,9 @@ export class DespesasService {
    * Retorna uma despesa específica da lista de despesas.
    *
    * @param id - O índice da despesa a ser recuperada.
-   * @returns {Observable<Despesa>} Um Observable que emite a despesa especificada.
+   * @returns {Observable<DespesaProgramada>} Um Observable que emite a despesa especificada.
    */
-  obter(id: number): Observable<Despesa> {
+  obter(id: number): Observable<DespesaProgramada> {
     const despesa = this.despesas.find((item) => item.id === id);
     if (!despesa)
       throw new Error('Despesa não encontrada');
@@ -49,9 +49,9 @@ export class DespesasService {
    * Adiciona uma nova despesa à lista de despesas.
    *
    * @param despesa - O objeto de despesa a ser adicionado.
-   * @returns {Observable<Despesa>} Um Observable que emite a despesa adicionada.
+   * @returns {Observable<DespesaProgramada>} Um Observable que emite a despesa adicionada.
    */
-  adicionarDespesa(despesa: Despesa): Observable<Despesa> {
+  adicionarDespesa(despesa: DespesaProgramada): Observable<DespesaProgramada> {
     despesa.id = ++this.sequence;
     this.despesas.push(despesa);
     return of(despesa);
@@ -61,9 +61,9 @@ export class DespesasService {
    * Atualiza uma despesa existente na lista de despesas.
    *
    * @param despesa - O objeto de despesa a ser atualizado.
-   * @returns {Observable<Despesa>} Um Observable que emite a despesa atualizada.
+   * @returns {Observable<DespesaProgramada>} Um Observable que emite a despesa atualizada.
    */
-  atualizarDespesa(despesa: Despesa): Observable<Despesa> {
+  atualizarDespesa(despesa: DespesaProgramada): Observable<DespesaProgramada> {
     const index = this.despesas.findIndex((item) => item.id === despesa.id);
     this.despesas[index] = despesa;
     return of(despesa);
