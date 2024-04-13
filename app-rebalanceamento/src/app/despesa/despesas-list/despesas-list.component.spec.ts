@@ -1,8 +1,10 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 
-import { DespesasListComponent } from './despesas-list.component';
-import { Mes, Meses, Pagamento, obterMes } from '../models/despesa';
+import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { BrowserModule } from '@angular/platform-browser';
+import { Meses } from '../models/despesa';
+import { DespesasListComponent } from './despesas-list.component';
 
 describe('DespesasListComponent', () => {
   let component: DespesasListComponent;
@@ -13,7 +15,7 @@ describe('DespesasListComponent', () => {
       beforeEach(async () => {
         await TestBed.configureTestingModule({
           declarations: [ DespesasListComponent ],
-          imports: [FormsModule]
+          imports: [FormsModule, CommonModule, BrowserModule]
         })
         .compileComponents();
     

@@ -5,7 +5,7 @@
         <tr>
             <td>Despesa</td>
             <td>Dia Venc.</td>
-            <td *ngFor="let mes of meses">
+            <td *ngFor="let mes of meses" [style.font-weight]="mes === mesCorrente ? 'bold' : null" >
                 {{mes}}
             </td>
         </tr>
@@ -14,16 +14,28 @@
         <tr *ngFor="let despesa of despesasProgramadas">
             <td>{{despesa.nome}}</td>
             <td>{{despesa.diaVencimento}}</td>
-            <td *ngFor="let mes of meses | keyvalue">
-                <ng-container *ngIf="!! despesa.id">
-                    <input type="number" required step="0.01" [name]="'pagto_'+mes+'_'+(despesa.id || 0)" [(ngModel)]="pagamentos['' + mes.value][despesa.id].valor" />
-                </ng-container>
-            </td>
-        </tr>
-    </tbody>
+            <td *ngFor="let mes of meses">
+
+                <div *ngIf="!! despesa.id">
+                    <ng-container 
+                        [ngTemplateOutlet]="anteriorMesCorrente(mes) ?  textPagto : inputPagto" 
+                        [ngTemplateOutletContext]="{mes,despesa,name:'pagto_'+mes+'_'+(despesa.id || 0)}">
+                    </ng-container>
+            </div>
+        </td>
+    </tr>
+</tbody>
 </table>
 
 <pre class="debug">{{ pagamentos | json }}</pre>
 <a routerLink="/despesas/edit">Criar</a>
 |
 <a routerLink="/despesas/edit/1">Editar</a>
+
+<ng-template #inputPagto let-mes="mes" let-despesa="despesa" let-name="name">
+        <input type="number" requires step="0.01" [name]="name" [(ngModel)]="pagamentos[mes][despesa.id].valor" />
+</ng-template>
+
+<ng-template #textPagto let-mes="mes" let-despesa="despesa">
+    {{ pagamentos['' + mes][despesa.id].valor | number : '1.2-2' }}
+</ng-template>
