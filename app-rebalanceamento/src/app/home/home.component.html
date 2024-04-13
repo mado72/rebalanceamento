@@ -1,1 +1,23 @@
 <p>home works!</p>
+
+<form>
+    <div class="form-group">
+        <label for="valor">Valor:</label>
+        <input type="number" class="form-control" id="valor" [(ngModel)]="despesa.valor" required name="valor">
+    </div>
+    <div class="form-group">
+        <label for="diaVencimento">Dia de Vencimento:</label>
+        <input type="number" class="form-control" id="diaVencimento" [(ngModel)]="despesa.diaVencimento" min="1"
+            max="31" required name="diaNascimento">
+    </div>
+    <div class="form-group">
+        <input type="checkbox" id="paga" [(ngModel)]="despesa.paga" name="paga">
+        <label for="paga">Paga</label>
+    </div>
+    <div class="form-group">
+        <input type="checkbox" id="pagamentoAntecipado" [ngModel]="despesa.pagamentoAntecipado" name="pagamentoAntecipado">
+        <label for="pagamentoAntecipado">Pagamento Antecipado (até dia 20 calculado)</label>
+    </div>
+</form>
+
+{{ despesa | json }}

@@ -1,4 +1,5 @@
 import { Component } from '@angular/core';
+import { Despesa } from '../despesa/models/despesa';
 
 @Component({
   selector: 'app-home',
@@ -6,5 +7,15 @@ import { Component } from '@angular/core';
   styleUrls: ['./home.component.scss']
 })
 export class HomeComponent {
+
+  despesa: Despesa = { 
+    id: null,
+    valor: 100,
+    diaVencimento: 1,
+    paga: false,
+    get pagamentoAntecipado() {
+      return this.diaVencimento <= 20;
+    }
+  }
 
 }
