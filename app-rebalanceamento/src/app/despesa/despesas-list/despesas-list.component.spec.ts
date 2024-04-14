@@ -6,6 +6,15 @@ import { BrowserModule } from '@angular/platform-browser';
 import { Meses } from '../models/despesa';
 import { DespesasListComponent } from './despesas-list.component';
 import { DespesasService } from '../services/despesas.service';
+import { RouterTestingModule } from '@angular/router/testing';
+import { Component } from '@angular/core';
+import { ActivatedRoute, RouterModule, provideRouter, withDebugTracing, withRouterConfig } from '@angular/router';
+
+@Component({
+  template: ''
+})
+class DummyComponent {
+}
 
 describe('DespesasListComponent', () => {
   let component: DespesasListComponent;
@@ -15,11 +24,29 @@ describe('DespesasListComponent', () => {
   beforeEach(async () => {
     await TestBed.configureTestingModule({
       declarations: [DespesasListComponent],
-      imports: [FormsModule, CommonModule, BrowserModule]
+      imports: [
+        FormsModule, 
+        CommonModule, 
+        BrowserModule,
+        RouterTestingModule.withRoutes([])
+      ],
+      providers: [
+        {
+          provide: 'ActivatedRoute',
+          useValue: {
+            snapshot: {
+              queryParams: {
+                mes: Meses.JANEIRO
+              }
+            }
+          }
+        }
+      ],
     })
       .compileComponents();
 
     despesasService = TestBed.inject(DespesasService);
+    TestBed.inject(ActivatedRoute);
 
     fixture = TestBed.createComponent(DespesasListComponent);
     component = fixture.componentInstance;

@@ -12,7 +12,11 @@
     </thead>
     <tbody>
         <tr *ngFor="let despesa of despesasProgramadas | async">
-            <td>{{despesa.nome}}</td>
+            <td>
+                <a [routerLink]="['/despesas/edit/', despesa.id]">
+                    {{despesa.nome}}
+                </a>
+            </td>
             <td>{{despesa.diaVencimento}}</td>
             <td *ngFor="let mes of meses">
 
@@ -31,6 +35,8 @@
 <a routerLink="/despesas/edit">Criar</a>
 |
 <a routerLink="/despesas/edit/1">Editar</a>
+|
+<a routerLink="/despesas/pagamentos">Pagamentos</a>
 
 <ng-template #inputPagto let-mes="mes" let-despesa="despesa" let-name="name">
         <input type="number" requires step="0.01" [name]="name" [(ngModel)]="pagamentos[mes][despesa.id].valor" />
