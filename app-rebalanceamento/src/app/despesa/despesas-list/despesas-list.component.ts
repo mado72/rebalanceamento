@@ -37,7 +37,7 @@ export class DespesasListComponent implements OnInit {
   }
 
   get despesasProgramadas() {
-    return this.despesasService.getDespesas();
+    return this.despesasService.obterDespesas();
   }
 
   get mesCorrente() {

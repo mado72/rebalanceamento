@@ -21,7 +21,7 @@ export class DespesasService {
    *
    * @returns {Observable<DespesaProgramada[]>} Um Observable que emite o array de todas as despesas.
    */
-  getDespesas(): Observable<DespesaProgramada[]> {
+  obterDespesas(): Observable<DespesaProgramada[]> {
     return of(this.despesas);
   }
 

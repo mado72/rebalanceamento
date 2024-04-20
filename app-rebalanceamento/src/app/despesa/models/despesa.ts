@@ -31,6 +31,27 @@ export interface Pagamento {
     dataPagamento: Date | null;
 }
 
+export class PagamentoProgramado implements Pagamento {
+
+    id: number | null = null;
+    valor!: number;
+    despesa!: DespesaProgramada;
+    dataPagamento: Date | null = null;
+    pago: boolean = false;
+    
+    get despesaProgramadaId(): number {
+        return this.despesa.id || 0;
+    }
+
+    get pagamentoAntecipado(): boolean {
+        return this.despesa != null && this.despesa.diaVencimento < 20; 
+    }
+
+    // get pago(): boolean {
+    //     return this.dataPagamento != null;
+    // }
+}
+
 export interface EntityDespesa {
     despesaProgramadaId: number;
     mes: Meses;

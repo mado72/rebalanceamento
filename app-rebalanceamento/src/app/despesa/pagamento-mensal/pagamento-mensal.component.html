@@ -27,7 +27,15 @@
             </td>
         </tr>
     </tbody>
+    <tfoot>
+        <td></td>
+        <td></td>
+        <td>{{total.pagamentos | number:'1.2-2'}}</td>
+        <td>{{total.pagamentosAntecipados | number:'1.2-2'}}</td>
+        <td>{{total.pagamentosRestantes | number:'1.2-2'}}</td>
+        <td>{{total.pagos | number:'1.2-2'}}</td>
+</tfoot>
 </table>
-<pre>
+<pre class="debug">
     {{pagamentos | json}}
 </pre>
