@@ -33,7 +33,7 @@ export class PagamentoMensalComponent implements OnInit {
     const month = DateTime.now().month;
     this.mes = Object.values(Meses)[month - 1];
 
-    this.obterListaPagamentos();
+    this.recuperarPagamentos();
   }
 
   /**
@@ -43,11 +43,11 @@ export class PagamentoMensalComponent implements OnInit {
    * Este método recupera as despesas e os pagamentos programados para o mês atual,
    * e gera pagamentos para despesas sem pagamentos programados.
    */
-  private obterListaPagamentos() {
+  recuperarPagamentos() {
     const despesasOb = this.despesasService.obterDespesas();
     const pagamentosOb = this.pagamentosService.obterPagamentosMes(this.mes);
 
-    // Gera paagamentos para as despesas sem pagamentos programados
+    // Gera pagamentos para as despesas sem pagamentos programados
     combineLatest([despesasOb, pagamentosOb])
       .pipe(map(value => {
 
@@ -62,6 +62,7 @@ export class PagamentoMensalComponent implements OnInit {
               valor: item.valor,
               despesa: item,
               dataPagamento: new Date(),
+              pago: false
             }) as Pagamento;
           });
 
@@ -74,22 +75,30 @@ export class PagamentoMensalComponent implements OnInit {
                valor: pagto.valor,
                despesa: despesa,
                dataPagamento: pagto.dataPagamento,
+               pago: pagto.pago
              });
  
           });
 
       }))
       .subscribe(pagamentos => {
+        this.ordenarPagamentos(pagamentos);
         this.pagamentos = pagamentos;
       });
+  }
+    
+  ordenarPagamentos(pagamentos: {despesa: DespesaProgramada, pago: boolean}[]) {
+    return pagamentos.sort((a,b)=>{
+      return a.pago != b.pago ? (a.pago ? 1 : -1) : a.despesa.diaVencimento - b.despesa.diaVencimento;
+    });
   }
 
   get total() : Total {
     return this.pagamentos.map(pagamento=>{
       return {
         pagamentos: pagamento.valor,
-        pagamentosAntecipados: pagamento.despesa.diaVencimento < 20? pagamento.valor : 0,
-        pagamentosRestantes: pagamento.despesa.diaVencimento < 20? 0 : pagamento.valor,
+        pagamentosAntecipados: !pagamento.pago &&  pagamento.despesa.diaVencimento < 20? pagamento.valor : 0,
+        pagamentosRestantes: !pagamento.pago ? pagamento.despesa.diaVencimento < 20? 0 : pagamento.valor : 0,
         pagos: pagamento.pago ? pagamento.valor : 0
       } as Total
     })
@@ -105,5 +114,12 @@ export class PagamentoMensalComponent implements OnInit {
 
   valorAlterado(pagamento: PagamentoProgramadoItem) {
     pagamento.alterado = true;
+  }
+
+  salvarAlteracoes() {
+    this.pagamentosService.salvarPagamentos(this.pagamentos).subscribe(status=>{
+      console.log(status);
+      this.recuperarPagamentos();
+    })
   }
 }

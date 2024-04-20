@@ -29,6 +29,7 @@ export interface Pagamento {
     despesaProgramadaId: number;
     valor: number;
     dataPagamento: Date | null;
+    pago: boolean;
 }
 
 export class PagamentoProgramado implements Pagamento {
@@ -45,6 +46,10 @@ export class PagamentoProgramado implements Pagamento {
 
     get pagamentoAntecipado(): boolean {
         return this.despesa != null && this.despesa.diaVencimento < 20; 
+    }
+
+    get diaVencimento() {
+        return this.despesa.diaVencimento
     }
 
     // get pago(): boolean {

@@ -18,8 +18,16 @@
                 <input type="number" step="0.01" name="registro" [(ngModel)]="registro.valor" 
                     (ngModelChange)="valorAlterado(registro)" [id]="'registro_'+idx"/>
             </td>
-            <td><span *ngIf="registro.despesa.diaVencimento < 20">{{registro.valor}}</span></td>
-            <td><span *ngIf="registro.despesa.diaVencimento >= 20">{{registro.valor}}</span></td>
+            <td>
+                <ng-container *ngIf="!registro.pago">
+                    <span *ngIf="registro.despesa.diaVencimento < 20">{{registro.valor}}</span>
+                </ng-container>
+            </td>
+            <td>
+                <ng-container *ngIf="!registro.pago">
+                    <span *ngIf="registro.despesa.diaVencimento >= 20">{{registro.valor}}</span>
+                </ng-container>
+            </td>
             <td>
                 <!-- {{registro.dataPagamento | date:'dd/MM'}} -->
                 <input type="checkbox" name="pago" [(ngModel)]="registro.pago" 
@@ -36,6 +44,14 @@
         <td>{{total.pagos | number:'1.2-2'}}</td>
 </tfoot>
 </table>
+<form>
+    <button type="submit" class="btn btn-success" (click)="salvarAlteracoes() ">
+        Salvar
+    </button>
+    <button type="button" class="btn btn-success" (click)="recuperarPagamentos()">
+        Atualizar
+    </button>
+</form>
 <pre class="debug">
     {{pagamentos | json}}
 </pre>
