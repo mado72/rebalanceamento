@@ -84,7 +84,6 @@ describe('PagamentoMensalComponent', () => {
 
     pagamentosProgramados = component.ordenarPagamentos(pagamentosProgramados) as PagamentoProgramado[];
     aux = pagamentosProgramados.map(item=>item.id);
-    console.log(aux)
     expect(aux).toEqual([1,3,5,2,4]);
   })
 });

@@ -12,7 +12,7 @@ import { PagamentoMensalComponent } from './pagamento-mensal/pagamento-mensal.co
   declarations: [
     DespesasListComponent,
     DespesaFormComponent,
-    PagamentoMensalComponent
+    PagamentoMensalComponent,
   ],
   imports: [
     CommonModule,
