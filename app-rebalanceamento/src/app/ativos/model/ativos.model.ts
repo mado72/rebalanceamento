@@ -22,9 +22,10 @@ export class CarteiraImpl implements Carteira {
     nome: string;
     items: CarteiraItem[];
     
-    constructor(nome: string) {
+    constructor(nome: string, id?: number, items?: CarteiraItem[]) {
         this.nome = nome;
-        this.items = [];
+        this.id = id;
+        this.items = items || [];
     }
 
     get total(): number {

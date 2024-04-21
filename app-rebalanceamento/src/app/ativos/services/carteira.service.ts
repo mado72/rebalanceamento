@@ -7,14 +7,30 @@ import { Ativo, CarteiraImpl, CarteiraItem } from '../model/ativos.model';
 })
 export class CarteiraService {
   
-  private carteira!: CarteiraImpl;
+  private sequence = 0;
+
+  private carteiras = new Array<CarteiraImpl>(); 
 
   constructor() { }
 
-  obterCarteira(): Observable<CarteiraImpl> {
-    if (this.carteira) return of(this.carteira);
-    this.carteira = Object.assign(new CarteiraImpl(""), CARTEIRA);
-    return of(this.carteira)
+  listarCarteiras(): Observable<CarteiraImpl[]> {
+    if (this.carteiras.length < 1) {
+      const carteiras = new Array<CarteiraImpl>();
+      for (let i = 0; i < 8; i++) {
+        const id = ++this.sequence;
+        carteiras.push(new CarteiraImpl(`Ativo ${id}`))
+      }
+      this.carteiras = carteiras;
+    }
+    return of(this.carteiras);
+  }
+
+  obterCarteira(id: number): Observable<CarteiraImpl | undefined> {
+    if (!this.carteiras) return of(undefined);
+    return of(this.carteiras.find(carteira => carteira.id === id));
+  }
+  obterAtivos(carteira: CarteiraImpl): Observable<CarteiraItem[]> {
+    return of(Object.assign([] as CarteiraItem[], CARTEIRA.items))
   }
 
   private buildItemsCarteira(ativos: Ativo[]): CarteiraItem[] {

@@ -8,32 +8,14 @@ import { CarteiraService } from '../services/carteira.service';
   styleUrls: ['./carteira-list.component.scss']
 })
 export class CarteiraListComponent implements OnInit{
-  carteira?: CarteiraImpl;
+  carteiras!: CarteiraImpl[];
 
   constructor(private carteiraService: CarteiraService) {
 
   }
 
   ngOnInit(): void {
-      this.carteiraService.obterCarteira().subscribe(carteira=>this.carteira = carteira);
-  }
-
-  get totais() {
-    return this.carteira?.items
-      .map(item=>{
-        return {
-          resultado: item.ativo.vlInicial ? item.ativo.valor - item.ativo.vlInicial: 0,
-          vlInicial: item.ativo.vlInicial || 0,
-          valor: item.ativo.valor
-        }
-      })
-      .reduce((acc, item)=>{
-        return {
-          resultado: acc.resultado + item.resultado,
-          vlInicial: (acc.vlInicial + item.vlInicial || 0),
-          valor: acc.valor + item.valor
-        }
-      })
+      this.carteiraService.listarCarteiras().subscribe(carteiras=>this.carteiras = carteiras);
   }
 
 }
