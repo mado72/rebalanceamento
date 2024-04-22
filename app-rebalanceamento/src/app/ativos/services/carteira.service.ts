@@ -8,9 +8,9 @@ import { Ativo, CarteiraImpl, CarteiraItem } from '../model/ativos.model';
 export class CarteiraService {
   
   private sequence = 0;
-
+  
   private carteiras = new Array<CarteiraImpl>(); 
-
+  
   constructor() { 
     const carteiras = new Array<CarteiraImpl>();
     for (let i = 0; i < 8; i++) {
@@ -33,7 +33,7 @@ export class CarteiraService {
   obterAtivos(carteira: CarteiraImpl): Observable<CarteiraItem[]> {
     return of(Object.assign([] as CarteiraItem[], CARTEIRA.items))
   }
-
+  
   salvarCarteira(carteira: CarteiraImpl): Observable<CarteiraImpl> {
     if (!carteira.id) {
       carteira.id = ++this.sequence;
@@ -42,8 +42,14 @@ export class CarteiraService {
     
     return of(carteira);
   }
-
+  
   atualizarCarteira(carteira: CarteiraImpl): Observable<boolean> {
+    return of(true);
+  }
+  excluirCarteira(carteira: CarteiraImpl) {
+    const idx = this.carteiras.indexOf(carteira);
+    if (idx < 0) return of(false);
+    this.carteiras.splice(idx, 1);
     return of(true);
   }
 

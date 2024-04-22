@@ -30,7 +30,7 @@ export class CarteiraListComponent implements OnInit{
   }
 
   excluirCarteira(carteira: CarteiraImpl) {
-    console.log(`Excluir ${carteira.nome}`);
+    this.carteiraService.excluirCarteira(carteira).subscribe();
   }
 
   cancelarEdicaoCarteira() {
