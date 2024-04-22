@@ -14,7 +14,6 @@ export class CarteiraComponent implements OnInit {
   carteiraItem?: CarteiraItem;
 
   constructor(private carteiraService: CarteiraService) {
-
   }
 
   ngOnInit(): void {
@@ -56,6 +55,10 @@ export class CarteiraComponent implements OnInit {
     this.carteira.items = this.carteira.items.filter(item=>item.ativo.sigla!== carteiraItem.ativo.sigla);
     delete this.carteiraItem;
     // this.carteiraService.excluirCarteiraItem(carteiraItem).subscribe(()=>this.carteira.items = this.carteira.items.filter(item=>item.ativo.sigla!== carteiraItem.ativo.sigla));
+  }
+
+  cancelarEdicaoAtivo() {
+    delete this.carteiraItem;
   }
 
   ativoSelecionado(carteiraItem: CarteiraItem): void {
