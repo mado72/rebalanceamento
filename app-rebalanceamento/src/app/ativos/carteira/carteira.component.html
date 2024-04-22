@@ -1,58 +1,16 @@
-<table *ngIf="!! carteira">
-    <thead>
-        <tr>
-            <td colspan="10" style="background-color: black; color: white">Carteira: {{carteira.nome}}</td>
-        </tr>
-        <tr>
-            <td>Ativo</td>
-            <td>Qtd. Atual</td>
-            <td>Vl. Inicial</td>
-            <td>Vl. Unitário</td>
-            <td>Patrimônio</td>
-            <td>Resultado</td>
-            <td>%Resultado</td>
-            <td>% Objetivo</td>
-            <td>% Atual</td>
-            <td>% Diferença</td>
-        </tr>
-    </thead>
-    <tbody>
-        <tr *ngFor="let registro of carteira.items; index as index">
-            <td>{{registro.ativo.ativo}}</td>
-            <td>{{registro.ativo.qtd}}</td>
-            <td>{{registro.ativo.vlInicial | number:'1.2-2'}}</td>
-            <td>{{registro.ativo.vlUnitario | number:'1.2-2'}}</td>
-            <td>{{registro.ativo.valor | number:'1.2-2'}}</td>
-            <td>
-                <ng-container *ngIf="registro.ativo.vlInicial">
-                    {{registro.ativo.valor - registro.ativo.vlInicial | number:'1.2-2'}}
-                </ng-container>
-            </td>
-            <td>
-                <ng-container *ngIf="registro.ativo.vlInicial">
-                    {{(registro.ativo.valor - registro.ativo.vlInicial) / registro.ativo.vlInicial | percent:'1.2-2'}}
-                </ng-container>
-            </td>
-            <td>{{registro.objetivo | percent:'1.2-2'}}</td>
-            <td>{{carteira.percAtivo(registro) | percent:'1.2-2'}}</td>
-            <td>{{carteira.diferenca(registro) | percent:'1.2-2'}}</td>
-        </tr>
-    </tbody>
-    <tfoot>
-        <tr style="border-top: 1px solid black; background-color: silver;">
-            <td></td>
-            <td></td>
-            <td>{{totais.vlInicial | number: '1.2-2'}}</td>
-            <td></td>
-            <td>{{totais.valor | number: '1.2-2'}}</td>
-            <td>{{totais.resultado | number: '1.2-2'}}</td>
-            <td></td>
-            <td></td>
-            <td></td>
-            <td></td>
-        </tr>
-    </tfoot>
-</table>
+<ng-container *ngIf="!!carteira">
+    <app-carteira-lista-ativos [carteira]="carteira" (itemClicado)="ativoSelecionado($event)"/>
+    <button type="button" class="btn btn-primary" (click)="adicionarAtivo()">
+        Adicionar
+    </button>
+    <ng-container *ngIf="!! carteiraItem">
+        <app-carteira-item-form 
+            [carteiraItem]="carteiraItem" 
+            (excluido)="excluirAtivo($event)"
+            (salvo)="salvarCarteiraItem($event)"
+            />
+    </ng-container>
+</ng-container>
 <pre class="debug">
     {{carteira | json}}
 </pre>

@@ -1,9 +1,49 @@
+export enum TipoAtivo {
+    REFERENCIA = "REFERENCIA",
+    ACAO = "ACAO",
+    FII = "FII",
+    RF = "RF",
+    FUNDO = "FUNDO",
+    CRIPTO = "CRIPTO",
+    CASHBACK = "CASHBACK"
+}
+
+export enum Moeda {
+    REAL = "REAL",
+    DOLAR = "DOLAR",
+    USDT = "USDT"
+}
+
+export const MoedaSigla= {
+    REAL: "R$",
+    DOLAR: "$",
+    USDT: "USDT"
+}
+
+export enum TipoObjetoReferenciado {
+    DESPESA = "DESPESA",
+    PAGAMENTO = "PAGAMENTO",
+    CONTA = "CONTA",
+    CARTEIRA = "CARTEIRA",
+}
+
+export interface ObjetoReferenciado {
+    id?: any,
+    tipoRef: TipoObjetoReferenciado
+}
+
 export interface Ativo {
-    ativo: string,
+    sigla: string,
     qtd: number,
     vlUnitario: number,
     vlInicial?: number,
-    valor: number
+    valor: number,
+    tipoAtivo?: TipoAtivo,
+    moeda?: Moeda,
+    referencia?: {
+        tipo: TipoObjetoReferenciado,
+        id: number
+    }
 }
 
 export interface CarteiraItem {
@@ -11,16 +51,29 @@ export interface CarteiraItem {
     objetivo: number,
 }
 
-export interface Carteira {
-    id?: number,
+export interface Carteira extends ObjetoReferenciado {
     nome: string,
     items: CarteiraItem[],
+}
+
+export class AtivoImpl implements Ativo {
+    tipoAtivo?: TipoAtivo | undefined;
+    id?: any;
+    sigla!: string;
+    qtd!: number;
+    vlUnitario!: number;
+    vlInicial?: number | undefined;
+    valor!: number;
+    tipo?: TipoAtivo | undefined;
+    moeda?: Moeda | undefined;
+    referencia?: { tipo: TipoObjetoReferenciado; id: number; } | undefined;
 }
 
 export class CarteiraImpl implements Carteira {
     id?: number;
     nome: string;
     items: CarteiraItem[];
+    readonly tipoRef = TipoObjetoReferenciado.CARTEIRA;
     
     constructor(nome: string, id?: number, items?: CarteiraItem[]) {
         this.nome = nome;

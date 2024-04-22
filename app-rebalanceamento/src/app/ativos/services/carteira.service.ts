@@ -40,14 +40,14 @@ export class CarteiraService {
 
 const CARTEIRA = Object.assign(new CarteiraImpl("Ativos"), {
   items: [
-    { ativo: { ativo: 'AAPL', qtd: 100, vlInicial: 10000, vlUnitario: 150, valor: 15000 }, objetivo: 0.10 },
-    { ativo: { ativo: 'GOOGL', qtd: 50, vlUnitario: 250, valor: 12500 }, objetivo: 0.10 },
-    { ativo: { ativo: 'MSFT', qtd: 75, vlUnitario: 200, valor: 15000 }, objetivo: 0.10 },
-    { ativo: { ativo: 'AMZN', qtd: 25, vlUnitario: 300, valor: 7500 }, objetivo: 0.10 },
-    { ativo: { ativo: 'TSLA', qtd: 50, vlUnitario: 500, valor: 25000 }, objetivo: 0.10 },
-    { ativo: { ativo: 'NVDA', qtd: 75, vlUnitario: 225, valor: 16875 }, objetivo: 0.10 },
-    { ativo: { ativo: 'FB', qtd: 100, vlUnitario: 175, valor: 17500 }, objetivo: 0.20 },
-    { ativo: { ativo: 'INTC', qtd: 25, vlUnitario: 40, valor: 10000 }, objetivo: 0.20 }
+    { ativo: { sigla: 'AAPL', qtd: 100, vlInicial: 10000, vlUnitario: 150, valor: 15000 }, objetivo: 0.10 },
+    { ativo: { sigla: 'GOOGL', qtd: 50, vlUnitario: 250, valor: 12500 }, objetivo: 0.10 },
+    { ativo: { sigla: 'MSFT', qtd: 75, vlUnitario: 200, valor: 15000 }, objetivo: 0.10 },
+    { ativo: { sigla: 'AMZN', qtd: 25, vlUnitario: 300, valor: 7500 }, objetivo: 0.10 },
+    { ativo: { sigla: 'TSLA', qtd: 50, vlUnitario: 500, valor: 25000 }, objetivo: 0.10 },
+    { ativo: { sigla: 'NVDA', qtd: 75, vlUnitario: 225, valor: 16875 }, objetivo: 0.10 },
+    { ativo: { sigla: 'FB', qtd: 100, vlUnitario: 175, valor: 17500 }, objetivo: 0.20 },
+    { ativo: { sigla: 'INTC', qtd: 25, vlUnitario: 40, valor: 10000 }, objetivo: 0.20 }
   ]
 })
 

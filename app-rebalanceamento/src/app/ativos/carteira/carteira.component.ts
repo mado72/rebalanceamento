@@ -1,5 +1,5 @@
 import { Component, Input, OnInit } from '@angular/core';
-import { CarteiraImpl } from '../model/ativos.model';
+import { CarteiraImpl, CarteiraItem } from '../model/ativos.model';
 import { CarteiraService } from '../services/carteira.service';
 
 @Component({
@@ -9,7 +9,9 @@ import { CarteiraService } from '../services/carteira.service';
 })
 export class CarteiraComponent implements OnInit {
   
-  _carteira!: CarteiraImpl;
+  private _carteira!: CarteiraImpl;
+
+  carteiraItem?: CarteiraItem;
 
   constructor(private carteiraService: CarteiraService) {
 
@@ -30,29 +32,34 @@ export class CarteiraComponent implements OnInit {
     }
   }
 
-  get totais() {
-    const totais = (this.carteira.items || [])
-      .map(item => {
-        return {
-          resultado: item.ativo.vlInicial ? item.ativo.valor - item.ativo.vlInicial : 0,
-          vlInicial: item.ativo.vlInicial || 0,
-          valor: item.ativo.valor
-        };
-      });
-    if (!totais.length) {
-      return {
-        resultado: 0,
+  salvarCarteiraItem(carteiraItem: CarteiraItem) {
+    console.log(carteiraItem);
+    delete this.carteiraItem;
+    this.carteira.items.find(item=>item.ativo.sigla === carteiraItem.ativo.sigla) || this.carteira.items.push(carteiraItem);
+    // this.carteiraService.salvarCarteiraItem(item).subscribe(item=>this.carteiraItem = item);
+  }
+
+  adicionarAtivo() {
+    this.carteiraItem = {
+      ativo: {
+        sigla: "",
+        qtd: 0,
+        valor: 0,
+        vlUnitario: 0,
         vlInicial: 0,
-        valor: 0
-      }
+      },
+      objetivo: 0,
     }
-    return totais.reduce((acc, item)=>{
-        return {
-          resultado: acc.resultado + item.resultado,
-          vlInicial: (acc.vlInicial + item.vlInicial || 0),
-          valor: acc.valor + item.valor
-        }
-      })
+  }
+
+  excluirAtivo(carteiraItem: CarteiraItem): void {
+    this.carteira.items = this.carteira.items.filter(item=>item.ativo.sigla!== carteiraItem.ativo.sigla);
+    delete this.carteiraItem;
+    // this.carteiraService.excluirCarteiraItem(carteiraItem).subscribe(()=>this.carteira.items = this.carteira.items.filter(item=>item.ativo.sigla!== carteiraItem.ativo.sigla));
+  }
+
+  ativoSelecionado(carteiraItem: CarteiraItem): void {
+    this.carteiraItem = carteiraItem;
   }
 
 }
