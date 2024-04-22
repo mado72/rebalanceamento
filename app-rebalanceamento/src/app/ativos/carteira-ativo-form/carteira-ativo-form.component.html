@@ -18,18 +18,6 @@
   <label for="objetivo">Objetivo:</label>
   <input type="number" id="objetivo" name="objetivo" [(ngModel)]="carteiraItem.objetivo">
 
-  <label for="tipo">Tipo</label>
-  <select name="tipo" id="tipo" [(ngModel)]="carteiraItem.ativo.tipoAtivo">
-    <option [value]="undefined">Selecione...</option>
-    <option [value]="tipo" *ngFor="let tipo of tipos">{{tipo}}</option>
-  </select>
-
-  <label for="moeda">Moeda</label>
-  <select name="moeda" id="moeda" [(ngModel)]="carteiraItem.ativo.moeda">
-    <option [value]="undefined">Selecione...</option>
-    <option [value]="moeda" *ngFor="let moeda of moedas">{{sigla(moeda)}} {{moeda}}</option>
-  </select>
-
   <button type="submit" class="btn btn-success">Salvar</button>
   <button type="button" class="btn" (click)="onCancelar()">Cancelar</button>
   <button type="button" class="btn btn-danger" (click)="onExcluir()">Excluir</button>

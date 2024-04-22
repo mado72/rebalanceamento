@@ -1,6 +1,6 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 
-import { CarteiraListComponent } from './carteira-list.component';
+import { CarteiraListComponent } from './carteira-portifolio.component';
 
 describe('CarteiraListComponent', () => {
   let component: CarteiraListComponent;

@@ -1,6 +1,13 @@
 import { Component, EventEmitter, Input, Output } from '@angular/core';
 import { CarteiraImpl, CarteiraItem } from '../model/ativos.model';
 
+/**
+ * @description
+ * Componente para exibição e interação com uma lista de ativos em uma carteira.
+ *
+ * @class CarteiraListaAtivosComponent
+ * @implements {OnInit}
+ */
 @Component({
   selector: 'app-carteira-lista-ativos',
   templateUrl: './carteira-lista-ativos.component.html',
@@ -8,23 +15,58 @@ import { CarteiraImpl, CarteiraItem } from '../model/ativos.model';
 })
 export class CarteiraListaAtivosComponent {
 
-  private _carteira! : CarteiraImpl;
+  private _carteira!: CarteiraImpl;
 
+  /**
+   * @description
+   * Emite um evento quando um item de ativo é clicado.
+   *
+   * @type {EventEmitter<CarteiraItem>}
+   * @memberof CarteiraListaAtivosComponent
+   */
   @Output() itemClicado = new EventEmitter<CarteiraItem>();
 
+  /**
+   * @description
+   * Obtém o objeto da carteira.
+   *
+   * @returns {CarteiraImpl}
+   * @memberof CarteiraListaAtivosComponent
+   */
   get carteira(): CarteiraImpl {
     return this._carteira;
   }
-  
+
+  /**
+   * @description
+   * O objeto da carteira a ser exibido e interagido.
+   *
+   * @type {CarteiraImpl}
+   * @memberof CarteiraListaAtivosComponent
+   */
   @Input()
   set carteira(carteira: CarteiraImpl) {
     this._carteira = carteira;
   }
 
+  /**
+   * @description
+   * Seleciona um item de ativo e emite um evento com o item selecionado.
+   *
+   * @param {CarteiraItem} item - O item de ativo a ser selecionado.
+   * @memberof CarteiraListaAtivosComponent
+   */
   selecionar(item: CarteiraItem): void {
     this.itemClicado.emit(item);
   }
 
+  /**
+   * @description
+   * Calcula os totais de resultados, objetivos, valores iniciais e atuais da carteira.
+   *
+   * @returns {any} - Um objeto contendo os totais de resultados, objetivos, valores iniciais e atuais.
+   * @memberof CarteiraListaAtivosComponent
+   */
   get totais() {
     const totais = (this.carteira.items || [])
       .map(item => {

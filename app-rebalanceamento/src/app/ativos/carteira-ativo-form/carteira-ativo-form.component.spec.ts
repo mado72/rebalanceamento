@@ -1,18 +1,18 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 
-import { CarteiraItemFormComponent } from './carteira-item-form.component';
+import { CarteiraAtivoFormComponent } from './carteira-ativo-form.component';
 
 describe('CarteiraItemFormComponent', () => {
-  let component: CarteiraItemFormComponent;
-  let fixture: ComponentFixture<CarteiraItemFormComponent>;
+  let component: CarteiraAtivoFormComponent;
+  let fixture: ComponentFixture<CarteiraAtivoFormComponent>;
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      declarations: [ CarteiraItemFormComponent ]
+      declarations: [ CarteiraAtivoFormComponent ]
     })
     .compileComponents();
 
-    fixture = TestBed.createComponent(CarteiraItemFormComponent);
+    fixture = TestBed.createComponent(CarteiraAtivoFormComponent);
     component = fixture.componentInstance;
     fixture.detectChanges();
   });

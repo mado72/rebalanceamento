@@ -2,7 +2,10 @@
 <table *ngIf="!! carteira">
     <thead>
         <tr>
-            <td colspan="10" style="background-color: black; color: white">Carteira: {{carteira.nome}}</td>
+            <td colspan="10" style="background-color: black; color: white">
+                Carteira: {{carteira.nome}}
+                ({{carteira.tipoAtivo}} - {{carteira.moeda}})
+            </td>
         </tr>
         <tr>
             <td>Ativo</td>

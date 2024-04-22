@@ -11,17 +11,18 @@ export class CarteiraService {
 
   private carteiras = new Array<CarteiraImpl>(); 
 
-  constructor() { }
+  constructor() { 
+    const carteiras = new Array<CarteiraImpl>();
+    for (let i = 0; i < 8; i++) {
+      const id = ++this.sequence;
+      const carteira = new CarteiraImpl(`Ativo ${id}`);
+      carteira.id = id;
+      carteiras.push(carteira)
+    }
+    this.carteiras = carteiras;
+  }
 
   listarCarteiras(): Observable<CarteiraImpl[]> {
-    if (this.carteiras.length < 1) {
-      const carteiras = new Array<CarteiraImpl>();
-      for (let i = 0; i < 8; i++) {
-        const id = ++this.sequence;
-        carteiras.push(new CarteiraImpl(`Ativo ${id}`))
-      }
-      this.carteiras = carteiras;
-    }
     return of(this.carteiras);
   }
 
@@ -31,6 +32,19 @@ export class CarteiraService {
   }
   obterAtivos(carteira: CarteiraImpl): Observable<CarteiraItem[]> {
     return of(Object.assign([] as CarteiraItem[], CARTEIRA.items))
+  }
+
+  salvarCarteira(carteira: CarteiraImpl): Observable<CarteiraImpl> {
+    if (!carteira.id) {
+      carteira.id = ++this.sequence;
+      this.carteiras.push(carteira);
+    }
+    
+    return of(carteira);
+  }
+
+  atualizarCarteira(carteira: CarteiraImpl): Observable<boolean> {
+    return of(true);
   }
 
   private buildItemsCarteira(ativos: Ativo[]): CarteiraItem[] {

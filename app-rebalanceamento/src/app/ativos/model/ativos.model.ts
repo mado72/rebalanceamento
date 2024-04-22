@@ -38,8 +38,6 @@ export interface Ativo {
     vlUnitario: number,
     vlInicial?: number,
     valor: number,
-    tipoAtivo?: TipoAtivo,
-    moeda?: Moeda,
     referencia?: {
         tipo: TipoObjetoReferenciado,
         id: number
@@ -49,6 +47,8 @@ export interface Ativo {
 export interface CarteiraItem {
     ativo: Ativo,
     objetivo: number,
+    tipoAtivo?: TipoAtivo,
+    moeda?: Moeda,
 }
 
 export interface Carteira extends ObjetoReferenciado {
@@ -74,6 +74,8 @@ export class CarteiraImpl implements Carteira {
     nome: string;
     items: CarteiraItem[];
     readonly tipoRef = TipoObjetoReferenciado.CARTEIRA;
+    tipoAtivo?: TipoAtivo;
+    moeda?: Moeda;
     
     constructor(nome: string, id?: number, items?: CarteiraItem[]) {
         this.nome = nome;
