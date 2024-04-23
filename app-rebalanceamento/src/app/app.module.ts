@@ -8,18 +8,24 @@ import { AppComponent } from './app.component';
 import { HomeComponent } from './home/home.component';
 
 import localePt from '@angular/common/locales/pt';
+import { PainelComponent } from './painel/painel.component';
+import { ContasModule } from './conta/contas.module';
+import { AtivosModule } from './ativos/ativos.module';
 
 registerLocaleData(localePt);
 
 @NgModule({
   declarations: [
     AppComponent,
-    HomeComponent
+    HomeComponent,
+    PainelComponent
   ],
   imports: [
     BrowserModule,
     FormsModule,
-    AppRoutingModule
+    AppRoutingModule,
+    ContasModule,
+    AtivosModule
   ],
   providers: [
     {provide: LOCALE_ID, useValue: 'pt' }

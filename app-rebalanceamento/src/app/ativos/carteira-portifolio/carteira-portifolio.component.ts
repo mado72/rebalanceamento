@@ -7,7 +7,7 @@ import { CarteiraService } from '../services/carteira.service';
   templateUrl: './carteira-portifolio.component.html',
   styleUrls: ['./carteira-portifolio.component.scss']
 })
-export class CarteiraListComponent implements OnInit{
+export class CarteiraPortifolioComponent implements OnInit{
   carteiras!: CarteiraImpl[];
 
   carteiraSelecionada?: CarteiraImpl;

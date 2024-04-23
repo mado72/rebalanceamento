@@ -14,7 +14,7 @@ export enum Moeda {
     USDT = "USDT"
 }
 
-export const MoedaSigla= {
+export const MoedaSigla = {
     REAL: "R$",
     DOLAR: "$",
     USDT: "USDT"

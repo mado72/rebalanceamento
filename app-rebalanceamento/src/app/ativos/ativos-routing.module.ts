@@ -1,6 +1,6 @@
 import { NgModule } from '@angular/core';
 import { RouterModule, Routes } from '@angular/router';
-import { CarteiraListComponent } from './carteira-portifolio/carteira-portifolio.component';
+import { CarteiraPortifolioComponent } from './carteira-portifolio/carteira-portifolio.component';
 
 const routes: Routes = [{
   path: '',
@@ -8,7 +8,7 @@ const routes: Routes = [{
   pathMatch: 'full'
 },{
   path: "carteiras",
-  component: CarteiraListComponent
+  component: CarteiraPortifolioComponent
 }];
 
 @NgModule({

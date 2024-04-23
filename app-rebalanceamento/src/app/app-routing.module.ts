@@ -15,6 +15,12 @@ const routes: Routes = [{
 },{
   path: 'ativos',
   loadChildren: () => import('./ativos/ativos.module').then(m => m.AtivosModule)
+},{
+  path: 'contas',
+  loadChildren: () => import('./conta/contas.module').then(m => m.ContasModule)
+},{
+  path: 'patrimonio',
+  loadChildren: () => import('./patrimonio/patrimonio.module').then(m => m.PatrimonioModule)
 }];
 
 @NgModule({

@@ -1,0 +1,40 @@
+<p>saldos works!</p>
+
+<button (click)="adicionarConta()">Adicionar Conta</button>
+<table>
+    <thead>
+        <tr>
+            <td>Conta</td>
+            <td>Saldo Atual</td>
+            <td>Vl. Real</td>
+        </tr>
+    </thead>
+    <tbody>
+        <tr *ngFor="let conta of contas">
+            <td>
+                <a [routerLink]="['/contas/edit/', conta.id]" (click)="editarConta(conta)">
+                    {{conta.nome}}
+                </a>
+                {{conta.nome}}
+            </td>
+            <td>{{sigla(conta.moeda)}} {{conta.saldo | number:'1.2-2'}}</td>
+            <td>R$ {{conta.saldo | number:'1.2-2'}}</td>
+        </tr>
+    </tbody>
+    <tfoot>
+        <tr>
+            <td></td>
+            <td></td>
+            <td>{{totais.total | number:'1.2-2'}}</td>
+        </tr>
+    </tfoot>
+</table>
+
+<ng-container *ngIf="!!contaSelecionada">
+    <app-conta-form 
+        [conta]="contaSelecionada"
+        (onCancelar)="cancelar()"
+        (onSalvarConta)="salvarConta($event)"
+        (onExcluirConta)="excluirConta($event)"
+    />
+</ng-container>
