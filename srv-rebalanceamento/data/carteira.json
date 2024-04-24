@@ -1,296 +1,79 @@
 [
-    {
-      "_id": "6628a8b34d30aecc81117b7b",
-      "carteira": 2,
-      "ativo": 1,
-      "objetivo": 0.05
-    },
-    {
-      "_id": "6628a8b34d30aecc81117b7c",
-      "carteira": 2,
-      "ativo": 2,
-      "objetivo": 0.1
-    },
-    {
-      "_id": "6628a8b34d30aecc81117b7d",
-      "carteira": 2,
-      "ativo": 3,
-      "objetivo": 0.05
-    },
-    {
-      "_id": "6628a8b34d30aecc81117b7e",
-      "carteira": 2,
-      "ativo": 4,
-      "objetivo": 0.1
-    },
-    {
-      "_id": "6628a8b34d30aecc81117b7f",
-      "carteira": 2,
-      "ativo": 5,
-      "objetivo": 0.1
-    },
-    {
-      "_id": "6628a8b34d30aecc81117b80",
-      "carteira": 2,
-      "ativo": 6,
-      "objetivo": 0.1
-    },
-    {
-      "_id": "6628a8b34d30aecc81117b81",
-      "carteira": 2,
-      "ativo": 7,
-      "objetivo": 0.1
-    },
-    {
-      "_id": "6628a8b34d30aecc81117b82",
-      "carteira": 2,
-      "ativo": 8,
-      "objetivo": 0.15
-    },
-    {
-      "_id": "6628a8b34d30aecc81117b83",
-      "carteira": 2,
-      "ativo": 9,
-      "objetivo": 0.1
-    },
-    {
-      "_id": "6628a8b34d30aecc81117b84",
-      "carteira": 2,
-      "ativo": 10,
-      "objetivo": 0.05
-    },
-    {
-      "_id": "6628a8b34d30aecc81117b85",
-      "carteira": 2,
-      "ativo": 13,
-      "objetivo": 0.1
-    },
-    {
-      "_id": "6628a8b34d30aecc81117b86",
-      "carteira": 2,
-      "ativo": 14,
-      "objetivo": 0
-    },
-    {
-      "_id": "6628a8b34d30aecc81117b87",
-      "carteira": 3,
-      "ativo": 11,
-      "objetivo": 0
-    },
-    {
-      "_id": "6628a8b34d30aecc81117b88",
-      "carteira": 3,
-      "ativo": 12,
-      "objetivo": 0
-    },
-    {
-      "_id": "6628a8b34d30aecc81117b89",
-      "carteira": 4,
-      "ativo": 15,
-      "objetivo": 0.1625
-    },
-    {
-      "_id": "6628a8b34d30aecc81117b8a",
-      "carteira": 4,
-      "ativo": 16,
-      "objetivo": 0.1625
-    },
-    {
-      "_id": "6628a8b34d30aecc81117b8b",
-      "carteira": 4,
-      "ativo": 17,
-      "objetivo": 0.1625
-    },
-    {
-      "_id": "6628a8b34d30aecc81117b8c",
-      "carteira": 4,
-      "ativo": 18,
-      "objetivo": 0.1625
-    },
-    {
-      "_id": "6628a8b34d30aecc81117b8d",
-      "carteira": 4,
-      "ativo": 19,
-      "objetivo": 0.175
-    },
-    {
-      "_id": "6628a8b34d30aecc81117b8e",
-      "carteira": 4,
-      "ativo": 20,
-      "objetivo": 0.175
-    },
-    {
-      "_id": "6628a8b34d30aecc81117b8f",
-      "carteira": 4,
-      "ativo": 21,
-      "objetivo": 0
-    },
-    {
-      "_id": "6628a8b34d30aecc81117b90",
-      "carteira": 4,
-      "ativo": 22,
-      "objetivo": 0
-    },
-    {
-      "_id": "6628a8b34d30aecc81117b91",
-      "carteira": 4,
-      "ativo": 23,
-      "objetivo": 0
-    },
-    {
-      "_id": "6628a8b34d30aecc81117b92",
-      "carteira": 5,
-      "ativo": 24,
-      "objetivo": 0.1
-    },
-    {
-      "_id": "6628a8b34d30aecc81117b93",
-      "carteira": 5,
-      "ativo": 25,
-      "objetivo": 0.1
-    },
-    {
-      "_id": "6628a8b34d30aecc81117b94",
-      "carteira": 5,
-      "ativo": 26,
-      "objetivo": 0.1
-    },
-    {
-      "_id": "6628a8b34d30aecc81117b95",
-      "carteira": 5,
-      "ativo": 27,
-      "objetivo": 0.1
-    },
-    {
-      "_id": "6628a8b34d30aecc81117b96",
-      "carteira": 5,
-      "ativo": 28,
-      "objetivo": 0.1
-    },
-    {
-      "_id": "6628a8b34d30aecc81117b97",
-      "carteira": 5,
-      "ativo": 29,
-      "objetivo": 0.1
-    },
-    {
-      "_id": "6628a8b34d30aecc81117b98",
-      "carteira": 6,
-      "ativo": 30,
-      "objetivo": 0.08
-    },
-    {
-      "_id": "6628a8b34d30aecc81117b99",
-      "carteira": 6,
-      "ativo": 31,
-      "objetivo": 0.08
-    },
-    {
-      "_id": "6628a8b34d30aecc81117b9a",
-      "carteira": 6,
-      "ativo": 32,
-      "objetivo": 0.08
-    },
-    {
-      "_id": "6628a8b34d30aecc81117b9b",
-      "carteira": 6,
-      "ativo": 33,
-      "objetivo": 0.08
-    },
-    {
-      "_id": "6628a8b34d30aecc81117b9c",
-      "carteira": 7,
-      "ativo": 34,
-      "objetivo": 0.08
-    },
-    {
-      "_id": "6628a8b34d30aecc81117b9d",
-      "carteira": 8,
-      "ativo": 35,
-      "objetivo": 0.6
-    },
-    {
-      "_id": "6628a8b34d30aecc81117b9e",
-      "carteira": 8,
-      "ativo": 36,
-      "objetivo": 0.4
-    },
-    {
-      "_id": "6628a8b34d30aecc81117b9f",
-      "carteira": 8,
-      "ativo": 37,
-      "objetivo": 0
-    },
-    {
-      "_id": "6628a8b34d30aecc81117ba0",
-      "carteira": 9,
-      "ativo": 38,
-      "objetivo": 0.1
-    },
-    {
-      "_id": "6628a8b34d30aecc81117ba1",
-      "carteira": 9,
-      "ativo": 39,
-      "objetivo": 0.15
-    },
-    {
-      "_id": "6628a8b34d30aecc81117ba2",
-      "carteira": 9,
-      "ativo": 40,
-      "objetivo": 0.15
-    },
-    {
-      "_id": "6628a8b34d30aecc81117ba3",
-      "carteira": 9,
-      "ativo": 41,
-      "objetivo": 0.15
-    },
-    {
-      "_id": "6628a8b34d30aecc81117ba4",
-      "carteira": 9,
-      "ativo": 42,
-      "objetivo": 0.15
-    },
-    {
-      "_id": "6628a8b34d30aecc81117ba5",
-      "carteira": 9,
-      "ativo": 43,
-      "objetivo": 0.15
-    },
-    {
-      "_id": "6628a8b34d30aecc81117ba6",
-      "carteira": 9,
-      "ativo": 44,
-      "objetivo": 0.15
-    },
-    {
-      "_id": "6628a8b34d30aecc81117ba7",
-      "carteira": 10,
-      "ativo": 49,
-      "objetivo": 0
-    },
-    {
-      "_id": "6628a8b34d30aecc81117ba8",
-      "carteira": 11,
-      "ativo": 45,
-      "objetivo": 0.25
-    },
-    {
-      "_id": "6628a8b34d30aecc81117ba9",
-      "carteira": 11,
-      "ativo": 46,
-      "objetivo": 0.25
-    },
-    {
-      "_id": "6628a8b34d30aecc81117baa",
-      "carteira": 11,
-      "ativo": 47,
-      "objetivo": 0.25
-    },
-    {
-      "_id": "6628a8b34d30aecc81117bab",
-      "carteira": 11,
-      "ativo": 48,
-      "objetivo": 0.25
-    }
-  ]
+  {
+    "_id": 1,
+    "carteira": "Reserva",
+    "classe": "MOEDA",
+    "objetivo": 0.16,
+    "moeda": "REAL"
+  },
+  {
+    "_id": 2,
+    "carteira": "Plena - Ações",
+    "classe": "ACOES",
+    "objetivo": 0.35,
+    "moeda": "REAL"
+  },
+  {
+    "_id": 3,
+    "carteira": "Preferidas",
+    "classe": "ACOES",
+    "objetivo": 0,
+    "moeda": "REAL"
+  },
+  {
+    "_id": 4,
+    "carteira": "Plena - FII",
+    "classe": "FII",
+    "objetivo": 0.17,
+    "moeda": "REAL"
+  },
+  {
+    "_id": 5,
+    "carteira": "Plena - Stock",
+    "classe": "INTERNACIONAL",
+    "objetivo": 0.06,
+    "moeda": "DOLAR"
+  },
+  {
+    "_id": 6,
+    "carteira": "Plena - REIT",
+    "classe": "INTERNACIONAL",
+    "objetivo": 0.04,
+    "moeda": "DOLAR"
+  },
+  {
+    "_id": 7,
+    "carteira": "Plena - Bond",
+    "classe": "INTERNACIONAL",
+    "objetivo": 0.02,
+    "moeda": "DOLAR"
+  },
+  {
+    "_id": 8,
+    "carteira": "Crypto",
+    "classe": "CRYPTO",
+    "objetivo": 0.04,
+    "moeda": "DOLAR"
+  },
+  {
+    "_id": 9,
+    "carteira": "AltCoins",
+    "classe": "ALTCOINS",
+    "objetivo": 0.01,
+    "moeda": "USDT"
+  },
+  {
+    "_id": 10,
+    "carteira": "CDB",
+    "classe": "RF",
+    "objetivo": 0.06,
+    "moeda": "REAL"
+  },
+  {
+    "_id": 11,
+    "carteira": "Fundo",
+    "classe": "RF",
+    "objetivo": 0.09,
+    "moeda": "REAL"
+  }
+]

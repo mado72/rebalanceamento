@@ -128,3 +128,5 @@ dist
 .yarn/build-state.yml
 .yarn/install-state.gz
 .pnp.*
+srv-rebalanceamento/nodejs-server-server-generated (1).zip
+srv-rebalanceamento/nodejs-server-server-generated.zip
