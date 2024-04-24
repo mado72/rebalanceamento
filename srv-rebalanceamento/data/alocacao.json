@@ -1,0 +1,79 @@
+[
+  {
+    "_id": 1,
+    "carteira": "Reserva",
+    "tipo": "Reserva",
+    "objetivo": 0.16,
+    "moeda": "REAL"
+  },
+  {
+    "_id": 2,
+    "carteira": "Plena - Ações",
+    "tipo": "ACOES",
+    "objetivo": 0.35,
+    "moeda": "REAL"
+  },
+  {
+    "_id": 3,
+    "carteira": "Preferidas",
+    "tipo": "ACOES",
+    "objetivo": 0,
+    "moeda": "REAL"
+  },
+  {
+    "_id": 4,
+    "carteira": "Plena - FII",
+    "tipo": "FII",
+    "objetivo": 0.17,
+    "moeda": "REAL"
+  },
+  {
+    "_id": 5,
+    "carteira": "Plena - Stock",
+    "tipo": "Internacional",
+    "objetivo": 0.06,
+    "moeda": "DOLAR"
+  },
+  {
+    "_id": 6,
+    "carteira": "Plena - REIT",
+    "tipo": "Internacional",
+    "objetivo": 0.04,
+    "moeda": "DOLAR"
+  },
+  {
+    "_id": 7,
+    "carteira": "Plena - Bond",
+    "tipo": "Internacional",
+    "objetivo": 0.02,
+    "moeda": "DOLAR"
+  },
+  {
+    "_id": 8,
+    "carteira": "Crypto",
+    "tipo": "Crypto",
+    "objetivo": 0.04,
+    "moeda": "DOLAR"
+  },
+  {
+    "_id": 9,
+    "carteira": "AltCoins",
+    "tipo": "AltCoins",
+    "objetivo": 0.01,
+    "moeda": "USDT"
+  },
+  {
+    "_id": 10,
+    "carteira": "CDB",
+    "tipo": "Renda Fixa",
+    "objetivo": 0.06,
+    "moeda": "REAL"
+  },
+  {
+    "_id": 11,
+    "carteira": "Fundo",
+    "tipo": "Renda Fixa",
+    "objetivo": 0.09,
+    "moeda": "REAL"
+  }
+]
