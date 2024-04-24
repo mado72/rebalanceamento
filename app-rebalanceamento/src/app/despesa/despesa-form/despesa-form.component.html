@@ -1,0 +1,16 @@
+<form (ngSubmit)="onSubmit()">
+    <div class="form-group">
+        <label for="paga">Despesa:</label>
+        <input type="text" class="form-control" id="nome" [(ngModel)]="despesa.nome" name="nome">
+    </div>
+    <div class="form-group">
+        <label for="valor">Valor:</label>
+        <input type="number" class="form-control" id="valor" [(ngModel)]="despesa.valor" required name="valor" step=".01">
+    </div>
+    <div class="form-group">
+        <label for="diaVencimento">Dia de Vencimento:</label>
+        <input type="number" class="form-control" id="diaVencimento" [(ngModel)]="despesa.diaVencimento" min="1"
+            max="31" required name="diaNascimento">
+    </div>
+    <button type="submit" class="btn btn-primary">Ação {{despesa.id != null? 'Salvar' : 'Adicionar'}}</button>
+</form>

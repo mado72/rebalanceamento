@@ -1,0 +1,28 @@
+<p>carteira-portifolio works!</p>
+<button (click)="adicionarCarteira()">Adicionar Carteira</button>
+<ng-container *ngIf="!!carteiraSelecionada && !carteiraSelecionada.id">
+    <app-carteira-form
+        [carteira]="carteiraSelecionada"
+        (onCancelar)="cancelarEdicaoCarteira()"
+        (onSalvar)="salvarEdicaoCarteira()"
+    />
+</ng-container>
+<ng-container *ngFor="let carteira of carteiras">
+    <ng-container *ngIf="carteiraSelecionada != carteira">
+        <app-carteira-ativo
+            [carteira]="carteira"
+            (onEditarCarteira)="editarCarteira($event)"
+            (onExcluirCarteira)="excluirCarteira($event)"
+            />
+    </ng-container>
+    <ng-container *ngIf="carteiraSelecionada === carteira">
+        <app-carteira-form
+            [carteira]="carteiraSelecionada"
+            (onCancelar)="cancelarEdicaoCarteira()"
+            (onSalvar)="salvarEdicaoCarteira()"
+        />
+    </ng-container>
+</ng-container>
+<pre class="debug">
+    {{carteiras | json}}
+</pre>

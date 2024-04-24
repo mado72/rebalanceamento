@@ -1,0 +1,63 @@
+<p>carteira-lista-ativos works!</p>
+<table *ngIf="!! carteira">
+    <thead>
+        <tr>
+            <td colspan="10" style="background-color: black; color: white">
+                Carteira: {{carteira.nome}}
+                ({{carteira.tipoAtivo}} - {{carteira.moeda}})
+            </td>
+        </tr>
+        <tr>
+            <td>Ativo</td>
+            <td>Qtd. Atual</td>
+            <td>Vl. Inicial</td>
+            <td>Vl. Unitário</td>
+            <td>Patrimônio</td>
+            <td>Resultado</td>
+            <td>%Resultado</td>
+            <td>% Objetivo</td>
+            <td>% Atual</td>
+            <td>% Diferença</td>
+        </tr>
+    </thead>
+    <tbody>
+        <tr *ngFor="let registro of carteira.items; index as index">
+            <td>
+                <a (click)="selecionar(registro)" href="javascript:void(0)">
+                    <b>{{registro.ativo.sigla}}</b>
+                </a>
+            </td>
+            <td>{{registro.qtd}}</td>
+            <td>{{registro.vlInicial | number:'1.2-2'}}</td>
+            <td>{{registro.vlUnitario | number:'1.2-2'}}</td>
+            <td>{{registro.valor | number:'1.2-2'}}</td>
+            <td>
+                <ng-container *ngIf="registro.vlInicial">
+                    {{registro.valor - registro.vlInicial | number:'1.2-2'}}
+                </ng-container>
+            </td>
+            <td>
+                <ng-container *ngIf="registro.vlInicial">
+                    {{(registro.valor - registro.vlInicial) / registro.vlInicial | percent:'1.2-2'}}
+                </ng-container>
+            </td>
+            <td>{{registro.objetivo | percent:'1.2-2'}}</td>
+            <td>{{carteira.percAtivo(registro) | percent:'1.2-2'}}</td>
+            <td>{{carteira.diferenca(registro) | percent:'1.2-2'}}</td>
+        </tr>
+    </tbody>
+    <tfoot>
+        <tr style="border-top: 1px solid black; background-color: silver;">
+            <td></td>
+            <td></td>
+            <td>{{totais.vlInicial | number: '1.2-2'}}</td>
+            <td></td>
+            <td>{{totais.valor | number: '1.2-2'}}</td>
+            <td>{{totais.resultado | number: '1.2-2'}}</td>
+            <td></td>
+            <td>{{totais.objetivo | percent: '1.2-2'}}</td>
+            <td></td>
+            <td></td>
+        </tr>
+    </tfoot>
+</table>

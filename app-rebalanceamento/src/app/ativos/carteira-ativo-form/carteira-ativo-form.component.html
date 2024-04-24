@@ -1,0 +1,27 @@
+<p>carteira-ativo-form works!</p>
+<form (ngSubmit)="onSubmit()">
+  <label for="ativo">Ativo:</label>
+  <input type="text" id="ativo" name="ativo" [(ngModel)]="carteiraAtivo.ativo.sigla">
+
+  <label for="qtd">Quantidade:</label>
+  <input type="number" id="qtd" name="qtd" [(ngModel)]="carteiraAtivo.qtd">
+
+  <label for="vlUnitario">Valor Unitário:</label>
+  <input type="number" id="vlUnitario" name="vlUnitario" [(ngModel)]="carteiraAtivo.vlUnitario">
+
+  <label for="vlInicial">Valor Inicial (opcional):</label>
+  <input type="number" id="vlInicial" name="vlInicial" [(ngModel)]="carteiraAtivo.vlInicial">
+
+  <label for="valor">Valor:</label>
+  <input type="number" id="valor" name="valor" [(ngModel)]="carteiraAtivo.valor">
+
+  <label for="objetivo">Objetivo:</label>
+  <input type="number" id="objetivo" name="objetivo" [(ngModel)]="carteiraAtivo.objetivo">
+
+  <button type="submit" class="btn btn-success">Salvar</button>
+  <button type="button" class="btn" (click)="onCancelar()">Cancelar</button>
+  <button type="button" class="btn btn-danger" (click)="onExcluir()">Excluir</button>
+</form>
+<pre>
+  {{carteiraAtivo | json}}
+</pre>

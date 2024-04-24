@@ -1,0 +1,20 @@
+<div *ngIf="!!carteira">
+    <button type="button" (click)="editarCarteira()">Editar Carteira</button>
+    <button type="button" (click)="excluirCarteira()">Excluir Carteira</button>
+
+    <app-carteira-lista-ativos [carteira]="carteira" (itemClicado)="ativoSelecionado($event)"/>
+    <button type="button" class="btn btn-primary" (click)="adicionarAtivo()">
+        Adicionar Ativo
+    </button>
+    <ng-container *ngIf="!! carteiraAtivoSelecionado">
+        <app-carteira-ativo-form 
+            [carteiraAtivo]="carteiraAtivoSelecionado" 
+            (excluido)="excluirAtivo($event)"
+            (cancelado)="cancelarEdicaoAtivo()"
+            (salvo)="salvarCarteiraItem($event)"
+            />
+    </ng-container>
+</div>
+<pre class="debug">
+    {{carteira | json}}
+</pre>

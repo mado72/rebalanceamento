@@ -1,0 +1,23 @@
+<p>carteira-form works!</p>
+
+<label for="nome">Carteira</label>
+<input type="text" name="nome" id="nome" [(ngModel)]="carteira.nome">
+
+<label for="tipo">Tipo</label>
+<select name="tipo" id="tipo" [(ngModel)]="carteira.tipoAtivo">
+  <option [value]="undefined">Selecione...</option>
+  <option [value]="tipo" *ngFor="let tipo of tipos">{{tipo}}</option>
+</select>
+
+<label for="moeda">Moeda</label>
+<select name="moeda" id="moeda" [(ngModel)]="carteira.moeda">
+  <option [value]="undefined">Selecione...</option>
+  <option [value]="moeda" *ngFor="let moeda of moedas">{{sigla(moeda)}} {{moeda}}</option>
+</select>
+
+<button (click)="salvarEdicao()">
+    Salvar
+</button>
+<button (click)="cancelarEdicao()">
+    Cancelar
+</button>
