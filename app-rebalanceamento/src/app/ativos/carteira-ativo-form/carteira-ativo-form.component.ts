@@ -1,5 +1,5 @@
 import { Component, EventEmitter, Input, Output } from '@angular/core';
-import { CarteiraItem } from '../model/ativos.model';
+import { CarteiraAtivo } from '../model/ativos.model';
 
 @Component({
   selector: 'app-carteira-ativo-form',
@@ -18,28 +18,37 @@ export class CarteiraAtivoFormComponent {
    * @description
    * Propriedade de entrada que recebe os dados iniciais do item da carteira.
    *
-   * @type {CarteiraItem}
+   * @type {CarteiraAtivo}
    * @memberof CarteiraAtivoFormComponent
    */
-  @Input() carteiraItem: CarteiraItem;
+  _carteiraAtivo!: CarteiraAtivo;
+
+  get carteiraAtivo(): CarteiraAtivo {
+    return this._carteiraAtivo;
+  }
+
+  @Input()
+  set carteiraAtivo(value: CarteiraAtivo) {
+    this._carteiraAtivo = Object.assign({} as CarteiraAtivo, value);
+  }
 
   /**
    * @description
    * EventEmitter que emite os dados do item da carteira salvo.
    *
-   * @type {EventEmitter<CarteiraItem>}
+   * @type {EventEmitter<CarteiraAtivo>}
    * @memberof CarteiraAtivoFormComponent
    */
-  @Output() salvo = new EventEmitter<CarteiraItem>();
+  @Output() salvo = new EventEmitter<CarteiraAtivo>();
 
   /**
    * @description
    * EventEmitter que emite os dados do item da carteira excluído.
    *
-   * @type {EventEmitter<CarteiraItem>}
+   * @type {EventEmitter<CarteiraAtivo>}
    * @memberof CarteiraAtivoFormComponent
    */
-  @Output() excluido = new EventEmitter<CarteiraItem>();
+  @Output() excluido = new EventEmitter<CarteiraAtivo>();
 
   /**
    * @description
@@ -57,25 +66,14 @@ export class CarteiraAtivoFormComponent {
    * @memberof CarteiraAtivoFormComponent
    */
   constructor() {
-    this.carteiraItem = {
-      ativo: {
-        sigla: "",
-        qtd: 0,
-        vlUnitario: 0,
-        vlInicial: 0,
-        valor: 0
-      },
+    this.carteiraAtivo = {
+      sigla: "",
+      qtd: 0,
+      vlUnitario: 0,
+      vlInicial: 0,
+      valor: 0,
       objetivo: 0,
     };
-  }
-
-  /**
-   * @description
-   * Hook de vida que é chamado após as propriedades de dados vinculadas do diretivo terem sido inicializadas.
-   *
-   * @memberof CarteiraAtivoFormComponent
-   */
-  ngOnInit(): void {
   }
 
   /**
@@ -85,7 +83,7 @@ export class CarteiraAtivoFormComponent {
    * @memberof CarteiraAtivoFormComponent
    */
   onSubmit(): void {
-    this.salvo.emit(this.carteiraItem);
+    this.salvo.emit(this.carteiraAtivo);
   }
 
   /**
@@ -105,7 +103,7 @@ export class CarteiraAtivoFormComponent {
    * @memberof CarteiraAtivoFormComponent
    */
   onExcluir(): void {
-    this.excluido.emit(this.carteiraItem);
+    this.excluido.emit(this.carteiraAtivo);
   }
 
 }

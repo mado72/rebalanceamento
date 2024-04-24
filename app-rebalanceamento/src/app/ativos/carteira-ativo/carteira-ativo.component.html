@@ -6,9 +6,9 @@
     <button type="button" class="btn btn-primary" (click)="adicionarAtivo()">
         Adicionar Ativo
     </button>
-    <ng-container *ngIf="!! carteiraItem">
+    <ng-container *ngIf="!! carteiraAtivoSelecionado">
         <app-carteira-ativo-form 
-            [carteiraItem]="carteiraItem" 
+            [carteiraAtivo]="carteiraAtivoSelecionado" 
             (excluido)="excluirAtivo($event)"
             (cancelado)="cancelarEdicaoAtivo()"
             (salvo)="salvarCarteiraItem($event)"

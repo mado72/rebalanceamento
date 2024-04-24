@@ -34,7 +34,25 @@ export interface ObjetoReferenciado {
 
 export interface Ativo {
     sigla: string,
+    tipoAtivo?: TipoAtivo,
+    moeda?: Moeda,
+}
+
+export class AtivoImpl implements Ativo {
+    sigla: string;
+    tipoAtivo?: TipoAtivo | undefined;
+    moeda?: Moeda | undefined;
+    
+    constructor(sigla: string, tipoAtivo?: TipoAtivo | undefined, moeda?: Moeda | undefined) {
+        this.sigla = sigla;
+        this.tipoAtivo = tipoAtivo;
+        this.moeda = moeda;
+    }
+}
+
+export interface CarteiraAtivo {
     qtd: number,
+    ativo: Ativo,
     vlUnitario: number,
     vlInicial?: number,
     valor: number,
@@ -42,54 +60,35 @@ export interface Ativo {
         tipo: TipoObjetoReferenciado,
         id: number
     }
-}
-
-export interface CarteiraItem {
-    ativo: Ativo,
     objetivo: number,
-    tipoAtivo?: TipoAtivo,
-    moeda?: Moeda,
 }
 
 export interface Carteira extends ObjetoReferenciado {
     nome: string,
-    items: CarteiraItem[],
-}
-
-export class AtivoImpl implements Ativo {
-    tipoAtivo?: TipoAtivo | undefined;
-    id?: any;
-    sigla!: string;
-    qtd!: number;
-    vlUnitario!: number;
-    vlInicial?: number | undefined;
-    valor!: number;
-    tipo?: TipoAtivo | undefined;
-    moeda?: Moeda | undefined;
-    referencia?: { tipo: TipoObjetoReferenciado; id: number; } | undefined;
+    items: CarteiraAtivo[],
 }
 
 export class CarteiraImpl implements Carteira {
     id?: number;
     nome: string;
-    items: CarteiraItem[];
+    items: CarteiraAtivo[];
     readonly tipoRef = TipoObjetoReferenciado.CARTEIRA;
     tipoAtivo?: TipoAtivo;
     moeda?: Moeda;
     
-    constructor(nome: string, id?: number, items?: CarteiraItem[]) {
+    constructor(nome: string, id?: number, items?: CarteiraAtivo[]) {
         this.nome = nome;
         this.id = id;
         this.items = items || [];
     }
 
     get total(): number {
-        return this.items.map(item => item.ativo.valor).reduce((a, b) => a + b, 0);
+        return this.items.map(item => item.valor).reduce((a, b) => a + b, 0);
     }
-    percAtivo(item: CarteiraItem): number {
-        return item.ativo.valor / this.total;
+    percAtivo(item: CarteiraAtivo): number {
+        return item.valor / this.total;
     }
-    diferenca(item: CarteiraItem): number {
+    diferenca(item: CarteiraAtivo): number {
         return this.percAtivo(item) - item.objetivo;
     }
 }

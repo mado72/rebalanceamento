@@ -1,5 +1,5 @@
 import { Component, EventEmitter, Input, Output } from '@angular/core';
-import { CarteiraImpl, CarteiraItem } from '../model/ativos.model';
+import { CarteiraImpl, CarteiraAtivo } from '../model/ativos.model';
 
 /**
  * @description
@@ -21,10 +21,10 @@ export class CarteiraListaAtivosComponent {
    * @description
    * Emite um evento quando um item de ativo é clicado.
    *
-   * @type {EventEmitter<CarteiraItem>}
+   * @type {EventEmitter<CarteiraAtivo>}
    * @memberof CarteiraListaAtivosComponent
    */
-  @Output() itemClicado = new EventEmitter<CarteiraItem>();
+  @Output() itemClicado = new EventEmitter<CarteiraAtivo>();
 
   /**
    * @description
@@ -53,10 +53,10 @@ export class CarteiraListaAtivosComponent {
    * @description
    * Seleciona um item de ativo e emite um evento com o item selecionado.
    *
-   * @param {CarteiraItem} item - O item de ativo a ser selecionado.
+   * @param {CarteiraAtivo} item - O item de ativo a ser selecionado.
    * @memberof CarteiraListaAtivosComponent
    */
-  selecionar(item: CarteiraItem): void {
+  selecionar(item: CarteiraAtivo): void {
     this.itemClicado.emit(item);
   }
 
@@ -71,10 +71,10 @@ export class CarteiraListaAtivosComponent {
     const totais = (this.carteira.items || [])
       .map(item => {
         return {
-          resultado: item.ativo.vlInicial ? item.ativo.valor - item.ativo.vlInicial : 0,
+          resultado: item.vlInicial ? item.valor - item.vlInicial : 0,
           objetivo: item.objetivo,
-          vlInicial: item.ativo.vlInicial || 0,
-          valor: item.ativo.valor
+          vlInicial: item.vlInicial || 0,
+          valor: item.valor
         };
       });
     if (!totais.length) {

@@ -27,18 +27,18 @@
                     <b>{{registro.ativo.sigla}}</b>
                 </a>
             </td>
-            <td>{{registro.ativo.qtd}}</td>
-            <td>{{registro.ativo.vlInicial | number:'1.2-2'}}</td>
-            <td>{{registro.ativo.vlUnitario | number:'1.2-2'}}</td>
-            <td>{{registro.ativo.valor | number:'1.2-2'}}</td>
+            <td>{{registro.qtd}}</td>
+            <td>{{registro.vlInicial | number:'1.2-2'}}</td>
+            <td>{{registro.vlUnitario | number:'1.2-2'}}</td>
+            <td>{{registro.valor | number:'1.2-2'}}</td>
             <td>
-                <ng-container *ngIf="registro.ativo.vlInicial">
-                    {{registro.ativo.valor - registro.ativo.vlInicial | number:'1.2-2'}}
+                <ng-container *ngIf="registro.vlInicial">
+                    {{registro.valor - registro.vlInicial | number:'1.2-2'}}
                 </ng-container>
             </td>
             <td>
-                <ng-container *ngIf="registro.ativo.vlInicial">
-                    {{(registro.ativo.valor - registro.ativo.vlInicial) / registro.ativo.vlInicial | percent:'1.2-2'}}
+                <ng-container *ngIf="registro.vlInicial">
+                    {{(registro.valor - registro.vlInicial) / registro.vlInicial | percent:'1.2-2'}}
                 </ng-container>
             </td>
             <td>{{registro.objetivo | percent:'1.2-2'}}</td>

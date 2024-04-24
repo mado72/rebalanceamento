@@ -12,7 +12,17 @@ export class CarteiraFormComponent {
   
   @Output() onCancelar = new EventEmitter();
 
-  @Input() carteira!: CarteiraImpl;
+  _carteira!: CarteiraImpl;
+
+  get carteira(): CarteiraImpl {
+    return this._carteira;
+  }
+  
+  @Input()
+  set carteira(value: CarteiraImpl) {
+    this._carteira = Object.assign({} as CarteiraImpl, value);
+  }
+
   salvarEdicao() {
     this.onSalvar.emit();
   }

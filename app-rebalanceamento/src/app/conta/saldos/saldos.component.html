@@ -15,7 +15,6 @@
                 <a [routerLink]="['/contas/edit/', conta.id]" (click)="editarConta(conta)">
                     {{conta.nome}}
                 </a>
-                {{conta.nome}}
             </td>
             <td>{{sigla(conta.moeda)}} {{conta.saldo | number:'1.2-2'}}</td>
             <td>R$ {{conta.saldo | number:'1.2-2'}}</td>
