@@ -1,11 +1,26 @@
-export interface DespesaProgramada {
-    id: number | null;
-    nome: string;
-    valor: number;
-    diaVencimento: number;
+import { DateTime } from "luxon";
+
+export interface IDespesaRecorrente {
+    id?: string; // Identificador único da despesa (quando persistida)
+    descricao: string; // Descrição da despesa
+    valor: number; // Valor da despesa
+    periodicidade: Periodicidade; // Periodicidade da despesa (mensal, trimestral, anual, etc.)
+    dataVencimento: Date; // Data de vencimento da despesa
+    dataFinal?: Date // Data final da recorrência (opcional)
+    dataPagamento?: Date; // Data em que a despesa foi paga (opcional)
+    origem?: string; // Identifica se a despesa surgiu de uma despesa anterior (opcional)
 }
 
-export enum Meses {
+export enum Periodicidade {
+    SEMANAL = "SEMANAL",
+    QUINZENAL = "QUINZENAL",
+    MENSAL = "MENSAL",
+    TRIMESTRAL = "TRIMESTRAL",
+    SEMESTRAL = "SEMESTRAL",
+    ANUAL = "ANUAL"
+}
+
+export enum Mes {
     JANEIRO = 'JANEIRO',
     FEVEREIRO = 'FEVEREIRO',
     MARCO = 'MARCO',
@@ -20,52 +35,85 @@ export enum Meses {
     DEZEMBRO = 'DEZEMBRO'
 }
 
-export type Mes = keyof Meses;
-
-export type TMes = [m: Mes];
-
-export interface Pagamento {
-    id: number | null;
-    despesaProgramadaId: number;
-    valor: number;
-    dataPagamento: Date | null;
-    pago: boolean;
+export function obterMes(mesStr: string): Mes | undefined {
+    return Object.values(Mes).find(item => item == mesStr);
 }
 
-export class PagamentoProgramado implements Pagamento {
-
-    id: number | null = null;
+export class DespesaRecorrenteImpl implements IDespesaRecorrente {
+    id?: string;
+    descricao!: string;
     valor!: number;
-    despesa!: DespesaProgramada;
-    dataPagamento: Date | null = null;
-    pago: boolean = false;
-    
-    get despesaProgramadaId(): number {
-        return this.despesa.id || 0;
+    periodicidade!: Periodicidade;
+    dataVencimento!: Date;
+    dataPagamento?: Date | undefined;
+    dataFinal?: Date | undefined;
+    origem?: string | undefined;
+
+    constructor(valorInicial: IDespesaRecorrente) {
+        this.id = valorInicial.id;
+        this.descricao = valorInicial.descricao;
+        this.valor = valorInicial.valor;
+        this.periodicidade = valorInicial.periodicidade;
+        this.dataVencimento = valorInicial.dataVencimento;
+        this.dataPagamento = valorInicial.dataPagamento;
+        this.dataFinal = valorInicial.dataFinal;
+        this.origem = valorInicial.origem;
     }
 
-    get pagamentoAntecipado(): boolean {
-        return this.despesa != null && this.despesa.diaVencimento < 20; 
+    get diaVencimento(): number {
+        return this.dataVencimento.getDate();
     }
 
-    get diaVencimento() {
-        return this.despesa.diaVencimento
+    get mesVencimento(): Mes | undefined{
+        const mesVencimento = DateTime.fromJSDate(this.dataVencimento).month;
+        return Object.values(Mes)[mesVencimento-1];
     }
 
-    // get pago(): boolean {
-    //     return this.dataPagamento != null;
-    // }
-}
+    public programacaoDatas(ateData: Date) {
+        const datas = new Array<Date>();
+        let dataFinalPeriodo = DateTime.fromJSDate(ateData).endOf("day");
+        if (!!this.dataFinal && dataFinalPeriodo > DateTime.fromJSDate(this.dataFinal)) {
+            dataFinalPeriodo = DateTime.fromJSDate(this.dataFinal).endOf("day");
+        }
 
-export interface EntityDespesa {
-    despesaProgramadaId: number;
-    mes: Meses;
-    ano?: number;
-    valor: number;
-    pago: boolean;
-}
+        let data = DateTime.fromJSDate(this.dataVencimento).startOf("day");
 
-export function obterMes(mesStr: string): Meses | undefined {
-    return Object.values(Meses).find(item=>item==mesStr);
+        while (data < dataFinalPeriodo) {
+            datas.push(data.toJSDate());
+            switch (this.periodicidade) {
+                case Periodicidade.SEMANAL:
+                    data = data.plus({ weeks: 1 });
+                    break;
+                case Periodicidade.QUINZENAL:
+                    data = data.plus({ weeks: 2 });
+                    break;
+                case Periodicidade.MENSAL:
+                    data = data.plus({ months: 1 });
+                    break;
+                case Periodicidade.TRIMESTRAL:
+                    data = data.plus({ months: 3 });
+                    break;
+                case Periodicidade.ANUAL:
+                    data = data.plus({ years: 1 });
+                    break;
+            }
+        }
+
+        return datas;
+    }
+
+    public programacaoDespesas(ateData: Date) {
+        const datas = this.programacaoDatas(ateData);
+        const despesas = datas.filter(data=>data != this.dataVencimento).map(data => {
+            let d = new DespesaRecorrenteImpl(this);
+            d.dataVencimento = data;
+            d.id = undefined;
+            d.dataPagamento = undefined;
+            d.origem = this.id;
+            return d;
+        });
+        despesas.push(this);
+        despesas.sort((a,b)=>a.dataVencimento.getTime()-b.dataVencimento.getTime());
+        return despesas;
+    }
 }
-    

@@ -1,9 +1,10 @@
 import { Component, OnInit } from '@angular/core';
-import { DespesaProgramada, Meses, Pagamento, obterMes } from '../models/despesa.model';
 import { DateTime } from 'luxon';
+import { DespesaRecorrenteImpl, Mes } from '../models/despesa.model';
 import { DespesasService } from '../services/despesas.service';
-import { Observable, map } from 'rxjs';
-import { PagamentosService } from '../services/pagamentos.service';
+import { toArray } from 'rxjs';
+
+type Pagamentos = {[classe: string] : {[mes: string] : DespesaRecorrenteImpl | undefined}};
 
 @Component({
   selector: 'app-despesas-list',
@@ -12,37 +13,48 @@ import { PagamentosService } from '../services/pagamentos.service';
 })
 export class DespesasListComponent implements OnInit {
 
-  pagamentos : {[key: string] : {[id: string] : Pagamento}} = {};
+  pagamentos : Pagamentos = {};
 
-  constructor(private despesasService: DespesasService, private pagamentosService: PagamentosService) {
+  constructor(private despesasService: DespesasService) {
 
   }
 
   ngOnInit(): void {
-    this.pagamentosService.obterPagamentos().subscribe(auxPagamentos=>{
-      auxPagamentos.sort(()=>Math.random() - 0.5);
-      Object.keys(Meses).forEach((mes)=>{
-        if (!this.pagamentos[mes]) {
-          this.pagamentos[mes] ={};
+    const ateData = DateTime.now().endOf("year").toJSDate();
+    const meses = Object.values(Mes);
+
+    this.despesasService.obterDespesas().subscribe(despesas=>{
+      despesas = despesas.flatMap(despesa=>{
+        const projecao = despesa.programacaoDespesas(ateData);
+        projecao.push(despesa);
+        return projecao;
+      });
+      despesas.forEach(despesa=>{
+        const descricao = despesa.descricao || 'Não classificado';
+        const mesVencimento = despesa.mesVencimento;
+        if (!!mesVencimento) {
+          this.pagamentos[descricao] = this.pagamentos[descricao] || {};
+          this.pagamentos[descricao][mesVencimento] = despesa;
         }
-        auxPagamentos.forEach(pagto=>{
-          this.pagamentos[mes][pagto.despesaProgramadaId] = pagto;
-        })
       });
     });
   }
 
   get meses() {
-    return Object.keys(Meses);
+    return Object.keys(Mes);
   }
 
-  get despesasProgramadas() {
-    return this.despesasService.obterDespesas();
+  get classesDespesas() {
+    return Object.keys(this.pagamentos)
+  }
+
+  diaVencimento(classe: string) {
+    return Object.values(this.pagamentos[classe]).map(despesa=>despesa?.diaVencimento).sort((a,b)=>!a? (!b ? 0 : 1) : (!b ? -1 : a - b))[0];
   }
 
   get mesCorrente() {
     const mesCorrente = DateTime.now().month - 1;
-    return Object.values(Meses).find((v,i)=>i == mesCorrente);
+    return Object.values(Mes)[mesCorrente];
   }
 
   tipo(v: any) {
@@ -51,7 +63,7 @@ export class DespesasListComponent implements OnInit {
 
   anteriorMesCorrente(mes: any) {
     const meses = this.meses;
-    const atual = this.mesCorrente || Meses.JANEIRO;
+    const atual = this.mesCorrente || Mes.JANEIRO;
     const idxMes = meses.indexOf(mes);
     const idxAtual = meses.indexOf(atual);
     return idxMes < idxAtual;

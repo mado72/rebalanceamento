@@ -1,14 +1,48 @@
 import { Component, OnInit } from '@angular/core';
-import { DespesaProgramada, Mes, Meses, Pagamento, PagamentoProgramado } from '../models/despesa.model';
+import { DespesaRecorrenteImpl, IDespesaRecorrente, Mes } from '../models/despesa.model';
 import { DespesasService } from '../services/despesas.service';
 import { PagamentosService } from '../services/pagamentos.service';
 import { DateTime } from 'luxon';
 import { combineLatest, map } from 'rxjs';
 
-class PagamentoProgramadoItem extends PagamentoProgramado {
-  alterado = false;
-}
+class Pagamento extends DespesaRecorrenteImpl {
+  antecipado = false;
 
+  constructor(val: IDespesaRecorrente, antecipado: boolean) {
+    super(val);
+    this.antecipado = antecipado;
+  }
+
+  get dtPagamento() {
+    return this.dataPagamento ? DateTime.fromJSDate(this.dataPagamento) : undefined;
+  }
+
+  compare(pagamento: Pagamento): number {
+    const diffVencimento = this.diaVencimento - pagamento.diaVencimento;
+    if (diffVencimento == 0) {
+      if (!!this.dtPagamento) {
+        return ! pagamento.dtPagamento ? 1 : this.dtPagamento.diff(pagamento.dtPagamento).days;
+      }
+      return !! pagamento.dtPagamento ? -1 : this.descricao.localeCompare(pagamento.descricao);
+    }
+    return diffVencimento;
+  }
+
+  get pago() {
+    return !! this.dataPagamento;
+  }
+
+  set pago(val: boolean) {
+    
+    if (!val) {
+      this.dataPagamento = undefined;
+    }
+    else if (!this.dataPagamento) {
+      this.dataPagamento = new Date();
+    }
+
+  }
+}
 interface Total {
   pagamentos: number;
   pagamentosAntecipados: number;
@@ -22,16 +56,16 @@ interface Total {
 })
 export class PagamentoMensalComponent implements OnInit {
 
-  readonly meses = Meses;
+  readonly meses = Mes;
 
-  mes: Meses = Meses.JANEIRO;
+  mes: Mes = Mes.JANEIRO;
 
-  pagamentos: PagamentoProgramadoItem[] = [];
-  constructor(private despesasService: DespesasService, private pagamentosService: PagamentosService) { }
+  pagamentos: Pagamento[] = [];
+  constructor(private despesasService: DespesasService) { }
 
   ngOnInit(): void {
     const month = DateTime.now().month;
-    this.mes = Object.values(Meses)[month - 1];
+    this.mes = Object.values(Mes)[month - 1];
 
     this.recuperarPagamentos();
   }
@@ -44,52 +78,19 @@ export class PagamentoMensalComponent implements OnInit {
    * e gera pagamentos para despesas sem pagamentos programados.
    */
   recuperarPagamentos() {
-    const despesasOb = this.despesasService.obterDespesas();
-    const pagamentosOb = this.pagamentosService.obterPagamentosMes(this.mes);
-
-    // Gera pagamentos para as despesas sem pagamentos programados
-    combineLatest([despesasOb, pagamentosOb])
-      .pipe(map(value => {
-
-        const pagtosDespesaId = value[1].map(item => item.despesaProgramadaId);
-
-        const novosPagamentos = value[0]
-          .filter(despesa => {
-            return pagtosDespesaId.indexOf(despesa.id || -1) < 0;
-          })
-          .map(item => {
-            return Object.assign(new PagamentoProgramado(), {
-              valor: item.valor,
-              despesa: item,
-              dataPagamento: new Date(),
-              pago: false
-            }) as Pagamento;
-          });
-
-        const mapIdDespesa = Object.fromEntries(value[0].map(item=>[item.id, item]));
-        return value[1].concat(novosPagamentos)
-          .map(pagto=>{
-             const despesa = mapIdDespesa[pagto.despesaProgramadaId];
-             return Object.assign(new PagamentoProgramadoItem(), {
-               id: pagto.id,
-               valor: pagto.valor,
-               despesa: despesa,
-               dataPagamento: pagto.dataPagamento,
-               pago: pagto.pago
-             });
- 
-          });
-
-      }))
+    this.despesasService.obterDespesas()
+     .pipe(
+        map(despesas => despesas.map(d => new Pagamento(d, d.diaVencimento < 20)))
+      )
       .subscribe(pagamentos => {
         this.ordenarPagamentos(pagamentos);
         this.pagamentos = pagamentos;
       });
   }
     
-  ordenarPagamentos(pagamentos: {despesa: DespesaProgramada, pago: boolean}[]) {
+  ordenarPagamentos(pagamentos: Pagamento[]) {
     return pagamentos.sort((a,b)=>{
-      return a.pago != b.pago ? (a.pago ? 1 : -1) : a.despesa.diaVencimento - b.despesa.diaVencimento;
+      return a.compare(b)
     });
   }
 
@@ -97,9 +98,9 @@ export class PagamentoMensalComponent implements OnInit {
     return this.pagamentos.map(pagamento=>{
       return {
         pagamentos: pagamento.valor,
-        pagamentosAntecipados: !pagamento.pago &&  pagamento.despesa.diaVencimento < 20? pagamento.valor : 0,
-        pagamentosRestantes: !pagamento.pago ? pagamento.despesa.diaVencimento < 20? 0 : pagamento.valor : 0,
-        pagos: pagamento.pago ? pagamento.valor : 0
+        pagamentosAntecipados: !pagamento.dtPagamento &&  pagamento.antecipado? pagamento.valor : 0,
+        pagamentosRestantes: !pagamento.dtPagamento ? pagamento.antecipado? 0 : pagamento.valor : 0,
+        pagos: !! pagamento.dtPagamento ? pagamento.valor : 0
       } as Total
     })
     .reduce((acc, item)=>{
@@ -112,14 +113,12 @@ export class PagamentoMensalComponent implements OnInit {
      })
   }
 
-  valorAlterado(pagamento: PagamentoProgramadoItem) {
-    pagamento.alterado = true;
+  valorAlterado(pagamento: Pagamento) {
+    pagamento.dataPagamento = new Date();
   }
 
   salvarAlteracoes() {
-    this.pagamentosService.salvarPagamentos(this.pagamentos).subscribe(status=>{
-      console.log(status);
-      this.recuperarPagamentos();
-    })
+    console.warn(`Falta implementar salvar alteracoes`);
   }
+
 }

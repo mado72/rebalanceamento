@@ -11,24 +11,24 @@
         </tr>
     </thead>
     <tbody>
-        <tr *ngFor="let despesa of despesasProgramadas | async">
+        <tr *ngFor="let classe of classesDespesas">
             <td>
-                <a [routerLink]="['/despesas/edit/', despesa.id]">
-                    {{despesa.nome}}
+                <a [routerLink]="['/despesas/edit/', !! pagamentos[classe][mesCorrente]?.id ? pagamentos[classe][mesCorrente]?.id : pagamentos[classe][mesCorrente]?.origem]">
+                    {{classe}}
                 </a>
             </td>
-            <td>{{despesa.diaVencimento}}</td>
+            <td>{{diaVencimento(classe)}}</td>
             <td *ngFor="let mes of meses">
 
-                <div *ngIf="!! despesa.id">
+                <div *ngIf="!! pagamentos[classe][mes]; else DespesaUndefined">
                     <ng-container 
                         [ngTemplateOutlet]="anteriorMesCorrente(mes) ?  textPagto : inputPagto" 
-                        [ngTemplateOutletContext]="{mes,despesa,name:'pagto_'+mes+'_'+(despesa.id || 0)}">
+                        [ngTemplateOutletContext]="{mes,despesa:pagamentos[classe][mes],name:'pagto_'+mes+'_'+(pagamentos[classe][mes]?.id || 0)}">
                     </ng-container>
-            </div>
-        </td>
-    </tr>
-</tbody>
+                </div>
+            </td>
+        </tr>
+    </tbody>
 </table>
 
 <pre class="debug">{{ pagamentos | json }}</pre>
@@ -37,9 +37,13 @@
 <a routerLink="/despesas/pagamentos">Pagamentos</a>
 
 <ng-template #inputPagto let-mes="mes" let-despesa="despesa" let-name="name">
-        <input type="number" requires step="0.01" [name]="name" [(ngModel)]="pagamentos[mes][despesa.id].valor" />
+        <input type="number" requires step="0.01" [name]="name" [(ngModel)]="despesa.valor" />
 </ng-template>
 
 <ng-template #textPagto let-mes="mes" let-despesa="despesa">
-    {{ pagamentos['' + mes][despesa.id].valor | number : '1.2-2' }}
+    {{ despesa.valor | number : '1.2-2' }}
+</ng-template>
+
+<ng-template #DespesaUndefined >
+    -
 </ng-template>
