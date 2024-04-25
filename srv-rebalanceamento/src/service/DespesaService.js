@@ -118,14 +118,14 @@ exports.obterDespesasProgramadas = function() {
     var examples = {};
     examples['application/json'] = [ {
   "despesa" : "Impostos",
-  "valores" : [ 0.8008281904610115, 0.8008281904610115 ],
+  "valores" : [ 101, 102, 103, 104, 105, 106, 107, 108, 109, 110, 111, 112 ],
   "id" : 100,
   "diaPagamento" : 2
 }, {
   "despesa" : "Impostos",
-  "valores" : [ 0.8008281904610115, 0.8008281904610115 ],
+  "valores" : [ 101.1, 102.2, 103.3, 104.4, 105.5, 106.6, 107.7, 108.8, 109.9, 110, 111.1, 112.2 ],
   "id" : 100,
-  "diaPagamento" : 2
+  "diaPagamento" : 3
 } ];
     if (Object.keys(examples).length > 0) {
       resolve(examples[Object.keys(examples)[0]]);
