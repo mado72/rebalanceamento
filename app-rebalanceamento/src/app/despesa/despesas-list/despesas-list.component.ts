@@ -1,5 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import { DespesaProgramada, Meses, Pagamento, obterMes } from '../models/despesa';
+import { DespesaProgramada, Meses, Pagamento, obterMes } from '../models/despesa.model';
 import { DateTime } from 'luxon';
 import { DespesasService } from '../services/despesas.service';
 import { Observable, map } from 'rxjs';

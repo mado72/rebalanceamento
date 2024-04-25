@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { Observable, filter, map, of, tap } from 'rxjs';
-import { Meses, Pagamento, PagamentoProgramado } from '../models/despesa';
+import { Meses, Pagamento, PagamentoProgramado } from '../models/despesa.model';
 import { DespesasService } from './despesas.service';
 
 @Injectable({

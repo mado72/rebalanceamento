@@ -60,7 +60,7 @@ export class PagamentoProgramado implements Pagamento {
 export interface EntityDespesa {
     despesaProgramadaId: number;
     mes: Meses;
-    ano: number;
+    ano?: number;
     valor: number;
     pago: boolean;
 }

@@ -1,6 +1,6 @@
 import { Component, Input, OnInit } from '@angular/core';
 import { DespesasService } from '../services/despesas.service';
-import { DespesaProgramada } from '../models/despesa';
+import { DespesaProgramada } from '../models/despesa.model';
 import { ActivatedRoute } from '@angular/router';
 
 @Component({

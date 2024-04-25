@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { Observable, of } from 'rxjs';
-import { DespesaProgramada } from 'src/app/despesa/models/despesa';
+import { DespesaProgramada, EntityDespesa, Meses } from 'src/app/despesa/models/despesa.model';
 
 @Injectable({
   providedIn: 'root'
@@ -74,6 +74,27 @@ export class DespesasService {
 
 }
 
+type TipoValor = number | undefined;
+
+class DespesaEntity {
+  _id!: number;
+  despesa!: string;
+  diaPagamento!: number;
+  valores: TipoValor[] = [,,,,,,,,,,,];
+}
+
+function fromDB(db: DespesaEntity): EntityDespesa[] {
+  const meses = Object.values(Meses);
+  return db.valores.map((valor, idx) => {
+    return {
+      despesaProgramadaId: db._id,
+      mes: meses[idx],
+      diaPagamento: db.diaPagamento,
+      valor: valor || 0,
+      pago: false
+    }
+  });
+}
 
 const DESPESAS: DespesaProgramada[] = [
   {

@@ -79,7 +79,7 @@ export class CarteiraAtivoComponent {
   salvarCarteiraItem(carteiraAtivo: CarteiraAtivo) {
     console.log(carteiraAtivo);
     delete this.carteiraAtivoSelecionado;
-    const idx = this.carteira.items.findIndex(item=>item.sigla === carteiraAtivo.sigla);
+    const idx = this.carteira.items.findIndex(item=>item.ativo.sigla === carteiraAtivo.ativo.sigla);
     if (idx < 0) {
       this.carteira.items.push(carteiraAtivo);
     }
@@ -96,7 +96,9 @@ export class CarteiraAtivoComponent {
    */
   adicionarAtivo() {
     this.carteiraAtivoSelecionado = {
-      sigla: "",
+      ativo: {
+        sigla: "",
+      },
       qtd: 0,
       valor: 0,
       vlUnitario: 0,
@@ -111,7 +113,7 @@ export class CarteiraAtivoComponent {
    * @memberof CarteiraAtivoComponent
    */
   excluirAtivo(carteiraAtivo: CarteiraAtivo): void {
-    this.carteira.items = this.carteira.items.filter(item=>item.sigla!== carteiraAtivo.sigla);
+    this.carteira.items = this.carteira.items.filter(item=>item.ativo.sigla!== carteiraAtivo.ativo.sigla);
     delete this.carteiraAtivoSelecionado;
     // this.carteiraService.excluirCarteiraItem(carteiraAtivo).subscribe(()=>this.carteira.items = this.carteira.items.filter(item=>item.sigla!== carteiraAtivo.sigla));
   }

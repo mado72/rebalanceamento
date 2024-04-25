@@ -1,5 +1,5 @@
 import { Component } from '@angular/core';
-import { DespesaProgramada } from '../despesa/models/despesa';
+import { DespesaProgramada } from '../despesa/models/despesa.model';
 
 @Component({
   selector: 'app-home',

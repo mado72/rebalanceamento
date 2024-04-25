@@ -1,6 +1,6 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 
-import { PagamentoProgramado } from '../models/despesa';
+import { PagamentoProgramado } from '../models/despesa.model';
 import { PagamentoMensalComponent } from './pagamento-mensal.component';
 import { FormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';

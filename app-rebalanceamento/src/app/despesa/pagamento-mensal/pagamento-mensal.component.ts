@@ -1,5 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import { DespesaProgramada, Mes, Meses, Pagamento, PagamentoProgramado } from '../models/despesa';
+import { DespesaProgramada, Mes, Meses, Pagamento, PagamentoProgramado } from '../models/despesa.model';
 import { DespesasService } from '../services/despesas.service';
 import { PagamentosService } from '../services/pagamentos.service';
 import { DateTime } from 'luxon';
