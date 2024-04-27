@@ -1,6 +1,9 @@
 <p>despesa-programada works!</p>
 <form>
-
+    <div class="form-group">
+        <input type="checkbox" name="filtrarNaoPagos" id="filtrarNaoPagos" [(ngModel)]="filtrarNaoPagos">
+        <label for="filtrarNaoPagos">Filtrar Não Pagos</label>
+    </div>
     <table>
         <thead>
             <tr>
@@ -16,7 +19,11 @@
         </thead>
         <tbody>
             <tr *ngFor="let despesa of despesas">
-                <td>{{despesa.descricao}}</td>
+                <td>
+                    <a [routerLink]="['/despesas/edit', despesa.id]">
+                        {{despesa.descricao}}
+                    </a>
+                </td>
                 <td>{{despesa.periodicidade}}</td>
                 <td>{{despesa.dataVencimento | date:'dd/MM'}}</td>
                 <td>{{despesa.dataFinal | date:'dd/MM'}}</td>

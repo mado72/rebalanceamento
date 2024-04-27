@@ -11,15 +11,23 @@ import { Observable } from 'rxjs';
   styleUrls: ['./despesa-form.component.scss']
 })
 export class DespesaFormComponent implements OnInit {
-  despesa = new DespesaRecorrenteImpl({ 
+  despesa = new DespesaRecorrenteImpl({
+    descricao: '',
     valor: 0, 
     dataVencimento: new Date(), 
-    descricao: '',
     periodicidade: Periodicidade.MENSAL,
     liquidacao: TipoLiquidacao.CONTA
   }); // Preencha com valores iniciais
 
   constructor(private despesasService: DespesasService, private route : ActivatedRoute) {} // Injete o serviço de despesas
+
+  get categorias() {
+    return ["Custos fixos", "Conforto", "Metas", "Prazeres", "Liberdade Financeira", "Conhecimento"];
+  }
+
+  get liquidacoes() {
+    return [TipoLiquidacao.CONTA, TipoLiquidacao.CARTAO];
+  }
 
   get diaVencimento() {
     return this.despesa.diaVencimento;

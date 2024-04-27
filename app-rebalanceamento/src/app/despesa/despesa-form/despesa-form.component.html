@@ -6,26 +6,46 @@
 
     <div class="form-group">
         <label for="valor">Valor:</label>
-        <input type="number" class="form-control" id="valor" [(ngModel)]="despesa.valor" required name="valor" step=".01">
+        <input type="number" step=".01" class="form-control" id="valor" [(ngModel)]="despesa.valor" required name="valor" step=".01">
     </div>
 
     <div class="form-group">
-        <label for="diaVencimento">Dia de Vencimento:</label>
-        <input type="number" class="form-control" id="diaVencimento" [(ngModel)]="diaVencimento" min="1"
-            max="31" required name="diaNascimento">
+        <label for="dataVencimento">Data Vencimento:</label>
+        <input type="date" class="form-control" id="dataVencimento" [(ngModel)]="despesa.dataVencimento" required name="dataVencimento">
     </div>
 
     <div class="form-group">
-        <label for="periodicidade">Periodicidade</label>
-        <select name="periodicidade" id="periodicidade" [(ngModel)]="despesa.periodicidade">
-          <option [value]="undefined">Selecione...</option>
-          <option [value]="periodicidade" *ngFor="let periodicidade of periodicidades">{{periodicidade}}</option>
+        <label for="dataFinal">Data Final:</label>
+        <input type="date" class="form-control" id="dataFinal" [(ngModel)]="despesa.dataFinal" name="dataFinal">
+    </div>
+
+    <div class="form-group">
+        <label for="dataPagamento">Data Pagamento:</label>
+        <input type="date" class="form-control" id="dataPagamento" [(ngModel)]="despesa.dataPagamento" name="dataPagamento">
+    </div>
+
+    <div class="form-group">
+        <label for="categoria">Categoria:</label>
+        <select class="form-control" name="categoria" id="categoria" [(ngModel)]="despesa.categoria">
+            <option [value]="undefined">Selecione...</option>
+            <option [value]="categoria" *ngFor="let categoria of categorias">{{categoria}}</option>
         </select>
     </div>
 
     <div class="form-group">
-        <label for="dataFinal">Data Final</label>
-        <input type="date" name="dataFinal" id="dataFinal" [(ngModel)]="despesa.dataFinal">
+        <label for="liquidacao">Liquidação:</label>
+        <select class="form-control" name="liquidacao" id="liquidacao" [(ngModel)]="despesa.liquidacao">
+            <option [value]="undefined">Selecione...</option>
+            <option [value]="liquidacao" *ngFor="let liquidacao of liquidacoes">{{liquidacao}}</option>
+        </select>
+    </div>
+
+    <div class="form-group">
+        <label for="periodicidade">Periodicidade:</label>
+        <select name="periodicidade" id="periodicidade" [(ngModel)]="despesa.periodicidade">
+          <option [value]="undefined">Selecione...</option>
+          <option [value]="periodicidade" *ngFor="let periodicidade of periodicidades">{{periodicidade}}</option>
+        </select>
     </div>
     
     <button type="submit" class="btn btn-primary">Ação {{despesa.id != null? 'Salvar' : 'Adicionar'}}</button>
