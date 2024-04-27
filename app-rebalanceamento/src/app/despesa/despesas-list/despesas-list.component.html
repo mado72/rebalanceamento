@@ -8,6 +8,7 @@
             <td *ngFor="let mes of meses" [style.font-weight]="mes === mesCorrente ? 'bold' : null" >
                 {{mes}}
             </td>
+            <td>Total</td>
         </tr>
     </thead>
     <tbody>
@@ -27,8 +28,17 @@
                     </ng-container>
                 </div>
             </td>
+            <td>
+                {{totaisClasse[classe] | number:'1.2-2'}}
+            </td>
         </tr>
     </tbody>
+    <tfoot>
+        <tr>
+            <td colspan="2">Totais:</td>
+            <td *ngFor="let mes of meses">{{totaisMes[mes] | number:'1.2-2'}}</td>
+        </tr>
+    </tfoot>
 </table>
 
 <pre class="debug">{{ pagamentos | json }}</pre>

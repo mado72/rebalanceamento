@@ -49,7 +49,11 @@ export class DespesasListComponent implements OnInit {
   }
 
   diaVencimento(classe: string) {
-    return Object.values(this.pagamentos[classe]).map(despesa=>despesa?.diaVencimento).sort((a,b)=>!a? (!b ? 0 : 1) : (!b ? -1 : a - b))[0];
+    return Object.values(this.pagamentos[classe]).map(despesa=>despesa?.diaVencimento).sort(this.comparePagamentos())[0];
+  }
+
+  private comparePagamentos(): (a: number | undefined, b: number | undefined) => number {
+    return (a, b) => !a ? (!b ? 0 : 1) : (!b ? -1 : a - b);
   }
 
   get mesCorrente() {
@@ -68,6 +72,25 @@ export class DespesasListComponent implements OnInit {
     const idxAtual = meses.indexOf(atual);
     return idxMes < idxAtual;
   }
-
+  
+  get totaisClasse() {
+    const totais : {[classe: string] : number} = {};
+    Object.keys(this.pagamentos).forEach(classe=>{
+      totais[classe] = Object.values(this.pagamentos[classe])
+          .map(despesa=>despesa?.valor)
+          .reduce((acc, vl) => acc = (acc || 0) + (vl || 0)) || 0;
+    });
+    return totais;
+  }
+  
+  get totaisMes() {
+    const totais : {[mes: string] : number} = {};
+    Object.values(this.pagamentos).forEach(pagamento=>{
+      Object.keys(pagamento).forEach(mes=>{
+        totais[mes] = (totais[mes] || 0) + (pagamento[mes]?.valor || 0);
+      });
+    });
+    return totais;
+  }
 }
 

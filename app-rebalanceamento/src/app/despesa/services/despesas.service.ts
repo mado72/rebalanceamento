@@ -115,6 +115,7 @@ const DESPESAS: IDespesaRecorrente[] = [
     valor: 500.00,
     periodicidade: Periodicidade.MENSAL,
     dataVencimento: new Date(2024, 1, 25),
+    dataFinal: new Date(2024, 7, 11)
   },
   {
     descricao: 'Academia',
