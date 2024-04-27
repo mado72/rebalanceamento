@@ -1,0 +1,40 @@
+<p>despesa-programada works!</p>
+<form>
+
+    <table>
+        <thead>
+            <tr>
+                <th>Despesa</th>
+                <th>Periodicidade</th>
+                <th>Data Vencimento</th>
+                <th>Data Final</th>
+                <th>Data Pagamento</th>
+                <th>Categoria</th>
+                <th>Liquidação</th>
+                <th>Valor</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr *ngFor="let despesa of despesas">
+                <td>{{despesa.descricao}}</td>
+                <td>{{despesa.periodicidade}}</td>
+                <td>{{despesa.dataVencimento | date:'dd/MM'}}</td>
+                <td>{{despesa.dataFinal | date:'dd/MM'}}</td>
+                <td>{{despesa.dataPagamento | date:'dd/MM'}}</td>
+                <td>{{despesa.categoria}}</td>
+                <td>{{despesa.liquidacao}}</td>
+                <td>{{despesa.valor | number:'1.2-2'}}</td>
+            </tr>
+        </tbody>
+        <tfoot>
+            <tr>
+                <td colspan="7"></td>
+                <td>{{total | number:'1.2-2'}}</td>
+            </tr>
+        </tfoot>
+    </table>
+</form>
+
+<div class="debug">
+    {{despesas | json}}
+</div>

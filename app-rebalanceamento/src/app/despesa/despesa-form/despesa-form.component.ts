@@ -1,6 +1,6 @@
 import { Component, Input, OnInit } from '@angular/core';
 import { DespesasService } from '../services/despesas.service';
-import { DespesaRecorrenteImpl, Periodicidade } from '../models/despesa.model';
+import { DespesaRecorrenteImpl, Periodicidade, TipoLiquidacao } from '../models/despesa.model';
 import { ActivatedRoute } from '@angular/router';
 import { DateTime } from 'luxon';
 import { Observable } from 'rxjs';
@@ -15,7 +15,8 @@ export class DespesaFormComponent implements OnInit {
     valor: 0, 
     dataVencimento: new Date(), 
     descricao: '',
-    periodicidade: Periodicidade.MENSAL
+    periodicidade: Periodicidade.MENSAL,
+    liquidacao: TipoLiquidacao.CONTA
   }); // Preencha com valores iniciais
 
   constructor(private despesasService: DespesasService, private route : ActivatedRoute) {} // Injete o serviço de despesas

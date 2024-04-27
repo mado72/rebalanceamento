@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { Observable, of } from 'rxjs';
-import { DespesaRecorrenteImpl, IDespesaRecorrente, Periodicidade } from 'src/app/despesa/models/despesa.model';
+import { DespesaRecorrenteImpl, IDespesaRecorrente, Periodicidade, TipoLiquidacao } from 'src/app/despesa/models/despesa.model';
 
 @Injectable({
   providedIn: 'root'
@@ -91,37 +91,43 @@ const DESPESAS: IDespesaRecorrente[] = [
     valor: 1200.00,
     periodicidade: Periodicidade.MENSAL,
     dataVencimento: new Date(2024, 0, 10),
+    liquidacao: TipoLiquidacao.CONTA
   },
   {
     descricao: 'Plano de Saúde',
     valor: 250.00,
     periodicidade: Periodicidade.MENSAL,
     dataVencimento: new Date(2024, 1, 5),
+    liquidacao: TipoLiquidacao.CONTA
   },
   {
     descricao: 'Internet e Luz',
     valor: 200.00,
     periodicidade: Periodicidade.MENSAL,
     dataVencimento: new Date(2024, 5, 20),
+    liquidacao: TipoLiquidacao.CONTA
   },
   {
     descricao: 'Telefone Celular',
     valor: 80.00,
     periodicidade: Periodicidade.MENSAL,
     dataVencimento: new Date(2024, 1, 15),
+    liquidacao: TipoLiquidacao.CONTA
   },
   {
     descricao: 'Supermercado',
     valor: 500.00,
     periodicidade: Periodicidade.MENSAL,
     dataVencimento: new Date(2024, 1, 25),
-    dataFinal: new Date(2024, 7, 11)
+    dataFinal: new Date(2024, 7, 11),
+    liquidacao: TipoLiquidacao.CONTA
   },
   {
     descricao: 'Academia',
     valor: 100.00,
     periodicidade: Periodicidade.MENSAL,
     dataVencimento: new Date(2024, 1, 7),
+    liquidacao: TipoLiquidacao.CONTA
   },
   {
     id: 'cb5f1762-4c5c-4d19-b79e-5460d78003b5',
@@ -130,29 +136,34 @@ const DESPESAS: IDespesaRecorrente[] = [
     periodicidade: Periodicidade.MENSAL,
     dataVencimento: new Date(2024, 0, 2),
     dataPagamento: new Date(2024, 0, 2),
+    liquidacao: TipoLiquidacao.CONTA
   },
   {
     descricao: 'Streaming',
     valor: 50.00,
     periodicidade: Periodicidade.MENSAL,
     dataVencimento: new Date(2024, 1, 2),
+    liquidacao: TipoLiquidacao.CONTA
   },
   {
     descricao: 'Transporte',
     valor: 300.00,
     periodicidade: Periodicidade.MENSAL,
     dataVencimento: new Date(2024, 1, 18),
+    liquidacao: TipoLiquidacao.CONTA
   },
   {
     descricao: 'Lazer',
     valor: 200.00,
     periodicidade: Periodicidade.MENSAL,
     dataVencimento: new Date(2024, 1, 22),
+    liquidacao: TipoLiquidacao.CONTA
   },
   {
     descricao: 'Outros',
     valor: 150.00,
     periodicidade: Periodicidade.MENSAL,
     dataVencimento: new Date(2024, 0, 30),
+    liquidacao: TipoLiquidacao.CONTA
   }
 ];

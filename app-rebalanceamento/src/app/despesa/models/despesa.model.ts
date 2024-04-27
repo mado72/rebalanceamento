@@ -1,4 +1,5 @@
 import { DateTime } from "luxon";
+import { Conta } from "src/app/conta/model/conta.model";
 
 export interface IDespesaRecorrente {
     id?: string; // Identificador único da despesa (quando persistida)
@@ -9,6 +10,9 @@ export interface IDespesaRecorrente {
     dataFinal?: Date // Data final da recorrência (opcional)
     dataPagamento?: Date; // Data em que a despesa foi paga (opcional)
     origem?: string; // Identifica se a despesa surgiu de uma despesa anterior (opcional)
+    categoria?: string; // Identifica a categoria da despesa (opcional)
+    liquidacao: TipoLiquidacao; // Tipo de liquidação
+    contaLiquidacao?: Conta // Conta de Liquidação
 }
 
 export enum Periodicidade {
@@ -35,6 +39,11 @@ export enum Mes {
     DEZEMBRO = 'DEZEMBRO'
 }
 
+export enum TipoLiquidacao {
+    CONTA = 'CONTA',
+    CARTAO = 'CARTAO'
+}
+
 export function obterMes(mesStr: string): Mes | undefined {
     return Object.values(Mes).find(item => item == mesStr);
 }
@@ -48,6 +57,9 @@ export class DespesaRecorrenteImpl implements IDespesaRecorrente {
     dataPagamento?: Date | undefined;
     dataFinal?: Date | undefined;
     origem?: string | undefined;
+    categoria?: string | undefined;
+    liquidacao!: TipoLiquidacao;
+    contaLiquidacao?: Conta | undefined;
 
     constructor(valorInicial: IDespesaRecorrente) {
         this.id = valorInicial.id;
@@ -58,6 +70,9 @@ export class DespesaRecorrenteImpl implements IDespesaRecorrente {
         this.dataPagamento = valorInicial.dataPagamento;
         this.dataFinal = valorInicial.dataFinal;
         this.origem = valorInicial.origem;
+        this.categoria = valorInicial.categoria;
+        this.liquidacao = valorInicial.liquidacao;
+        this.contaLiquidacao = valorInicial.contaLiquidacao;
     }
 
     get diaVencimento(): number {

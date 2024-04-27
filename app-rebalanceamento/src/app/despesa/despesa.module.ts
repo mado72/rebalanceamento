@@ -6,6 +6,7 @@ import { DespesaFormComponent } from './despesa-form/despesa-form.component';
 import { DespesaRoutingModule } from './despesa-routing.module';
 import { DespesasListComponent } from './despesas-list/despesas-list.component';
 import { PagamentoMensalComponent } from './pagamento-mensal/pagamento-mensal.component';
+import { DespesaProgramadaComponent } from './despesa-programada/despesa-programada.component';
 
 
 @NgModule({
@@ -13,6 +14,7 @@ import { PagamentoMensalComponent } from './pagamento-mensal/pagamento-mensal.co
     DespesasListComponent,
     DespesaFormComponent,
     PagamentoMensalComponent,
+    DespesaProgramadaComponent,
   ],
   imports: [
     CommonModule,
