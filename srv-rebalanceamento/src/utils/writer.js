@@ -41,7 +41,16 @@ var writeJson = exports.writeJson = function(response, arg1, arg2) {
   }
   else {
     response.writeHead(code, {'Content-Type': 'text/plain'});
-
   }
   response.end(payload);
+}
+
+var handleError = exports.handleError = function(res, arg1, status) {
+  var error = {
+    message: arg1.message,
+    stack: arg1.stack
+  }
+  var payload = JSON.stringify(error, null, 2);
+  res.writeHead(status || 400, {'Content-Type': 'application/json'});
+  res.end(payload);
 }

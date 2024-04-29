@@ -36,6 +36,10 @@ var expressAppConfig = oas3Tools.expressAppConfig(path.join(__dirname, 'api/open
 var app = expressAppConfig.getApp();
 app.disable('x-powered-by');
 app.use(cors(corsOptions));
+app.use((err, req, res, next) => {
+    console.error(err.stack)
+    res.status(500).send('Something broke!')
+});
 // parse requests of content-type - application/json
 // app.use(express.json());
 // parse requests of content-type - application/x-www-form-urlencoded
@@ -81,21 +85,34 @@ http.createServer(app).listen(serverPort, function () {
 
 });
 
-var mongoURI = process.env.MONGODB_URI || 'mongodb://user:pass@localhost:27017/rebalanceamento?retryWrites=true&w=majority'; // 'mongodb://mongouserdb:mongopwd@localhost:27017/admin';
+var mongoURI = process.env.MONGODB_URI || 'mongodb://user:pass@localhost:27017/rebalanceamento'; // 'mongodb://mongouserdb:mongopwd@localhost:27017/admin';
     
 console.log(`Usando conexão com ${mongoURI}`);
 mongoose.Promise = global.Promise;
 
 var connectWithRetry = async() => {
-    const options = { 
+    const options = {
+        "retryWrites": true,
+        "w": "majority",
         "authSource": "admin",
-        "useNewUrlParser": true };
+    };
+    // const options = { 
+    //     "retryWrites":true,
+    //     "w":majority,
+    //     "authSource": "admin",
+    //     "useNewUrlParser": true 
+    // };
 
     try {
         mongoose.set('strictQuery', false)
         // mongoose.connect(mongoURI) 
-        mongoose.createConnection(mongoURI, options) 
-        console.log('Mongo connected')
+        mongoose.connect(mongoURI, options) 
+        const db = mongoose.connection;
+
+        db.on('error', console.error.bind(console, 'connection error:'));
+        db.once('open', () => {
+            console.log('Mongo connected')
+        });
     }
     catch(error) {
         console.error(`${new Date().toLocaleString()} Failed to connect to mongo on startup - retrying in 5 sec`, error);
