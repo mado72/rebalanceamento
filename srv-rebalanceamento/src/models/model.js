@@ -40,9 +40,9 @@ var Despesa = new Schema({
     descricao: { type: String, required: true}, // Descrição da despesa
     valor: {type: Number, required: true}, // Valor da despesa
     periodicidade: {type: String, required: true, enum: Object.values(Periodicidade)}, // Periodicidade da despesa (mensal, trimestral, anual, etc.)
-    dataVencimento: {type: Date, required: true}, // Data de vencimento da despesa
-    dataFinal: {type: Date}, // Data final da recorrência (opcional)
-    dataPagamento: {type: Date}, // Data em que a despesa foi paga (opcional)
+    dataVencimento: {type: String, required: true}, // Data de vencimento da despesa
+    dataFinal: {type: String}, // Data final da recorrência (opcional)
+    dataPagamento: {type: String}, // Data em que a despesa foi paga (opcional)
     origem: {type: String}, // Identifica se a despesa surgiu de uma despesa anterior (opcional)
     categoria: {type: String}, // Identifica a categoria da despesa (opcional)
     liquidacao: {type: String, required: true}, // Tipo de liquidação

@@ -81,6 +81,18 @@ paths:
           type: integer
           minimum: 1
           maximum: 12
+      - in: query
+        name: pago
+        required: false
+        description: Se informado, filtra apenas as despesas pagas
+        schema:
+          type: boolean
+      - in: query
+        name: categoria
+        required: false
+        description: Filtra pela categoria
+        schema:
+          type: string
       responses:
         "200":
           description: successful operation
