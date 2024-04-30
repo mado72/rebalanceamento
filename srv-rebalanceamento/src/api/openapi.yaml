@@ -728,6 +728,11 @@ paths:
         required: false
         schema: 
           $ref: '#/components/schemas/Moeda'
+      - in: query
+        name: conta
+        required: false
+        schema:
+          type: string
       responses:
         "200":
           description: Successful operation
@@ -899,6 +904,26 @@ paths:
       - bearerAuth:
         - write:domain
         - read:domain
+        
+  /contas/saldoTotal:
+    get:
+      x-swagger-router-controller: Conta
+      operationId: contasSaldoTotalGET
+      tags:
+      - Conta
+      summary: Obtém o saldo total
+      description: Soma todos os saldos das contas
+      responses:
+        "200":
+          description: O saldo total das contas
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  total:
+                    type: number
+              
 components:
   schemas:
     Moeda:

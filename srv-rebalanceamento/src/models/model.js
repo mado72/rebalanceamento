@@ -77,7 +77,24 @@ var Conta = new Schema({
     conta: {type: String, required: true}, // Conta 
     saldo: {type: Number, required: true}, // Saldo da Conta
     moeda: {type: String, required: true, enum: Object.values(TipoMoeda)}, // Moeda da Conta
-})
+},
+/* {
+    methods: {
+        getSaldoTotal() {
+            return new mongoose.model('Conta'),aggregate({
+                $group: {
+                    _id: null,
+                    total: { $sum: "$saldo" }
+                }
+            })
+        }
+    },
+    query: {
+        byName(name) {
+            return this.where({ conta: new RegExp(name, 'i')});
+        }
+    }
+}*/)
 
 module.exports = {
     'ativo': mongoose.model('ativo', Ativo, 'ativo'),

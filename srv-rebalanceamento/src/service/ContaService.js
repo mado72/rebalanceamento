@@ -11,12 +11,17 @@ const Conta = mongoose.model('conta');
  * moeda Moeda  (optional)
  * returns List
  **/
-exports.contaGET = function(moeda) {
+exports.contaGET = function(moeda, conta) {
   return new Promise(async (resolve, reject) => {
     try {
       var filter = {};
       if (!!moeda) {
         filter.moeda = moeda;
+      }
+      if (!!conta) {
+        filter.conta = {
+          conta: new RegExp(conta, 'i')
+        }
       }
       var result = await Conta.find(filter);
       resolve(result);
@@ -117,3 +122,18 @@ exports.contaPUT = function() {
   });
 }
 
+/*
+ * Retorna o saldo total das contas
+ **/
+exports.contasSaldoTotalGET = function() {
+  return new Promise(async (resolve, reject) => {
+    try {
+      var result = await Conta.aggregate([
+        { $group: { _id: null, total: { $sum: "$saldo" } } }
+      ]);
+      resolve(result);
+    } catch (error) {
+      reject(error);
+    }
+  });
+}
