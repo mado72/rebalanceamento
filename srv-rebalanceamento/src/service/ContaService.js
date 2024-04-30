@@ -1,5 +1,8 @@
 'use strict';
-
+var Model = require('../models/model');
+var mongoose = require('mongoose');
+const { respondWithCode } = require('../utils/writer');
+const Conta = mongoose.model('conta');
 
 /**
  * Obtém lista de contas do portifólio
@@ -9,23 +12,16 @@
  * returns List
  **/
 exports.contaGET = function(moeda) {
-  return new Promise(function(resolve, reject) {
-    var examples = {};
-    examples['application/json'] = [ {
-  "moeda" : "REAL",
-  "conta" : "Itaú",
-  "id" : 15,
-  "saldo" : 150.23
-}, {
-  "moeda" : "REAL",
-  "conta" : "Itaú",
-  "id" : 15,
-  "saldo" : 150.23
-} ];
-    if (Object.keys(examples).length > 0) {
-      resolve(examples[Object.keys(examples)[0]]);
-    } else {
-      resolve();
+  return new Promise(async (resolve, reject) => {
+    try {
+      var filter = {};
+      if (!!moeda) {
+        filter.moeda = moeda;
+      }
+      var result = await Conta.find(filter);
+      resolve(result);
+    } catch (error) {
+      reject(error);
     }
   });
 }
@@ -39,11 +35,21 @@ exports.contaGET = function(moeda) {
  * no response value expected for this operation
  **/
 exports.contaIdDELETE = function(contaId) {
-  return new Promise(function(resolve, reject) {
+  return new Promise(async (resolve, reject) => {
+    try {
+      var id = new mongoose.Types.ObjectId(contaId);
+      var result = await Conta.findByIdAndDelete(id);
+      if (!result) {
+        resolve(respondWithCode(404, `Não encontrado ${contaId}`));
+        return;
+      }
+      resolve(result);
+    } catch (error) {
+      reject(error);
+    }
     resolve();
   });
 }
-
 
 /**
  * Obtém uma conta
@@ -53,23 +59,20 @@ exports.contaIdDELETE = function(contaId) {
  * returns Carteira
  **/
 exports.contaIdGET = function(contaId) {
-  return new Promise(function(resolve, reject) {
-    var examples = {};
-    examples['application/json'] = {
-  "objetivo" : 0.01,
-  "classe" : "ACAO",
-  "moeda" : "REAL",
-  "nome" : "Ações",
-  "id" : 100
-};
-    if (Object.keys(examples).length > 0) {
-      resolve(examples[Object.keys(examples)[0]]);
-    } else {
-      resolve();
+  return new Promise(async (resolve, reject) => {
+    try {
+      var id = new mongoose.Types.ObjectId(contaId);
+      var result = await Conta.findById(id);
+      if (!result) {
+        resolve(respondWithCode(404, `Não encontrado ${contaId}`));
+        return;
+      }
+      resolve(result);
+    } catch (error) {
+      reject(error);      
     }
   });
 }
-
 
 /**
  * Adiciona uma conta
@@ -79,18 +82,13 @@ exports.contaIdGET = function(contaId) {
  * returns Conta
  **/
 exports.contaPOST = function(body) {
-  return new Promise(function(resolve, reject) {
-    var examples = {};
-    examples['application/json'] = {
-  "moeda" : "REAL",
-  "conta" : "Itaú",
-  "id" : 15,
-  "saldo" : 150.23
-};
-    if (Object.keys(examples).length > 0) {
-      resolve(examples[Object.keys(examples)[0]]);
-    } else {
-      resolve();
+  return new Promise(async (resolve, reject) => {
+    try {
+      var conta = new Conta(body);
+      var result = await conta.save();
+      resolve(result);
+    } catch (error) {
+      reject(error);
     }
   });
 }
@@ -103,18 +101,18 @@ exports.contaPOST = function(body) {
  * returns Conta
  **/
 exports.contaPUT = function() {
-  return new Promise(function(resolve, reject) {
-    var examples = {};
-    examples['application/json'] = {
-  "moeda" : "REAL",
-  "conta" : "Itaú",
-  "id" : 15,
-  "saldo" : 150.23
-};
-    if (Object.keys(examples).length > 0) {
-      resolve(examples[Object.keys(examples)[0]]);
-    } else {
-      resolve();
+  return new Promise(async (resolve, reject) => {
+    try {
+      var id = new mongoose.Types.ObjectId(body._id);
+      var result = await Conta.findByIdAndUpdate(id, body);
+      if (!result) {
+        resolve(respondWithCode(404, `Não encontrado ${result}`));
+        return;
+      }
+      resolve(result);
+    } catch (error) {
+      error.code = 422;
+      reject(error);
     }
   });
 }

@@ -111,7 +111,9 @@ exports.ativoPUT = function (body) {
       var result = await Ativo.findByIdAndUpdate(id, body);
       if (!result) {
         resolve(respondWithCode(404, `Não encontrado ${id}`));
+        return;
       }
+      resolve(result);
     } catch (error) {
       error.code = 422;
       reject(error);

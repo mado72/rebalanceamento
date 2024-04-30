@@ -73,9 +73,16 @@ var Ativo = new Schema({
     classe: {type: String, required: true, enum: Object.values(TipoClasse)}, // Classe do ativo
 })
 
+var Conta = new Schema({
+    conta: {type: String, required: true}, // Conta 
+    saldo: {type: Number, required: true}, // Saldo da Conta
+    moeda: {type: String, required: true, enum: Object.values(TipoMoeda)}, // Moeda da Conta
+})
+
 module.exports = {
     'ativo': mongoose.model('ativo', Ativo, 'ativo'),
     'despesa': mongoose.model('despesa', Despesa, 'despesa'),
     'carteira': mongoose.model('carteira', Carteira, 'carteira'),
     'carteira-ativo': mongoose.model('carteira-ativo', CarteiraAtivo),
+    'contato': mongoose.model('conta', Conta, 'conta'),
 }
