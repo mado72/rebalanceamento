@@ -921,7 +921,7 @@ components:
     Despesa:
       type: object
       required:
-        - despesa
+        - descricao
         - valor
         - periodicidade
         - dataVencimento
@@ -930,7 +930,7 @@ components:
         _id:
           type: string
           description: Identificador da Despesa
-        despesa:
+        descricao:
           maxLength: 200
           minLength: 3
           type: string
@@ -949,6 +949,7 @@ components:
             - T
             - SMT
             - A
+            - U
         dataVencimento:
           type: string
           format: date
@@ -974,6 +975,7 @@ components:
           enum:
             - CONTA
             - CARTAO
+            - OUTROS
         contaLiquidacao:
           type: string
           minLength: 8

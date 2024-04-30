@@ -51,6 +51,6 @@ var handleError = exports.handleError = function(res, arg1, status) {
     stack: arg1.stack
   }
   var payload = JSON.stringify(error, null, 2);
-  res.writeHead(status || 400, {'Content-Type': 'application/json'});
+  res.writeHead(status || arg1.code || 400, {'Content-Type': 'application/json'});
   res.end(payload);
 }

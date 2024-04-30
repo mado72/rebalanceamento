@@ -44,8 +44,9 @@ exports.ativoIdDELETE = function (ativoId) {
       else {
         resolve(result);
       }
-    } catch (err) {
-      resolve(respondWithCode(422, err));
+    } catch (error) {
+      error.code = 422;
+      reject(error);
     }
   });
 }
@@ -112,7 +113,8 @@ exports.ativoPUT = function (body) {
         resolve(respondWithCode(404, `Não encontrado ${id}`));
       }
     } catch (error) {
-      resolve(respondWithCode(422, error));
+      error.code = 422;
+      reject(error);
     }
   });
 }
@@ -215,7 +217,7 @@ exports.carteiraIdDELETE = function (carteiraId) {
         resolve(respondWithCode(404, `Não encontrado ${carteiraId}`));
         return;
       }
-      result(result);
+      resolve(result);
     } catch (error) {
       reject(error);
     }

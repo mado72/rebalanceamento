@@ -16,12 +16,12 @@ const Despesa = mongoose.model('despesa');
  * categoria string (optional)
  * returns List
  **/
-exports.despesaGET = function(mes, pago, categoria) {
+exports.despesaGET = function (mes, pago, categoria) {
   var filter = {};
   if (!!mes) {
     var now = DateTime.now();
-    var inicio = DateTime.local(now.year,Number(mes),1).toFormat('yyyy-MM-dd');
-    var fim = DateTime.local(now.year,Number(mes),1).endOf('month').toFormat('yyyy-MM-dd');
+    var inicio = DateTime.local(now.year, Number(mes), 1).toFormat('yyyy-MM-dd');
+    var fim = DateTime.local(now.year, Number(mes), 1).endOf('month').toFormat('yyyy-MM-dd');
     filter.dataVencimento = {
       $gte: inicio,
       $lte: fim
@@ -50,9 +50,19 @@ exports.despesaGET = function(mes, pago, categoria) {
  * despesaId Long ID da despesa
  * no response value expected for this operation
  **/
-exports.despesaIdDELETE = function(despesaId) {
-  return new Promise(function(resolve, reject) {
-    resolve();
+exports.despesaIdDELETE = function (despesaId) {
+  return new Promise(async (resolve, reject) => {
+    try {
+      var id = new mongoose.Types.ObjectId(despesaId);
+      var despesa = await Despesa.findByIdAndDelete(id)
+      if (!despesa) {
+        resolve(respondWithCode(404, 'Despesa não encontrada'));
+        return;
+      }
+      resolve(despesa);
+    } catch (error) {
+      reject(error);
+    }
   });
 }
 
@@ -64,26 +74,20 @@ exports.despesaIdDELETE = function(despesaId) {
  * despesaId Long ID da despesa
  * returns Despesa
  **/
-exports.despesaIdGET = function(despesaId) {
-  return new Promise(function(resolve, reject) {
-    var examples = {};
-    examples['application/json'] = {
-  "dataPagamento" : "2020-01-01T00:00:00.000+00:00",
-  "despesa" : "Impostos",
-  "dataVencimento" : "2020-01-01T00:00:00.000+00:00",
-  "categoria" : "Custo Fixo",
-  "valor" : 202.1,
-  "origem" : "origem",
-  "periodicidade" : "SMN",
-  "liquidacao" : "CONTA",
-  "_id" : "_id",
-  "contaLiquidacao" : "contaLiquidacao",
-  "dataFinal" : "2020-01-01T00:00:00.000+00:00"
-};
-    if (Object.keys(examples).length > 0) {
-      resolve(examples[Object.keys(examples)[0]]);
-    } else {
-      resolve();
+exports.despesaIdGET = function (despesaId) {
+  return new Promise(async (resolve, reject) => {
+    try {
+      var id = new mongoose.Types.ObjectId(despesaId);
+
+      var despesa = await Despesa.findById(id);
+      if (!despesa) {
+        resolve(respondWithCode(404, 'Despesa não encontrada'));
+        return;
+      }
+      resolve(despesa);
+
+    } catch (error) {
+      reject(error);
     }
   });
 }
@@ -96,26 +100,14 @@ exports.despesaIdGET = function(despesaId) {
  * body Despesa Cria uma nova despesa
  * returns Despesa
  **/
-exports.despesaPOST = function(body) {
-  return new Promise(function(resolve, reject) {
-    var examples = {};
-    examples['application/json'] = {
-  "dataPagamento" : "2020-01-01T00:00:00.000+00:00",
-  "despesa" : "Impostos",
-  "dataVencimento" : "2020-01-01T00:00:00.000+00:00",
-  "categoria" : "Custo Fixo",
-  "valor" : 202.1,
-  "origem" : "origem",
-  "periodicidade" : "SMN",
-  "liquidacao" : "CONTA",
-  "_id" : "_id",
-  "contaLiquidacao" : "contaLiquidacao",
-  "dataFinal" : "2020-01-01T00:00:00.000+00:00"
-};
-    if (Object.keys(examples).length > 0) {
-      resolve(examples[Object.keys(examples)[0]]);
-    } else {
-      resolve();
+exports.despesaPOST = function (body) {
+  return new Promise(async (resolve, reject) => {
+    try {
+      var despesa = new Despesa(body);
+      despesa = await despesa.save();
+      resolve(despesa);
+    } catch (error) {
+      reject(error);
     }
   });
 }
@@ -128,26 +120,20 @@ exports.despesaPOST = function(body) {
  * body Despesa Dados da despesa
  * returns Despesa
  **/
-exports.despesaPUT = function(body) {
-  return new Promise(function(resolve, reject) {
-    var examples = {};
-    examples['application/json'] = {
-  "dataPagamento" : "2020-01-01T00:00:00.000+00:00",
-  "despesa" : "Impostos",
-  "dataVencimento" : "2020-01-01T00:00:00.000+00:00",
-  "categoria" : "Custo Fixo",
-  "valor" : 202.1,
-  "origem" : "origem",
-  "periodicidade" : "SMN",
-  "liquidacao" : "CONTA",
-  "_id" : "_id",
-  "contaLiquidacao" : "contaLiquidacao",
-  "dataFinal" : "2020-01-01T00:00:00.000+00:00"
-};
-    if (Object.keys(examples).length > 0) {
-      resolve(examples[Object.keys(examples)[0]]);
-    } else {
-      resolve();
+exports.despesaPUT = function (body) {
+  return new Promise(async (resolve, reject) => {
+    try {
+      var id = new mongoose.Types.ObjectId(body._id);
+      var despesa = await Despesa.findByIdAndUpdate(id, body);
+
+      if (!despesa) {
+        resolve(respondWithCode(404, 'Despesa não encontrada'));
+        return;
+      }
+      resolve(despesa);
+    } catch (error) {
+      error.code = 422;
+      reject(error);
     }
   });
 }

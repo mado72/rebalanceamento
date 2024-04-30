@@ -9,13 +9,14 @@ const Periodicidade = Object.freeze({
     MENSAL : "M",
     TRIMESTRAL : "T",
     SEMESTRAL : "SMT",
-    ANUAL : "A"
+    ANUAL : "A",
+    UNICO: "U"
 })
 
-const TipoLiquidacao = Object.freeze({
-    Compra: 'C',
-    Venda: 'V',
-    Dividendo: 'D'
+const TipoLiquidacaoDespesa = Object.freeze({
+    CONTA: "CONTA",
+    CARTAO: "CARTAO",
+    OUTROS: "OUTROS"
 })
 
 const TipoMoeda = Object.freeze({
@@ -45,7 +46,7 @@ var Despesa = new Schema({
     dataPagamento: {type: String}, // Data em que a despesa foi paga (opcional)
     origem: {type: String}, // Identifica se a despesa surgiu de uma despesa anterior (opcional)
     categoria: {type: String}, // Identifica a categoria da despesa (opcional)
-    liquidacao: {type: String, required: true}, // Tipo de liquidação
+    liquidacao: {type: String, required: true, enum: Object.values(TipoLiquidacaoDespesa)}, // Tipo de liquidação
     contaLiquidacao: {type: String} // Conta de Liquidação
 });
 
