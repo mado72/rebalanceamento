@@ -21,10 +21,7 @@ export class AuthInterceptor implements HttpInterceptor {
     // Clonar a requisição original e substituir o cabeçalho de autorização
     const authReq = req.clone({
       headers: new HttpHeaders({
-        // 'Access-Control-Request-Method': 'GET,POST,DELETE,PUT',
-        'Access-Control-Allow-Origin' : '*',
-        'Authorization': `Bearer 123`,
-        // 'Authorization': `Bearer ${authToken}`,
+        'Authorization': `Bearer ${authToken}`,
         'Content-Type' : 'application/json',
        })
     });

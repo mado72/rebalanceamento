@@ -13,6 +13,7 @@ import { ContasModule } from './conta/contas.module';
 import { AtivosModule } from './ativos/ativos.module';
 import { HTTP_INTERCEPTORS, HttpClientModule } from '@angular/common/http';
 import { AuthInterceptor } from './interceptors/auth.interceptor';
+import { HandleErrorInterceptor } from './interceptors/handle-error.interceptor';
 
 registerLocaleData(localePt);
 
@@ -32,7 +33,8 @@ registerLocaleData(localePt);
   ],
   providers: [
     {provide: LOCALE_ID, useValue: 'pt' },
-    {provide: HTTP_INTERCEPTORS, useClass: AuthInterceptor, multi: true}
+    {provide: HTTP_INTERCEPTORS, useClass: HandleErrorInterceptor, multi: true},
+    {provide: HTTP_INTERCEPTORS, useClass: AuthInterceptor, multi: true},
   ],
   bootstrap: [AppComponent]
 })
