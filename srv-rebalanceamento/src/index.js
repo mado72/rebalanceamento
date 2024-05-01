@@ -26,6 +26,19 @@ const app = express();
 // Add headers
 app.use(/.*/, cors());
 
+// global error handler
+function errorHandler(err, req, res, next, statusCode) {
+    console.error(err);
+    // debug(err);
+    if (res.headersSent) {
+        return next(err);
+    } else {
+        res.status(statusCode || 500).json(projectConfig.genericErrorResponse(statusCode || 500, err.message || err || "something blew up and the err object was undefined"));
+    }
+}
+
+app.use(errorHandler);
+
 app.get('/', (res, req) => {
     console.log("Bem vindo!");
     req.json({"grettings": "Bem vindo!"});

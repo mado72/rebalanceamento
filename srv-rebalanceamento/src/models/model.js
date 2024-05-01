@@ -1,16 +1,17 @@
+const { DateTime } = require('luxon');
 var mongoose = require('mongoose');
 const mongoosePaginate = require('mongoose-paginate-v2');
 
 var Schema = mongoose.Schema;
 
-const Periodicidade = Object.freeze({
-    SEMANAL : "SMN",
-    QUINZENAL : "Q",
-    MENSAL : "M",
-    TRIMESTRAL : "T",
-    SEMESTRAL : "SMT",
-    ANUAL : "A",
-    UNICO: "U"
+const TipoPeriodicidade = Object.freeze({
+    SEMANAL : "SEMANAL",
+    QUINZENAL : "QUINZENAL",
+    MENSAL : "MENSAL",
+    TRIMESTRAL : "TRIMESTRAL",
+    SEMESTRAL : "SEMESTRAL",
+    ANUAL : "ANUAL",
+    UNICO: "UNICO"
 })
 
 const TipoLiquidacaoDespesa = Object.freeze({
@@ -40,7 +41,7 @@ const TipoClasse = Object.freeze({
 var Despesa = new Schema({
     descricao: { type: String, required: true}, // Descrição da despesa
     valor: {type: Number, required: true}, // Valor da despesa
-    periodicidade: {type: String, required: true, enum: Object.values(Periodicidade)}, // Periodicidade da despesa (mensal, trimestral, anual, etc.)
+    periodicidade: {type: String, required: true, enum: Object.values(TipoPeriodicidade)}, // Periodicidade da despesa (mensal, trimestral, anual, etc.)
     dataVencimento: {type: String, required: true}, // Data de vencimento da despesa
     dataFinal: {type: String}, // Data final da recorrência (opcional)
     dataPagamento: {type: String}, // Data em que a despesa foi paga (opcional)
@@ -48,6 +49,25 @@ var Despesa = new Schema({
     categoria: {type: String}, // Identifica a categoria da despesa (opcional)
     liquidacao: {type: String, required: true, enum: Object.values(TipoLiquidacaoDespesa)}, // Tipo de liquidação
     contaLiquidacao: {type: String} // Conta de Liquidação
+}, {
+    statics: {
+        toObjectInstance: (dbInstance)=> {
+            var obj = dbInstance.toObject();
+            if (!! obj.dataVencimento) obj.dataVencimento = DateTime.fromFormat(obj.dataVencimento, 'yyyy-MM-dd');
+            if (!! obj.dataFinal) obj.dataFinal = DateTime.fromFormat(obj.dataFinal, 'yyyy-MM-dd');
+            if (!! obj.dataPagamento) obj.dataPagamento = DateTime.fromFormat(obj.dataPagamento, 'yyyy-MM-dd');
+            if (!! obj.periodicidade) obj.periodicidade = TipoPeriodicidade[obj.periodicidade];
+            if (!! obj.liquidacao) obj.liquidacao = TipoLiquidacaoDespesa[obj.liquidacao];
+            return obj;
+        },
+        toDBInstance: () => {
+            if (!! this.dataVencimento) this.dataVencimento = DateTime.fromJSDate(this.dataVencimento).format('yyyy-MM-dd');
+            if (typeof this.dataFinal === "object" && this.dataFinal.getMonth && typeof this.dataFinal.getMonth === 'function') this.dataFinal = DateTime.fromJSDate(this.dataFinal).format('yyyy-MM-dd');
+            if (typeof this.dataPagamento === "object" && this.dataPagamento.getMonth && typeof this.dataPagamento.getMonth === 'function') this.dataPagamento = DateTime.fromJSDate(this.dataPagamento).format('yyyy-MM-dd');
+            if (typeof this.periodicidade === "object" && this.periodicidade.getMonth && typeof this.periodicidade.getMonth === 'function') this.periodicidade = TipoPeriodicidade[this.periodicidade];
+            if (!! this.liquidacao) this.liquidacao = TipoLiquidacaoDespesa[this.liquidacao];
+        }
+    }
 });
 
 var CarteiraAtivo = new Schema({

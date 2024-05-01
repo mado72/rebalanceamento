@@ -46,8 +46,8 @@ export class DespesaFormComponent implements OnInit {
   ngOnInit(): void {
     const paramId = this.route.snapshot.params['id'];
     // Carregue a despesa para edição se o ID for diferente de 0 (edição)
-    if (!! this.despesa.id) {
-      this.despesasService.obterDespesa(this.despesa.id).subscribe(despesa => {
+    if (!! this.despesa._id) {
+      this.despesasService.obterDespesa(this.despesa._id).subscribe(despesa => {
         this.despesa = despesa;
       });
     }
@@ -61,12 +61,14 @@ export class DespesaFormComponent implements OnInit {
   }
 
   onSubmit() {
-    const observable : Observable<DespesaRecorrenteImpl> = ! this.despesa.id 
-      ? this.despesasService.adicionarDespesa(this.despesa)
-      : this.despesasService.atualizarDespesa(this.despesa);
-
-    observable.subscribe(()=>{
-      // Exiba mensagem de sucesso e atualize a lista de despesas
-    });
+    if (! this.despesa._id ) {
+      this.despesasService.adicionarDespesa(this.despesa)
+        .subscribe(despesa=>this.despesa = despesa);
+    }
+    else {
+      this.despesasService.atualizarDespesa(this.despesa).subscribe(()=>{
+        console.log(`Despesa atualizada com sucesso: ${this.despesa.descricao}`);
+      });
+    }
   }
 }

@@ -14,7 +14,7 @@
     <tbody>
         <tr *ngFor="let classe of classesDespesas">
             <td>
-                <a [routerLink]="['/despesas/edit/', !! pagamentos[classe][mesCorrente]?.id ? pagamentos[classe][mesCorrente]?.id : pagamentos[classe][mesCorrente]?.origem]">
+                <a [routerLink]="['/despesas/edit/', !! pagamentos[classe][mesCorrente]?._id ? pagamentos[classe][mesCorrente]?._id : pagamentos[classe][mesCorrente]?.origem]">
                     {{classe}}
                 </a>
             </td>
@@ -24,7 +24,7 @@
                 <div *ngIf="!! pagamentos[classe][mes]; else DespesaUndefined">
                     <ng-container 
                         [ngTemplateOutlet]="anteriorMesCorrente(mes) ?  textPagto : inputPagto" 
-                        [ngTemplateOutletContext]="{mes,despesa:pagamentos[classe][mes],name:'pagto_'+mes+'_'+(pagamentos[classe][mes]?.id || 0)}">
+                        [ngTemplateOutletContext]="{mes,despesa:pagamentos[classe][mes],name:'pagto_'+mes+'_'+(pagamentos[classe][mes]?._id || 0)}">
                     </ng-container>
                 </div>
             </td>

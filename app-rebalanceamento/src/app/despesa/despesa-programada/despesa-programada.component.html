@@ -20,7 +20,7 @@
         <tbody>
             <tr *ngFor="let despesa of despesas">
                 <td>
-                    <a [routerLink]="['/despesas/edit', despesa.id]">
+                    <a [routerLink]="['/despesas/edit', despesa._id]">
                         {{despesa.descricao}}
                     </a>
                 </td>

@@ -968,13 +968,13 @@ components:
           type: string
           example: SMN
           enum:
-            - SMN
-            - Q
-            - M
-            - T
-            - SMT
-            - A
-            - U
+            - UNICO
+            - SEMANAL
+            - QUINZENAL
+            - MENSAL
+            - TRIMESTRAL
+            - SEMESTRAL
+            - ANUAL
         dataVencimento:
           type: string
           format: date

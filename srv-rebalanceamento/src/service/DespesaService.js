@@ -6,7 +6,6 @@ const { DateTime } = require("luxon");
 const { respondWithCode } = require('../utils/writer');
 const Despesa = mongoose.model('despesa');
 
-
 /**
  * Lista as despesas
  * Lista as despesas programadas do ano
@@ -35,13 +34,13 @@ exports.despesaGET = function (mes, pago, categoria) {
   return new Promise(async (resolve, reject) => {
     try {
       var result = await Despesa.find(filter);
+      result = result.map(item=>Despesa.toObjectInstance(item));
       resolve(result);
     } catch (error) {
       reject(error);
     }
   });
 }
-
 
 /**
  * Remove uma nova despesa
@@ -59,7 +58,7 @@ exports.despesaIdDELETE = function (despesaId) {
         resolve(respondWithCode(404, 'Despesa não encontrada'));
         return;
       }
-      resolve(despesa);
+      resolve(Despesa.toObjectInstance(despesa));
     } catch (error) {
       reject(error);
     }
@@ -84,7 +83,7 @@ exports.despesaIdGET = function (despesaId) {
         resolve(respondWithCode(404, 'Despesa não encontrada'));
         return;
       }
-      resolve(despesa);
+      resolve(Despesa.toObjectInstance(despesa));
 
     } catch (error) {
       reject(error);
@@ -105,7 +104,7 @@ exports.despesaPOST = function (body) {
     try {
       var despesa = new Despesa(body);
       despesa = await despesa.save();
-      resolve(despesa);
+      resolve(Despesa.toObjectInstance(despesa));
     } catch (error) {
       reject(error);
     }
@@ -130,7 +129,7 @@ exports.despesaPUT = function (body) {
         resolve(respondWithCode(404, 'Despesa não encontrada'));
         return;
       }
-      resolve(despesa);
+      resolve();
     } catch (error) {
       error.code = 422;
       reject(error);

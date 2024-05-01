@@ -7,6 +7,7 @@ import { DespesaRoutingModule } from './despesa-routing.module';
 import { DespesasListComponent } from './despesas-list/despesas-list.component';
 import { PagamentoMensalComponent } from './pagamento-mensal/pagamento-mensal.component';
 import { DespesaProgramadaComponent } from './despesa-programada/despesa-programada.component';
+import { HttpClientModule } from  '@angular/common/http';
 
 
 @NgModule({
@@ -19,6 +20,7 @@ import { DespesaProgramadaComponent } from './despesa-programada/despesa-program
   imports: [
     CommonModule,
     FormsModule,
+    HttpClientModule,
     DespesaRoutingModule
   ]
 })

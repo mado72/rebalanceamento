@@ -2,7 +2,7 @@ import { DateTime } from "luxon";
 import { Conta } from "src/app/conta/model/conta.model";
 
 export interface IDespesaRecorrente {
-    id?: string; // Identificador único da despesa (quando persistida)
+    _id?: string; // Identificador único da despesa (quando persistida)
     descricao: string; // Descrição da despesa
     valor: number; // Valor da despesa
     periodicidade: Periodicidade; // Periodicidade da despesa (mensal, trimestral, anual, etc.)
@@ -16,6 +16,7 @@ export interface IDespesaRecorrente {
 }
 
 export enum Periodicidade {
+    UNICO = "UNICO",
     SEMANAL = "SEMANAL",
     QUINZENAL = "QUINZENAL",
     MENSAL = "MENSAL",
@@ -49,7 +50,7 @@ export function obterMes(mesStr: string): Mes | undefined {
 }
 
 export class DespesaRecorrenteImpl implements IDespesaRecorrente {
-    id?: string;
+    _id?: string;
     descricao!: string;
     valor!: number;
     periodicidade!: Periodicidade;
@@ -62,17 +63,57 @@ export class DespesaRecorrenteImpl implements IDespesaRecorrente {
     contaLiquidacao?: Conta | undefined;
 
     constructor(valorInicial: IDespesaRecorrente) {
-        this.id = valorInicial.id;
+        this._id = valorInicial._id;
         this.descricao = valorInicial.descricao;
-        this.valor = valorInicial.valor;
+        this.valor = Number(valorInicial.valor);
         this.periodicidade = valorInicial.periodicidade;
-        this.dataVencimento = valorInicial.dataVencimento;
-        this.dataPagamento = valorInicial.dataPagamento;
-        this.dataFinal = valorInicial.dataFinal;
+        this.dataVencimento = this.toDate(valorInicial.dataVencimento);
+        this.dataPagamento = this.toDate(valorInicial.dataPagamento);
+        this.dataFinal = this.toDate(valorInicial.dataFinal);
         this.origem = valorInicial.origem;
         this.categoria = valorInicial.categoria;
         this.liquidacao = valorInicial.liquidacao;
         this.contaLiquidacao = valorInicial.contaLiquidacao;
+    }
+
+    private toDate(d: any) {
+        if (!d) return undefined;
+        if (!!d && typeof d.getMonth === 'function') {
+            return d;
+        }
+        return DateTime.fromISO(d).toJSDate();
+    }
+
+    get dtVencimentoStr(): string {
+        return DateTime.fromJSDate(this.dataVencimento).toFormat('yyyy-MM-dd');
+    }
+
+    set dtVencimentoStr(dtVencimento: string) {
+        this.dataVencimento = DateTime.fromFormat(dtVencimento, 'yyyy-MM-dd').toJSDate();
+    }
+
+    get dtPagamentoStr() {
+        return this.dataPagamento? DateTime.fromJSDate(this.dataPagamento).toFormat('yyyy-MM-dd') : undefined;
+    }
+
+    set dtPagamentoStr(dtPagamento: string | undefined) {
+        if (!dtPagamento) {
+            this.dataPagamento = undefined;
+            return;
+        }
+        this.dataPagamento = DateTime.fromFormat(dtPagamento, 'yyyy-MM-dd').toJSDate();
+    }
+
+    get dtFinalStr() {
+        return this.dataFinal? DateTime.fromJSDate(this.dataFinal).toFormat('yyyy-MM-dd') : undefined;
+    }
+
+    set dtFinalStr(dtFinal: string | undefined) {
+        if (!dtFinal) {
+            this.dataFinal = undefined;
+            return;
+        }
+        this.dataFinal = DateTime.fromFormat(dtFinal, 'yyyy-MM-dd').toJSDate();
     }
 
     get diaVencimento(): number {
@@ -122,9 +163,9 @@ export class DespesaRecorrenteImpl implements IDespesaRecorrente {
         const despesas = datas.filter(data=>data != this.dataVencimento).map(data => {
             let d = new DespesaRecorrenteImpl(this);
             d.dataVencimento = data;
-            d.id = undefined;
+            d._id = undefined;
             d.dataPagamento = undefined;
-            d.origem = this.id;
+            d.origem = this._id;
             return d;
         });
         despesas.push(this);
