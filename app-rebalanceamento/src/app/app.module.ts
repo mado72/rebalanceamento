@@ -14,6 +14,9 @@ import { AtivosModule } from './ativos/ativos.module';
 import { HTTP_INTERCEPTORS, HttpClientModule } from '@angular/common/http';
 import { AuthInterceptor } from './interceptors/auth.interceptor';
 import { HandleErrorInterceptor } from './interceptors/handle-error.interceptor';
+import { ToastrModule } from 'ngx-toastr';
+import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
+import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 
 registerLocaleData(localePt);
 
@@ -28,8 +31,11 @@ registerLocaleData(localePt);
     FormsModule,
     HttpClientModule,
     AppRoutingModule,
+    BrowserAnimationsModule,
+    ToastrModule.forRoot(),
     ContasModule,
-    AtivosModule
+    AtivosModule,
+    NgbModule
   ],
   providers: [
     {provide: LOCALE_ID, useValue: 'pt' },

@@ -2,3 +2,9 @@
 .debug {
     display: none;
 }
+
+@import 'ngx-toastr/toastr';
+
+/* Importing Bootstrap SCSS file. */
+@import 'bootstrap/scss/bootstrap';
+@import 'ngx-toastr/toastr-bs5-alert';
