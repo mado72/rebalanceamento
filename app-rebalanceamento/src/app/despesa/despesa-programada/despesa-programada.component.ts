@@ -20,7 +20,7 @@ export class DespesaProgramadaComponent implements OnInit {
   }
 
   get total() {
-    const total = this.despesas.map(despesa=>despesa.valor).reduce((acc,vl)=>acc+=vl);
+    const total = this.despesas.map(despesa=>despesa.valor).reduce((acc,vl)=>acc+=vl,0);
     return total;
   }
 

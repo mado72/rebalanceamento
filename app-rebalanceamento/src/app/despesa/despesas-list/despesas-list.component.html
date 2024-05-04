@@ -1,6 +1,6 @@
 <p>despesas-list works!</p>
 
-<table *ngIf="!!pagamentos">
+<table *ngIf="!!pagamentos" class="table">
     <thead>
         <tr>
             <td>Despesa</td>
@@ -14,18 +14,20 @@
     <tbody>
         <tr *ngFor="let classe of classesDespesas">
             <td>
-                <a [routerLink]="['/despesas/edit/', !! pagamentos[classe][mesCorrente]?._id ? pagamentos[classe][mesCorrente]?._id : pagamentos[classe][mesCorrente]?.origem]">
-                    {{classe}}
-                </a>
+                {{classe}}
             </td>
             <td>{{diaVencimento(classe)}}</td>
             <td *ngFor="let mes of meses">
 
-                <div *ngIf="!! pagamentos[classe][mes]; else DespesaUndefined">
-                    <ng-container 
+                <div *ngIf="!! pagamentos[classe][mes]; else DespesaUndefined" class=" text-end">
+                    <ng-container
+                        [ngTemplateOutlet]="pagamentos[classe][mes]?._id ? textPagto : criarPagto" 
+                        [ngTemplateOutletContext]="{mes,pagamento:pagamentos[classe][mes],name:'pagto_'+mes+'_'+(pagamentos[classe][mes]?._id || 0)}">
+                    </ng-container>
+                    <!-- <ng-container 
                         [ngTemplateOutlet]="anteriorMesCorrente(mes) ?  textPagto : inputPagto" 
                         [ngTemplateOutletContext]="{mes,despesa:pagamentos[classe][mes],name:'pagto_'+mes+'_'+(pagamentos[classe][mes]?._id || 0)}">
-                    </ng-container>
+                    </ng-container> -->
                 </div>
             </td>
             <td>
@@ -46,12 +48,17 @@
 |
 <a routerLink="/despesas/pagamentos">Pagamentos</a>
 
-<ng-template #inputPagto let-mes="mes" let-despesa="despesa" let-name="name">
-        <input type="number" requires step="0.01" [name]="name" [(ngModel)]="despesa.valor" />
+<ng-template #textPagto let-mes="mes" let-pagamento="pagamento" let-classe>
+    <!-- <a [routerLink]="['/despesas/edit/', pagamento._id]" class="despesa-valor pago"> -->
+    <a href="javascript:void(0)" (click)="abrirDespesaForm(pagamento, 'Edição pagamento')" class="despesa-valor" [ngClass]="{'pago': !!pagamento.dataPagamento, 'salvo': !pagamento.dataPagamento}">
+        {{ pagamento.valor | number : '1.2-2' }}
+    </a>
 </ng-template>
 
-<ng-template #textPagto let-mes="mes" let-despesa="despesa">
-    {{ despesa.valor | number : '1.2-2' }}
+<ng-template #criarPagto let-mes="mes" let-pagamento="pagamento">
+    <a href="javascript:void(0)" (click)="abrirDespesaForm(pagamento, 'Cadastro pagamento')" class="despesa-valor">
+        {{ pagamento.valor | number : '1.2-2' }}
+    </a>
 </ng-template>
 
 <ng-template #DespesaUndefined >

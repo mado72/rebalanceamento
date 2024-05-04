@@ -1,7 +1,8 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
-import { Observable, catchError, map, of, tap } from 'rxjs';
+import { Observable, Observer, catchError, map, of, tap } from 'rxjs';
 import { DespesaRecorrenteImpl, IDespesaRecorrente, Periodicidade, TipoLiquidacao } from 'src/app/despesa/models/despesa.model';
+import { AlertService } from 'src/app/services/alert.service';
 import { formatRequestDate } from 'src/app/util/date-formatter.util';
 import { environment } from 'src/environments/environment.development';
 
@@ -10,7 +11,7 @@ import { environment } from 'src/environments/environment.development';
 })
 export class DespesasService {
 
-  constructor(private http: HttpClient) {  }
+  constructor(private http: HttpClient, private alertService: AlertService) {  }
 
   uuidv4() {
     return "10000000-1000-4000-8000-100000000000".replace(/[018]/g, c =>
@@ -94,4 +95,51 @@ export class DespesasService {
       )
   }
 
+  private salvarDespesaSubscriber(observer: Observer<DespesaRecorrenteImpl>) {
+
+  }
+
+  salvarDespesa(despesa: DespesaRecorrenteImpl) : Observable<DespesaRecorrenteImpl> {
+    const obDespesa = new Observable<DespesaRecorrenteImpl>((observer: Observer<DespesaRecorrenteImpl>)=>{
+      const error = (error:any)=> {
+        observer.error(error);
+        this.alertService.alert({
+          mensagem: `Erro ao atualizar despesa.${error.message ? '<br>\n<b>Origem:</b>' + error.message : ''}`,
+          titulo: 'Resultado da operação',
+          tipo: 'erro'
+        });
+      };
+
+      if (!despesa._id) {
+        this.adicionarDespesa(despesa)
+          .subscribe({
+            next: despesa => {
+              observer.next(despesa);
+              this.alertService.alert({
+                mensagem: 'Despesa cadastrada com sucesso!',
+                titulo: 'Resultado da operação',
+                tipo: 'sucesso'
+              });
+            },
+            error,
+            complete: () => observer.complete()
+          });
+      }
+      else {
+        this.atualizarDespesa(despesa).subscribe({
+          next: () => {
+            this.alertService.alert({
+              mensagem: 'Despesa atualizada com sucesso!',
+              titulo: 'Resultado da operação',
+              tipo: 'sucesso'
+            })
+          },
+          error,
+          complete: () => observer.complete()
+        });
+      }
+    });
+
+    return obDespesa;
+  }
 }

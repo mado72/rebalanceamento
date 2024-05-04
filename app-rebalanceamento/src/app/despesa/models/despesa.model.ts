@@ -62,17 +62,17 @@ export class DespesaRecorrenteImpl implements IDespesaRecorrente {
     liquidacao!: TipoLiquidacao;
     contaLiquidacao?: Conta | undefined;
 
-    constructor(valorInicial: IDespesaRecorrente) {
+    constructor(valorInicial: Partial<IDespesaRecorrente>) {
         this._id = valorInicial._id;
-        this.descricao = valorInicial.descricao;
-        this.valor = Number(valorInicial.valor);
-        this.periodicidade = valorInicial.periodicidade;
-        this.dataVencimento = this.toDate(valorInicial.dataVencimento);
-        this.dataPagamento = this.toDate(valorInicial.dataPagamento);
-        this.dataFinal = this.toDate(valorInicial.dataFinal);
+        this.descricao = valorInicial.descricao || '';
+        this.valor = valorInicial.valor || 0;
+        this.periodicidade = valorInicial.periodicidade || Periodicidade.MENSAL;
+        this.dataVencimento = valorInicial.dataVencimento ? this.toDate(valorInicial.dataVencimento) : new Date();
+        this.dataPagamento = valorInicial.dataPagamento ? this.toDate(valorInicial.dataPagamento) : undefined;
+        this.dataFinal = valorInicial.dataFinal ? this.toDate(valorInicial.dataFinal) : undefined;
         this.origem = valorInicial.origem;
         this.categoria = valorInicial.categoria;
-        this.liquidacao = valorInicial.liquidacao;
+        this.liquidacao = valorInicial.liquidacao || TipoLiquidacao.CONTA;
         this.contaLiquidacao = valorInicial.contaLiquidacao;
     }
 
@@ -137,6 +137,8 @@ export class DespesaRecorrenteImpl implements IDespesaRecorrente {
         while (data < dataFinalPeriodo) {
             datas.push(data.toJSDate());
             switch (this.periodicidade) {
+                case Periodicidade.UNICO:
+                    return datas;
                 case Periodicidade.SEMANAL:
                     data = data.plus({ weeks: 1 });
                     break;

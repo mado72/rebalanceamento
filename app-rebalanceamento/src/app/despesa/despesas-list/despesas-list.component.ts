@@ -1,8 +1,10 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, inject } from '@angular/core';
 import { DateTime } from 'luxon';
 import { DespesaRecorrenteImpl, Mes } from '../models/despesa.model';
 import { DespesasService } from '../services/despesas.service';
 import { toArray } from 'rxjs';
+import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
+import { CadastroDespesaModalComponent } from '../cadastro-despesa-modal/cadastro-despesa-modal.component';
 
 type Pagamentos = {[classe: string] : {[mes: string] : DespesaRecorrenteImpl | undefined}};
 
@@ -15,21 +17,25 @@ export class DespesasListComponent implements OnInit {
 
   pagamentos : Pagamentos = {};
 
-  constructor(private despesasService: DespesasService) {
+  private modalService = inject(NgbModal);
 
-  }
+  constructor(private despesasService: DespesasService) {}
 
   ngOnInit(): void {
+    this.obterDespesas();
+  }
+  
+  private obterDespesas() {
     const ateData = DateTime.now().endOf("year").toJSDate();
-    const meses = Object.values(Mes);
+    this.pagamentos = {};
 
-    this.despesasService.obterDespesas().subscribe(despesas=>{
-      despesas = despesas.flatMap(despesa=>{
+    this.despesasService.obterDespesas().subscribe(despesas => {
+      despesas = despesas.flatMap(despesa => {
         const projecao = despesa.programacaoDespesas(ateData);
         projecao.push(despesa);
         return projecao;
       });
-      despesas.forEach(despesa=>{
+      despesas.forEach(despesa => {
         const descricao = despesa.descricao || 'Não classificado';
         const mesVencimento = despesa.mesVencimento;
         if (!!mesVencimento) {
@@ -91,6 +97,21 @@ export class DespesasListComponent implements OnInit {
       });
     });
     return totais;
+  }
+
+  abrirDespesaForm(despesa: DespesaRecorrenteImpl, titulo: string) {
+    const modalRef = this.modalService.open(CadastroDespesaModalComponent, { size: 'lg' });
+    const component = modalRef.componentInstance as CadastroDespesaModalComponent;
+    component.onCancelar.subscribe((ev: any) => modalRef.dismiss(ev));
+    component.onSalvar.subscribe((ev: any) => modalRef.close(ev));
+    component.despesa = despesa;
+    component.titulo = titulo;
+
+    modalRef.result.then((result) => {
+      this.despesasService.salvarDespesa(result as DespesaRecorrenteImpl).subscribe(() => this.obterDespesas());
+    }, (reason) => {
+      console.log(`Dismissed ${reason}`);
+    });
   }
 }
 

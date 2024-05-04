@@ -8,6 +8,7 @@ import { DespesasListComponent } from './despesas-list/despesas-list.component';
 import { PagamentoMensalComponent } from './pagamento-mensal/pagamento-mensal.component';
 import { DespesaProgramadaComponent } from './despesa-programada/despesa-programada.component';
 import { HttpClientModule } from  '@angular/common/http';
+import { CadastroDespesaModalComponent } from './cadastro-despesa-modal/cadastro-despesa-modal.component';
 
 
 @NgModule({
@@ -16,12 +17,16 @@ import { HttpClientModule } from  '@angular/common/http';
     DespesaFormComponent,
     PagamentoMensalComponent,
     DespesaProgramadaComponent,
+    CadastroDespesaModalComponent,
   ],
   imports: [
     CommonModule,
     FormsModule,
     HttpClientModule,
     DespesaRoutingModule
+  ],
+  exports: [
+    DespesaFormComponent
   ]
 })
 export class DespesaModule { }

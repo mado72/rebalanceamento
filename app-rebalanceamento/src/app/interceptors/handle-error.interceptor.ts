@@ -23,7 +23,7 @@ export class HandleErrorInterceptor implements HttpInterceptor {
           mensagem: httpError.error?.message || httpError.message,
           titulo: 'Erro na requisição'
         })
-        throw `${httpError.message}. ${httpError.error?.message || ''}`;
+        throw `${httpError.message}.<br>\nDetalhe: ${httpError.error?.message || ''}`;
       })
     );
   }
