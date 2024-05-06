@@ -1,12 +1,14 @@
-<p>despesas-list works!</p>
+<select name="tipoPeriodo" [(ngModel)]="visao">
+    <option [value]="tipo" *ngFor="let tipo of tiposPeriodo">{{tipo}}</option>
+</select>
 
 <table *ngIf="!!pagamentos" class="table">
     <thead>
         <tr>
             <td>Despesa</td>
             <td>Dia Venc.</td>
-            <td *ngFor="let mes of meses" [style.font-weight]="mes === mesCorrente ? 'bold' : null" >
-                {{mes}}
+            <td *ngFor="let periodo of periodos" [style.font-weight]="periodo === periodoCorrente ? 'bold' : null" >
+                {{periodo}}
             </td>
             <td>Total</td>
         </tr>
@@ -17,12 +19,12 @@
                 {{classe}}
             </td>
             <td>{{diaVencimento(classe)}}</td>
-            <td *ngFor="let mes of meses">
+            <td *ngFor="let periodo of periodos">
 
-                <div *ngIf="!! pagamentos[classe][mes]; else DespesaUndefined" class=" text-end">
+                <div *ngIf="!! pagamentos[classe][periodo]; else DespesaUndefined" class=" text-end">
                     <ng-container
-                        [ngTemplateOutlet]="pagamentos[classe][mes]?._id ? textPagto : criarPagto" 
-                        [ngTemplateOutletContext]="{mes,pagamento:pagamentos[classe][mes],name:'pagto_'+mes+'_'+(pagamentos[classe][mes]?._id || 0)}">
+                        [ngTemplateOutlet]="pagamentos[classe][periodo]?._id ? textPagto : criarPagto" 
+                        [ngTemplateOutletContext]="{periodo,pagamento:pagamentos[classe][periodo],name:'pagto_'+periodo+'_'+(pagamentos[classe][periodo]?._id || 0)}">
                     </ng-container>
                     <!-- <ng-container 
                         [ngTemplateOutlet]="anteriorMesCorrente(mes) ?  textPagto : inputPagto" 
@@ -30,7 +32,7 @@
                     </ng-container> -->
                 </div>
             </td>
-            <td>
+            <td class="text-end">
                 {{totaisClasse[classe] | number:'1.2-2'}}
             </td>
         </tr>
@@ -38,7 +40,8 @@
     <tfoot>
         <tr>
             <td colspan="2">Totais:</td>
-            <td *ngFor="let mes of meses">{{totaisMes[mes] | number:'1.2-2'}}</td>
+            <td class="text-end" *ngFor="let periodo of periodos">{{totaisMes[periodo] | number:'1.2-2'}}</td>
+            <td class="text-end">{{totais | number:'1.2-2'}}</td>
         </tr>
     </tfoot>
 </table>
@@ -48,19 +51,19 @@
 |
 <a routerLink="/despesas/pagamentos">Pagamentos</a>
 
-<ng-template #textPagto let-mes="mes" let-pagamento="pagamento" let-classe>
+<ng-template #textPagto let-periodo="periodo" let-pagamento="pagamento" let-classe>
     <!-- <a [routerLink]="['/despesas/edit/', pagamento._id]" class="despesa-valor pago"> -->
     <a href="javascript:void(0)" (click)="abrirDespesaForm(pagamento, 'Edição pagamento')" class="despesa-valor" [ngClass]="{'pago': !!pagamento.dataPagamento, 'salvo': !pagamento.dataPagamento}">
         {{ pagamento.valor | number : '1.2-2' }}
     </a>
 </ng-template>
 
-<ng-template #criarPagto let-mes="mes" let-pagamento="pagamento">
+<ng-template #criarPagto let-periodo="periodo" let-pagamento="pagamento">
     <a href="javascript:void(0)" (click)="abrirDespesaForm(pagamento, 'Cadastro pagamento')" class="despesa-valor">
         {{ pagamento.valor | number : '1.2-2' }}
     </a>
 </ng-template>
 
 <ng-template #DespesaUndefined >
-    -
+    <div class="text-end">-</div>
 </ng-template>
