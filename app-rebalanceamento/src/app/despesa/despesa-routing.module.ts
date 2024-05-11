@@ -4,6 +4,7 @@ import { DespesaFormComponent } from './despesa-form/despesa-form.component';
 import { DespesasListComponent } from './despesas-list/despesas-list.component';
 import { PagamentoMensalComponent } from './pagamento-mensal/pagamento-mensal.component';
 import { DespesaProgramadaComponent } from './despesa-programada/despesa-programada.component';
+import { DespesaCalendarioComponent } from './despesa-calendario/despesa-calendario.component';
 
 const routes: Routes = [{
   path: '',
@@ -21,6 +22,9 @@ const routes: Routes = [{
 },{
   path: 'pagamentos',
   component: PagamentoMensalComponent
+},{
+  path: 'calendario',
+  component: DespesaCalendarioComponent
 },{
   path: 'programada',
   component: DespesaProgramadaComponent

@@ -1,7 +1,8 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
-import { Observable, Observer, catchError, map, of, tap } from 'rxjs';
-import { DespesaRecorrenteImpl, IDespesaRecorrente, Periodicidade, TipoLiquidacao } from 'src/app/despesa/models/despesa.model';
+import { DateTime } from 'luxon';
+import { Observable, Observer, catchError, filter, map, mergeAll, of, tap } from 'rxjs';
+import { DespesaRecorrenteImpl, IDespesaRecorrente, Mes, Periodicidade, TipoLiquidacao } from 'src/app/despesa/models/despesa.model';
 import { AlertService } from 'src/app/services/alert.service';
 import { formatRequestDate } from 'src/app/util/date-formatter.util';
 import { environment } from 'src/environments/environment.development';
@@ -34,6 +35,23 @@ export class DespesasService {
           throw new Error(JSON.stringify(error));
         })
       )
+  }
+
+  obterDespesasParaAno(ano: number): Observable<DespesaRecorrenteImpl[]> {
+    const inicioData = DateTime.now().set({year:ano}).startOf('year'); 
+    const ateData = inicioData.endOf("year");
+
+    return this.obterDespesas().pipe(
+      map(despesas=>{
+        return despesas.filter(despesa=>{
+          return !despesa.dataVencimento || DateTime.fromJSDate(despesa.dataVencimento) > inicioData;
+        });
+      }),
+      mergeAll(),
+      map(despesa=>{
+        return despesa.programacaoDespesas(ateData.toJSDate());
+      })
+    );
   }
 
   /**

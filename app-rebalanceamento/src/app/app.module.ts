@@ -1,7 +1,7 @@
 import { LOCALE_ID, NgModule } from '@angular/core';
 import { BrowserModule } from '@angular/platform-browser';
 
-import { registerLocaleData } from '@angular/common';
+import { CommonModule, registerLocaleData } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
@@ -17,6 +17,9 @@ import { HandleErrorInterceptor } from './interceptors/handle-error.interceptor'
 import { ToastrModule } from 'ngx-toastr';
 import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
+import { CalendarModule, DateAdapter } from 'angular-calendar';
+import { adapterFactory } from 'angular-calendar/date-adapters/date-fns';
+import { MenuComponent } from './menu/menu.component';
 
 registerLocaleData(localePt);
 
@@ -24,9 +27,11 @@ registerLocaleData(localePt);
   declarations: [
     AppComponent,
     HomeComponent,
-    PainelComponent
+    PainelComponent,
+    MenuComponent
   ],
   imports: [
+    CommonModule,
     BrowserModule,
     FormsModule,
     HttpClientModule,
@@ -35,7 +40,11 @@ registerLocaleData(localePt);
     ToastrModule.forRoot(),
     ContasModule,
     AtivosModule,
-    NgbModule
+    NgbModule,
+    CalendarModule.forRoot({ 
+      provide: DateAdapter, 
+      useFactory: adapterFactory 
+    })
   ],
   providers: [
     {provide: LOCALE_ID, useValue: 'pt' },
