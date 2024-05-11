@@ -1,6 +1,7 @@
 import { Component, OnInit } from '@angular/core';
-import { DespesasService } from '../services/despesas.service';
+import { getTime } from 'date-fns';
 import { DespesaRecorrenteImpl } from '../models/despesa.model';
+import { DespesasService } from '../services/despesas.service';
 
 @Component({
   selector: 'app-despesa-programada',
@@ -9,14 +10,26 @@ import { DespesaRecorrenteImpl } from '../models/despesa.model';
 })
 export class DespesaProgramadaComponent implements OnInit {
 
-  filtrarNaoPagos = true;
+  filtrarPagos = true;
+  filtrarVencidos = false;
 
   _despesas: DespesaRecorrenteImpl[] = [];
 
-  constructor(private _despesasService: DespesasService) {}
+  constructor(
+    private _despesasService: DespesasService,
+  ) {}
   
   ngOnInit(): void {
-    this._despesasService.obterDespesas().subscribe(despesas=>this._despesas=despesas);
+    this.obterDespesas();
+  }
+  
+  private obterDespesas() {
+    const now = new Date();
+    this._despesasService.obterDespesas().subscribe(despesas => {
+      this._despesas = despesas
+        .filter(d => !this.filtrarVencidos || !d.dataFinal || d.dataFinal > now)
+        .sort((a, b) => getTime(a.dataVencimento) - getTime(b.dataVencimento) || a.descricao.localeCompare(b.descricao));
+    });
   }
 
   get total() {
@@ -25,8 +38,19 @@ export class DespesaProgramadaComponent implements OnInit {
   }
 
   get despesas() {
-    return !this.filtrarNaoPagos && this._despesas 
+    return !this.filtrarPagos && this._despesas 
       || this._despesas.filter(despesa=>!despesa.dataPagamento);
+  }
+
+  adicionarDespesa() {
+    const despesa = new DespesaRecorrenteImpl({});
+    this.abrirDespesaForm(despesa, 'Adicionar Despesa');
+  }
+
+  abrirDespesaForm(despesa: DespesaRecorrenteImpl, titulo: string) {
+    this._despesasService.abrirDespesaForm(despesa, titulo).subscribe(()=>{
+      this.obterDespesas();
+    });
   }
 
 

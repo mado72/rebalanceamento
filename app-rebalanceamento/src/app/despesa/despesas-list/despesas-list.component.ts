@@ -1,10 +1,8 @@
-import { Component, OnInit, inject } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { DateTime } from 'luxon';
+import { AlertService } from 'src/app/services/alert.service';
 import { DespesaRecorrenteImpl, Mes, Periodicidade } from '../models/despesa.model';
 import { DespesasService } from '../services/despesas.service';
-import { toArray } from 'rxjs';
-import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
-import { CadastroDespesaModalComponent } from '../cadastro-despesa-modal/cadastro-despesa-modal.component';
 
 type Pagamentos = {[classe: string] : {[mes: string] : DespesaRecorrenteImpl | undefined}};
 
@@ -21,9 +19,10 @@ export class DespesasListComponent implements OnInit {
 
   private _visao!: Periodicidade;
 
-  private modalService = inject(NgbModal);
-
-  constructor(private despesasService: DespesasService) {}
+  constructor(
+    private _despesasService: DespesasService,
+    private _alertService: AlertService
+  ) {}
 
   ngOnInit(): void {
     this.obterDespesas();
@@ -64,7 +63,7 @@ export class DespesasListComponent implements OnInit {
     const ateData = DateTime.now().endOf("year").toJSDate();
     this.pagamentos = {};
 
-    this.despesasService.obterDespesas().subscribe(despesas => {
+    this._despesasService.obterDespesas().subscribe(despesas => {
       this.despesas = despesas.flatMap(despesa => {
         const projecao = despesa.programacaoDespesas(ateData);
         projecao.push(despesa);
@@ -178,18 +177,9 @@ export class DespesasListComponent implements OnInit {
   }
 
   abrirDespesaForm(despesa: DespesaRecorrenteImpl, titulo: string) {
-    const modalRef = this.modalService.open(CadastroDespesaModalComponent, { size: 'lg' });
-    const component = modalRef.componentInstance as CadastroDespesaModalComponent;
-    component.onCancelar.subscribe((ev: any) => modalRef.dismiss(ev));
-    component.onSalvar.subscribe((ev: any) => modalRef.close(ev));
-    component.despesa = despesa;
-    component.titulo = titulo;
-
-    modalRef.result.then((result) => {
-      this.despesasService.salvarDespesa(result as DespesaRecorrenteImpl).subscribe(() => this.obterDespesas());
-    }, (reason) => {
-      console.log(`Dismissed ${reason}`);
-    });
+    this._despesasService.abrirDespesaForm(despesa, titulo).subscribe(()=>{
+      this.obterDespesas();
+    })
   }
 }
 

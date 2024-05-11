@@ -13,6 +13,8 @@ export class CadastroDespesaModalComponent {
 
   @Output() onCancelar = new EventEmitter();
   @Output() onSalvar = new EventEmitter<DespesaRecorrenteImpl>();
+  @Output() onExcluir = new EventEmitter<DespesaRecorrenteImpl>();
+
 
   salvar() {
     this.onSalvar.emit(this.despesa);
@@ -20,6 +22,10 @@ export class CadastroDespesaModalComponent {
 
   cancelar() {
     this.onCancelar.emit('Cancelar');
+  }
+
+  excluir() {
+    this.onExcluir.emit(this.despesa);
   }
 
   dispensar() {
