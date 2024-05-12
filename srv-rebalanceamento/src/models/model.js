@@ -70,6 +70,32 @@ var Despesa = new Schema({
     }
 });
 
+var Recebimento = new Schema({
+    descricao: { type: String, required: true}, // Descrição do recebimento
+    valor: {type: Number, required: true}, // Valor do recebimento
+    periodicidade: {type: String, required: true, enum: Object.values(TipoPeriodicidade)}, // Periodicidade do recebimento (mensal, trimestral, anual, etc.)
+    dataRecebimento: {type: String, required: true}, // Data do recebimento
+    dataFinal: {type: String}, // Data final da recorrência (opcional)
+    origem: {type: String}, // Identifica se o recebimento surgiu de uma recebimento anterior (opcional)
+    contaLiquidacao: {type: String} // Conta de Liquidação
+}, {
+    statics: {
+        toObjectInstance: (dbInstance)=> {
+            var obj = dbInstance.toObject();
+            if (!! obj.dataRecebimento) obj.dataRecebimento = DateTime.fromFormat(obj.dataRecebimento, 'yyyy-MM-dd');
+            if (!! obj.dataFinal) obj.dataFinal = DateTime.fromFormat(obj.dataFinal, 'yyyy-MM-dd');
+            if (!! obj.periodicidade) obj.periodicidade = TipoPeriodicidade[obj.periodicidade];
+            return obj;
+        },
+        toDBInstance: () => {
+            if (!! this.dataRecebimento) this.dataRecebimento = DateTime.fromJSDate(this.dataRecebimento).format('yyyy-MM-dd');
+            if (typeof this.dataFinal === "object" && this.dataFinal.getMonth && typeof this.dataFinal.getMonth === 'function') this.dataFinal = DateTime.fromJSDate(this.dataFinal).format('yyyy-MM-dd');
+            if (typeof this.periodicidade === "object" && this.periodicidade.getMonth && typeof this.periodicidade.getMonth === 'function') this.periodicidade = TipoPeriodicidade[this.periodicidade];
+        }
+    }
+});
+
+
 var CarteiraAtivo = new Schema({
     _id: false,
     ativoId: { type: mongoose.Schema.Types.ObjectId, ref: 'ativo', index: true, unique: true }, // Referência ao ativo
@@ -118,6 +144,7 @@ var Conta = new Schema({
 
 module.exports = {
     'ativo': mongoose.model('ativo', Ativo, 'ativo'),
+    'recebimento': mongoose.model('recebimento', Recebimento, 'recebimento'),
     'despesa': mongoose.model('despesa', Despesa, 'despesa'),
     'carteira': mongoose.model('carteira', Carteira, 'carteira'),
     'carteira-ativo': mongoose.model('carteira-ativo', CarteiraAtivo),
