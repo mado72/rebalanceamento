@@ -156,8 +156,12 @@ export class DespesaCalendarioComponent implements OnInit {
         mergeAll(),
         map(despesa => this.converterParaEvento(despesa))
       )
-      .subscribe(evento => {
-        this.events.push(evento);
+      .subscribe({
+        next: (evento) => {
+          this.events.push(evento);
+        },
+        complete: () => this.dayClicked({date: new Date(), events: []})
+
       });
   }
 
@@ -171,7 +175,6 @@ export class DespesaCalendarioComponent implements OnInit {
 
   converterParaEvento(despesa: DespesaRecorrenteImpl) : CalendarEvent {
     const color : ColorType = !! despesa.dataPagamento ? 'green' : !! despesa._id ? 'red' : 'yellow';
-    const month = getMonth(this.viewDate);
     return {
       start: despesa.dataPagamento || despesa.dataVencimento,
       title: despesa.descricao,
