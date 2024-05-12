@@ -1,3 +1,4 @@
+import { getTime } from "date-fns";
 import { DateTime } from "luxon";
 import { Conta } from "src/app/conta/model/conta.model";
 
@@ -162,7 +163,7 @@ export class DespesaRecorrenteImpl implements IDespesaRecorrente {
 
     public programacaoDespesas(ateData: Date) {
         const datas = this.programacaoDatas(ateData);
-        const despesas = datas.filter(data=>data != this.dataVencimento).map(data => {
+        const despesas = datas.filter(data=>getTime(data) != getTime(this.dataVencimento)).map(data => {
             let d = new DespesaRecorrenteImpl(this);
             d.dataVencimento = data;
             d._id = undefined;

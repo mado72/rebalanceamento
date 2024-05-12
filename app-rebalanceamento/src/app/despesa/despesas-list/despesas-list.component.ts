@@ -178,6 +178,7 @@ export class DespesasListComponent implements OnInit {
 
   abrirDespesaForm(despesa: DespesaRecorrenteImpl, titulo: string) {
     this._despesasService.abrirDespesaForm(despesa, titulo).subscribe(()=>{
+      console.log(`Atualizando despesas`)
       this.obterDespesas();
     })
   }

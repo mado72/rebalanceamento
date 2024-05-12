@@ -146,15 +146,19 @@ export class DespesaCalendarioComponent implements OnInit {
   ) {}
 
   ngOnInit(): void {
+    this.obterEventos();
+  }
+  
+  obterEventos() {
     this.events = [];
     this.despesaService.obterDespesasParaAno(getYear(this.viewDate))
-    .pipe(
-      mergeAll(),
-      map(despesa=>this.converterParaEvento(despesa))
-    )
-    .subscribe(evento=>{
-      this.events.push(evento);
-    });
+      .pipe(
+        mergeAll(),
+        map(despesa => this.converterParaEvento(despesa))
+      )
+      .subscribe(evento => {
+        this.events.push(evento);
+      });
   }
 
   get meses() {
@@ -241,5 +245,11 @@ export class DespesaCalendarioComponent implements OnInit {
 
   closeOpenMonthViewDay() {
     this.activeDayIsOpen = false;
+  }
+
+  editar() {
+    this.despesaService.abrirDespesaForm(this.modalData.event.meta, 'Editar despesa').subscribe(()=>{
+      this.obterEventos();
+    })
   }
 }

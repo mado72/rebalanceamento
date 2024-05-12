@@ -49,6 +49,7 @@ export class DespesaProgramadaComponent implements OnInit {
 
   abrirDespesaForm(despesa: DespesaRecorrenteImpl, titulo: string) {
     this._despesasService.abrirDespesaForm(despesa, titulo).subscribe(()=>{
+      console.log(`Recebeu evento de abrirDespesaForm`)
       this.obterDespesas();
     });
   }

@@ -1,16 +1,6 @@
-<p>despesa-calendario works!</p>
-Num: {{num}}
-
-Valor:
-<div [ngSwitch]="num">
-    <div *ngSwitchCase="'1'">One</div>
-    <div *ngSwitchCase="'2'">Two</div>
-    <div *ngSwitchCase="'3'">Three</div>
-    <div *ngSwitchCase="'4'">Four</div>
-    <div *ngSwitchCase="'5'">Five</div>
-    <div *ngSwitchDefault>This is Default</div>
-</div>
-
+<button (click)="obterEventos()">
+  Atualizar
+</button>
 <div class="row text-center">
     <div class="col-md-4">
       <div class="btn-group">
@@ -129,6 +119,9 @@ Valor:
     <div class="modal-footer">
       <button type="button" class="btn btn-outline-secondary" (click)="close()">
         OK
+      </button>
+      <button type="button" class="btn btn-outline-secondary" (click)="editar()">
+        Editar
       </button>
     </div>
   </ng-template>

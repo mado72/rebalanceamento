@@ -124,9 +124,8 @@ export class DespesasService {
    * Verifica se a próxima despesa deve ser criada com base na data de vencimento e data de pagamento atuais da despesa atual.
    *
    * @param despesa - A despesa atual a ser analisada.
-   * @param observer - O observador a ser notificado quando a próxima despesa deve ser criada.
    */
-  checkNextDespesa(despesa: DespesaRecorrenteImpl, observer: Observer<DespesaRecorrenteImpl>) {
+  gerarNovaDespesa(despesa: DespesaRecorrenteImpl) {
     if (!!despesa.dataPagamento && (!despesa.dataFinal || getTime(despesa.dataFinal) > getTime(despesa.dataVencimento))) {
       let novoVencimento: Date;
       switch (despesa.periodicidade) {
@@ -137,15 +136,17 @@ export class DespesasService {
         case Periodicidade.QUINZENAL: novoVencimento = addDays(despesa.dataVencimento, 15); break;
         case Periodicidade.SEMANAL: novoVencimento = addDays(despesa.dataVencimento, 7); break;
         default:
-          return;
+          return undefined;
       }
-      if (!despesa.dataFinal || getTime(despesa.dataFinal) < getTime(novoVencimento)) {
+      if (!despesa.dataPagamento || getTime(despesa.dataPagamento) < getTime(novoVencimento)) {
         const novaDespesa = new DespesaRecorrenteImpl(despesa);
         novaDespesa.dataVencimento = novoVencimento;
+        novaDespesa._id = undefined;
         novaDespesa.dataPagamento = undefined;
-        observer.next(novaDespesa);
+        return novaDespesa;
       }
     }
+    return undefined;
   }
 
   /**
@@ -168,22 +169,49 @@ export class DespesasService {
 
       const next = (despesa: DespesaRecorrenteImpl, mensagem: string) => {
         observer.next(despesa);
-        this.checkNextDespesa(despesa, observer);
         this._alertService.alert({mensagem, titulo: 'Resultado da operação', tipo: 'sucesso'});
       }
 
-      if (!despesa._id) {
-        this.adicionarDespesa(despesa).subscribe({
-          next: despesa => next(despesa, 'Despesa cadastrada com sucesso!'),
+      const complete = (novaDespesa: DespesaRecorrenteImpl | undefined, observer: Observer<DespesaRecorrenteImpl>) => {
+        if (!!novaDespesa) {
+          this.adicionarDespesa(novaDespesa).subscribe({
+            next: (despesa)=> {
+              observer.next(despesa); 
+              this._alertService.alert({mensagem: 'Despesa gerada com sucesso!', titulo: 'Resultado da operação', tipo: 'sucesso'})
+            },
+            error,
+            complete: () => observer.complete()
+          });
+        }
+        else {
+          observer.complete();
+        }
+      }
+
+      const novaDespesa = this.gerarNovaDespesa(despesa);
+      
+      let entity = Object.assign({}, despesa) as any;
+      if (entity.dataFinal === undefined) entity.dataFinal = null;
+      if (entity.dataVencimento === undefined) entity.dataVencimento = null;
+      if (entity.dataPagamento === undefined) {
+        entity.dataPagamento = null;
+      }
+      else {
+        entity.dataFinal = entity.dataPagamento;
+      }
+
+      if (!entity._id) {
+        this.adicionarDespesa(entity).subscribe({
+          next: entity => next(entity, 'Despesa cadastrada com sucesso!'),
           error,
-          complete: () => observer.complete()
+          complete: ()=>complete(novaDespesa, observer)
         });
       }
       else {
-        this.atualizarDespesa(despesa).subscribe({
-          next: () => next(despesa, 'Despesa atualizada com sucesso!'),
+        this.atualizarDespesa(entity).subscribe({
+          next: () => next(entity, 'Despesa atualizada com sucesso!'),
           error,
-          complete: () => observer.complete()
+          complete: ()=>complete(novaDespesa, observer)
         });
       }
     });

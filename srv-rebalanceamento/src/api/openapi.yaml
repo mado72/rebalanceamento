@@ -982,18 +982,22 @@ components:
         dataFinal:
           type: string
           format: date
+          nullable: true
           example: 2020-01-01
         dataPagamento:
           type: string
           format: date
+          nullable: true
           example: 2020-01-01
         origem:
           type: string
           minLength: 8
+          nullable: true
           description: Referência à despesa de origem
         categoria:
           type: string
           example: Custo Fixo
+          nullable: true
         liquidacao:
           type: string
           example: CONTA
@@ -1003,6 +1007,7 @@ components:
             - OUTROS
         contaLiquidacao:
           type: string
+          nullable: true
           minLength: 8
           description: Referência à conta de liquidação
 
