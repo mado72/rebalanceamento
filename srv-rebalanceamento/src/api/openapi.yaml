@@ -1,7 +1,7 @@
 openapi: 3.0.3
 info:
   title: API Rebalanceamento
-  description: "API para manter portifólio de ativos, carteiras, despesas e contas\
+  description: "API para manter portifólio de ativos, carteiras, transações e contas\
     \ no mongodb"
   version: 1.0.0
 servers:
@@ -11,10 +11,8 @@ tags:
   description: Endpoints úteis para verificar saúde da aplicação
 - name: Seguranca
   description: Endpoints de segurança
-- name: Recebimento
-  description: CRUD para definição de recebumentos
-- name: Despesa
-  description: CRUD para definição de despesas
+- name: Transacao
+  description: CRUD para definição de transações
 - name: Carteira
   description: CRUD para definição de carteiras
 - name: Conta
@@ -68,187 +66,14 @@ paths:
       security:
       - ApiKeyAuth: []
       
-  /recebimento:
+  /transacao:
     get:
-      x-swagger-router-controller: Recebimento
-      operationId: recebimentoGET
+      x-swagger-router-controller: Transacao
+      operationId: transacaoGET
       tags:
-      - Recebimento
-      summary: Lista as recebimentos
-      description: Lista as recebimentos programados
-      responses:
-        "200":
-          description: successful operation
-          content:
-            application/json:
-              schema:
-                type: array
-                items:
-                  $ref: '#/components/schemas/Recebimento'
-                x-content-type: application/json
-      security:
-      - bearerAuth:
-        - write:domain
-        - read:domain
-    post:
-      x-swagger-router-controller: Recebimento
-      operationId: recebimentoPOST
-      tags:
-      - Recebimento
-      summary: Adiciona um novo recebimento
-      description: Adiciona um novo recebimento
-      requestBody:
-        description: Cria um novo recebimento
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/Recebimento'
-        required: true
-      responses:
-        "200":
-          description: Successful operation
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Recebimento'
-        "400":
-          description: The specified resource is invalid
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
-        "422":
-          description: The specified resource is not valid
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
-      security:
-      - bearerAuth:
-        - write:domain
-        - read:domain
-    put:
-      x-swagger-router-controller: Recebimento
-      operationId: recebimentoPUT
-      tags:
-      - Recebimento
-      summary: Atualiza um recebimento
-      description: Atualiza um recebimento identificado pelo seu id
-      requestBody:
-        description: Dados do Recebimento
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/Recebimento'
-        required: true
-      responses:
-        "200":
-          description: Successful operation
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Recebimento'
-        "400":
-          description: The specified resource is invalid
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
-        "404":
-          description: The specified resource was not found
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
-        "422":
-          description: The specified resource is not valid
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
-      security:
-      - bearerAuth:
-        - write:domain
-        - read:domain
-  /recebimento/id/{recebimentoId}:
-    parameters:
-    - name: recebimentoId
-      in: path
-      description: ID do recebimento
-      required: true
-      style: simple
-      explode: false
-      schema:
-        type: string
-    get:
-      x-swagger-router-controller: Recebimento
-      operationId: recebimentoIdGET
-      tags:
-      - Recebimento
-      summary: Busca os dados de um recebimento pelo Id
-      description: Returna um único recebimento
-      responses:
-        "200":
-          description: successful operation
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Recebimento'
-        "400":
-          description: The specified resource is invalid
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
-        "404":
-          description: The specified resource was not found
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
-      security:
-      - bearerAuth:
-        - write:domain
-        - read:domain
-    delete:
-      x-swagger-router-controller: Recebimento
-      operationId: recebimentoIdDELETE
-      tags:
-      - Recebimento
-      summary: Remove um recebimento
-      description: Remove um recebimento
-      responses:
-        "400":
-          description: The specified resource is invalid
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
-        "404":
-          description: The specified resource was not found
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
-        "422":
-          description: The specified resource is not valid
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
-      security:
-      - bearerAuth:
-        - write:domain
-        - read:domain
-      
-  /despesa:
-    get:
-      x-swagger-router-controller: Despesa
-      operationId: despesaGET
-      tags:
-      - Despesa
-      summary: Lista as despesas
-      description: Lista as despesas programadas do ano
+      - Transacao
+      summary: Lista as transacações
+      description: Lista as transacações programadas do ano
       parameters:
       - in: query
         name: mes
@@ -260,7 +85,7 @@ paths:
       - in: query
         name: pago
         required: false
-        description: Se informado, filtra apenas as despesas pagas
+        description: Se informado, filtra apenas as transacações pagas
         schema:
           type: boolean
       - in: query
@@ -277,25 +102,25 @@ paths:
               schema:
                 type: array
                 items:
-                  $ref: '#/components/schemas/Despesa'
+                  $ref: '#/components/schemas/Transacao'
                 x-content-type: application/json
       security:
       - bearerAuth:
         - write:domain
         - read:domain
     post:
-      x-swagger-router-controller: Despesa
-      operationId: despesaPOST
+      x-swagger-router-controller: Transacao
+      operationId: transacaoPOST
       tags:
-      - Despesa
-      summary: Adiciona uma nova despesa
-      description: Adiciona uma nova despesa
+      - Transacao
+      summary: Adiciona uma nova transação
+      description: Adiciona uma nova transação
       requestBody:
-        description: Cria uma nova despesa
+        description: Cria uma nova transação
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/Despesa'
+              $ref: '#/components/schemas/Transacao'
         required: true
       responses:
         "200":
@@ -303,7 +128,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Despesa'
+                $ref: '#/components/schemas/Transacao'
         "400":
           description: The specified resource is invalid
           content:
@@ -321,18 +146,18 @@ paths:
         - write:domain
         - read:domain
     put:
-      x-swagger-router-controller: Despesa
-      operationId: despesaPUT
+      x-swagger-router-controller: Transacao
+      operationId: transacaoPUT
       tags:
-      - Despesa
-      summary: Atualiza uma despesa
-      description: Atualiza uma despesa identificada pelo seu id
+      - Transacao
+      summary: Atualiza uma transação
+      description: Atualiza uma transação identificada pelo seu id
       requestBody:
-        description: Dados da despesa
+        description: Dados da transação
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/Despesa'
+              $ref: '#/components/schemas/Transacao'
         required: true
       responses:
         "200":
@@ -340,7 +165,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Despesa'
+                $ref: '#/components/schemas/Transacao'
         "400":
           description: The specified resource is invalid
           content:
@@ -363,30 +188,31 @@ paths:
       - bearerAuth:
         - write:domain
         - read:domain
-  /despesa/id/{despesaId}:
+  
+  /transacao/id/{transacaoId}:
     parameters:
-    - name: despesaId
+    - name: transacaoId
       in: path
-      description: ID da despesa
+      description: ID da transacao
       required: true
       style: simple
       explode: false
       schema:
         type: string
     get:
-      x-swagger-router-controller: Despesa
-      operationId: despesaIdGET
+      x-swagger-router-controller: Transacao
+      operationId: transacaoIdGET
       tags:
-      - Despesa
-      summary: Busca os dados de uma despesa pelo Id
-      description: Returna uma única despesa
+      - Transacao
+      summary: Busca os dados de uma transacao pelo Id
+      description: Returna uma única transacao
       responses:
         "200":
           description: successful operation
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Despesa'
+                $ref: '#/components/schemas/Transacao'
         "400":
           description: The specified resource is invalid
           content:
@@ -404,12 +230,12 @@ paths:
         - write:domain
         - read:domain
     delete:
-      x-swagger-router-controller: Despesa
-      operationId: despesaIdDELETE
+      x-swagger-router-controller: Transacao
+      operationId: transacaoIdDELETE
       tags:
-      - Despesa
-      summary: Remove uma nova despesa
-      description: Remove uma nova despesa
+      - Transacao
+      summary: Remove uma nova transacao
+      description: Remove uma nova transacao
       responses:
         "400":
           description: The specified resource is invalid
@@ -433,6 +259,7 @@ paths:
       - bearerAuth:
         - write:domain
         - read:domain
+
   /ativo:
     get:
       x-swagger-router-controller: Carteira
@@ -1121,69 +948,19 @@ components:
       - CDB
       - RF
     
-    Recebimento:
+    Transacao:
       type: object
       required:
         - descricao
         - valor
         - periodicidade
-      properties:
-        _id:
-          type: string
-          description: Identificador do Recebimento
-        descricao:
-          maxLength: 200
-          minLength: 3
-          type: string
-          example: Salário
-        valor:
-          type: number
-          format: double
-          example: 202.1
-        periodicidade:
-          type: string
-          example: MENSAL
-          enum:
-            - UNICO
-            - SEMANAL
-            - QUINZENAL
-            - MENSAL
-            - TRIMESTRAL
-            - SEMESTRAL
-            - ANUAL
-        dataRecebimento:
-          type: string
-          format: date
-          example: 2020-01-01
-        dataFinal:
-          type: string
-          format: date
-          nullable: true
-          example: 2020-01-01
-          description: Quando o recebimento possui uma data final
-        origem:
-          type: string
-          minLength: 8
-          nullable: true
-          description: Referência ao recebimento de origem
-        contaLiquidacao:
-          type: string
-          nullable: true
-          minLength: 8
-          description: Referência à conta de liquidação
-    
-    Despesa:
-      type: object
-      required:
-        - descricao
-        - valor
-        - periodicidade
-        - dataVencimento
+        - dataInicial
+        - tipoTransacao
         - liquidacao
       properties:
         _id:
           type: string
-          description: Identificador da Despesa
+          description: Identificador da Transação
         descricao:
           maxLength: 200
           minLength: 3
@@ -1195,7 +972,7 @@ components:
           example: 202.1
         periodicidade:
           type: string
-          example: SMN
+          example: SEMESTRAL
           enum:
             - UNICO
             - SEMANAL
@@ -1204,7 +981,17 @@ components:
             - TRIMESTRAL
             - SEMESTRAL
             - ANUAL
-        dataVencimento:
+        tipoTransacao:
+          type: string
+          example: DEBITO
+          enum:
+            - DEBITO
+            - CREDITO
+            - JCP
+            - DIVIDENDO
+            - BONUS
+            - EXTRA
+        dataInicial:
           type: string
           format: date
           example: 2020-01-01
@@ -1213,7 +1000,7 @@ components:
           format: date
           nullable: true
           example: 2020-01-01
-        dataPagamento:
+        dataLancamento:
           type: string
           format: date
           nullable: true
@@ -1222,7 +1009,7 @@ components:
           type: string
           minLength: 8
           nullable: true
-          description: Referência à despesa de origem
+          description: Referência à transação de origem da recorrência 
         categoria:
           type: string
           example: Custo Fixo
@@ -1239,6 +1026,7 @@ components:
           nullable: true
           minLength: 8
           description: Referência à conta de liquidação
+
 
     Carteira:
       required:

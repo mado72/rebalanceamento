@@ -1,10 +1,10 @@
 'use strict';
 
 var utils = require('../utils/writer.js');
-var Despesa = require('../service/DespesaService');
+var Transacao = require('../service/TransacaoService.js');
 
-module.exports.despesaGET = function despesaGET (req, res, next, mes, pago, carteira) {
-  Despesa.despesaGET(mes, pago, carteira)
+module.exports.transacaoGET = function despesaGET (req, res, next, mes, pago, carteira) {
+  Transacao.transacaoGET(mes, pago, carteira)
     .then(function (response) {
       utils.writeJson(res, response);
     })
@@ -13,8 +13,8 @@ module.exports.despesaGET = function despesaGET (req, res, next, mes, pago, cart
     });
 };
 
-module.exports.despesaIdDELETE = function despesaIdDELETE (req, res, next, despesaId) {
-  Despesa.despesaIdDELETE(despesaId)
+module.exports.transacaoIdDELETE = function despesaIdDELETE (req, res, next, despesaId) {
+  Transacao.transacaoIdDELETE(despesaId)
     .then(function (response) {
       utils.writeJson(res, response);
     })
@@ -23,8 +23,8 @@ module.exports.despesaIdDELETE = function despesaIdDELETE (req, res, next, despe
     });
 };
 
-module.exports.despesaIdGET = function despesaIdGET (req, res, next, despesaId) {
-  Despesa.despesaIdGET(despesaId)
+module.exports.transacaoIdGET = function despesaIdGET (req, res, next, despesaId) {
+  Transacao.transacaoIdGET(despesaId)
     .then(function (response) {
       utils.writeJson(res, response);
     })
@@ -33,8 +33,8 @@ module.exports.despesaIdGET = function despesaIdGET (req, res, next, despesaId) 
     });
 };
 
-module.exports.despesaPOST = function despesaPOST (req, res, next, body) {
-  Despesa.despesaPOST(body)
+module.exports.transacaoPOST = function despesaPOST (req, res, next, body) {
+  Transacao.transacaoPOST(body)
     .then(function (response) {
       utils.writeJson(res, response);
     })
@@ -43,8 +43,8 @@ module.exports.despesaPOST = function despesaPOST (req, res, next, body) {
     });
 };
 
-module.exports.despesaPUT = function despesaPUT (req, res, next, body) {
-  Despesa.despesaPUT(body)
+module.exports.transacaoPUT = function despesaPUT (req, res, next, body) {
+  Transacao.transacaoPUT(body)
     .then(function (response) {
       utils.writeJson(res, response);
     })

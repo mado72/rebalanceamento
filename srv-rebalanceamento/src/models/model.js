@@ -14,7 +14,7 @@ const TipoPeriodicidade = Object.freeze({
     UNICO: "UNICO"
 })
 
-const TipoLiquidacaoDespesa = Object.freeze({
+const TipoLiquidacao = Object.freeze({
     CONTA: "CONTA",
     CARTAO: "CARTAO",
     OUTROS: "OUTROS"
@@ -38,66 +38,37 @@ const TipoClasse = Object.freeze({
     ALTCOINS : "ALTCOINS"
 })
 
-var Despesa = new Schema({
-    descricao: { type: String, required: true}, // Descrição da despesa
-    valor: {type: Number, required: true}, // Valor da despesa
-    periodicidade: {type: String, required: true, enum: Object.values(TipoPeriodicidade)}, // Periodicidade da despesa (mensal, trimestral, anual, etc.)
-    dataVencimento: {type: String, required: true}, // Data de vencimento da despesa
+var Transacao = new Schema({
+    descricao: { type: String, required: true}, // Descrição da transação
+    valor: {type: Number, required: true}, // Valor da transação
+    periodicidade: {type: String, required: true, enum: Object.values(TipoPeriodicidade)}, // Periodicidade da transação (mensal, trimestral, anual, etc.)
+    dataInicial: {type: String, required: true}, // Data de vencimento da transação
     dataFinal: {type: String}, // Data final da recorrência (opcional)
-    dataPagamento: {type: String}, // Data em que a despesa foi paga (opcional)
-    origem: {type: String}, // Identifica se a despesa surgiu de uma despesa anterior (opcional)
-    categoria: {type: String}, // Identifica a categoria da despesa (opcional)
-    liquidacao: {type: String, required: true, enum: Object.values(TipoLiquidacaoDespesa)}, // Tipo de liquidação
+    origem: {type: String}, // Identifica se a transação surgiu de uma transação anterior (opcional)
+    categoria: {type: String}, // Identifica a categoria da transação (opcional)
+    liquidacao: {type: String, required: true, enum: Object.values(TipoLiquidacao)}, // Tipo de liquidação
+    dataLiquidacao: {type: String}, // Data em que a transação foi paga (opcional)
     contaLiquidacao: {type: String} // Conta de Liquidação
 }, {
     statics: {
         toObjectInstance: (dbInstance)=> {
             var obj = dbInstance.toObject();
-            if (!! obj.dataVencimento) obj.dataVencimento = DateTime.fromFormat(obj.dataVencimento, 'yyyy-MM-dd');
+            if (!! obj.dataInicial) obj.dataVencimento = DateTime.fromFormat(obj.dataInicial, 'yyyy-MM-dd');
             if (!! obj.dataFinal) obj.dataFinal = DateTime.fromFormat(obj.dataFinal, 'yyyy-MM-dd');
-            if (!! obj.dataPagamento) obj.dataPagamento = DateTime.fromFormat(obj.dataPagamento, 'yyyy-MM-dd');
+            if (!! obj.dataLiquidacao) obj.dataLiquidacao = DateTime.fromFormat(obj.dataLiquidacao, 'yyyy-MM-dd');
             if (!! obj.periodicidade) obj.periodicidade = TipoPeriodicidade[obj.periodicidade];
-            if (!! obj.liquidacao) obj.liquidacao = TipoLiquidacaoDespesa[obj.liquidacao];
-            return obj;
-        },
-        toDBInstance: () => {
-            if (!! this.dataVencimento) this.dataVencimento = DateTime.fromJSDate(this.dataVencimento).format('yyyy-MM-dd');
-            if (typeof this.dataFinal === "object" && this.dataFinal.getMonth && typeof this.dataFinal.getMonth === 'function') this.dataFinal = DateTime.fromJSDate(this.dataFinal).format('yyyy-MM-dd');
-            if (typeof this.dataPagamento === "object" && this.dataPagamento.getMonth && typeof this.dataPagamento.getMonth === 'function') this.dataPagamento = DateTime.fromJSDate(this.dataPagamento).format('yyyy-MM-dd');
-            if (typeof this.periodicidade === "object" && this.periodicidade.getMonth && typeof this.periodicidade.getMonth === 'function') this.periodicidade = TipoPeriodicidade[this.periodicidade];
-            if (!! this.liquidacao) this.liquidacao = TipoLiquidacaoDespesa[this.liquidacao];
-        }
-    }
-});
-
-var Recebimento = new Schema({
-    descricao: { type: String, required: true}, // Descrição do recebimento
-    valor: {type: Number, required: true}, // Valor do recebimento
-    periodicidade: {type: String, required: true, enum: Object.values(TipoPeriodicidade)}, // Periodicidade do recebimento (mensal, trimestral, anual, etc.)
-    dataInicial: {type: String, required: true}, // Data inicial do recebimento
-    dataRecebimento: {type: String}, // Data do recebimento efetivo
-    dataFinal: {type: String}, // Data final da recorrência (opcional)
-    origem: {type: String}, // Identifica se o recebimento surgiu de uma recebimento anterior (opcional)
-    contaLiquidacao: {type: String} // Conta de Liquidação
-}, {
-    statics: {
-        toObjectInstance: (dbInstance)=> {
-            var obj = dbInstance.toObject();
-            if (!! obj.dataInicial) obj.dataInicial = DateTime.fromFormat(obj.dataInicial, 'yyyy-MM-dd');
-            if (!! obj.dataRecebimento) obj.dataRecebimento = DateTime.fromFormat(obj.dataRecebimento, 'yyyy-MM-dd');
-            if (!! obj.dataFinal) obj.dataFinal = DateTime.fromFormat(obj.dataFinal, 'yyyy-MM-dd');
-            if (!! obj.periodicidade) obj.periodicidade = TipoPeriodicidade[obj.periodicidade];
+            if (!! obj.liquidacao) obj.liquidacao = TipoLiquidacao[obj.liquidacao];
             return obj;
         },
         toDBInstance: () => {
             if (!! this.dataInicial) this.dataInicial = DateTime.fromJSDate(this.dataInicial).format('yyyy-MM-dd');
-            if (!! this.dataRecebimento) this.dataRecebimento = DateTime.fromJSDate(this.dataRecebimento).format('yyyy-MM-dd');
             if (typeof this.dataFinal === "object" && this.dataFinal.getMonth && typeof this.dataFinal.getMonth === 'function') this.dataFinal = DateTime.fromJSDate(this.dataFinal).format('yyyy-MM-dd');
+            if (typeof this.dataLiquidacao === "object" && this.dataLiquidacao.getMonth && typeof this.dataLiquidacao.getMonth === 'function') this.dataLiquidacao = DateTime.fromJSDate(this.dataLiquidacao).format('yyyy-MM-dd');
             if (typeof this.periodicidade === "object" && this.periodicidade.getMonth && typeof this.periodicidade.getMonth === 'function') this.periodicidade = TipoPeriodicidade[this.periodicidade];
+            if (!! this.liquidacao) this.liquidacao = TipoLiquidacao[this.liquidacao];
         }
     }
 });
-
 
 var CarteiraAtivo = new Schema({
     _id: false,
@@ -147,8 +118,7 @@ var Conta = new Schema({
 
 module.exports = {
     'ativo': mongoose.model('ativo', Ativo, 'ativo'),
-    'recebimento': mongoose.model('recebimento', Recebimento, 'recebimento'),
-    'despesa': mongoose.model('despesa', Despesa, 'despesa'),
+    'transacao': mongoose.model('transacao', Transacao, 'transacao'),
     'carteira': mongoose.model('carteira', Carteira, 'carteira'),
     'carteira-ativo': mongoose.model('carteira-ativo', CarteiraAtivo),
     'contato': mongoose.model('conta', Conta, 'conta'),
