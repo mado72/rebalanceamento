@@ -1,14 +1,15 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
+import { addDays, addMonths, addYears, getTime } from 'date-fns';
 import { DateTime } from 'luxon';
-import { Observable, Observer, catchError, filter, map, mergeAll, of, tap } from 'rxjs';
-import { DespesaRecorrenteImpl, IDespesaRecorrente, Mes, Periodicidade, TipoLiquidacao } from 'src/app/despesa/models/despesa.model';
+import { Observable, Observer, catchError, map, mergeAll } from 'rxjs';
+import { DespesaRecorrenteImpl, IDespesaRecorrente } from 'src/app/despesa/models/despesa.model';
+import { Periodicidade } from 'src/app/transacao/models/transacao.model';
 import { AlertService } from 'src/app/services/alert.service';
 import { formatRequestDate } from 'src/app/util/date-formatter.util';
 import { environment } from 'src/environments/environment.development';
 import { CadastroDespesaModalComponent } from '../cadastro-despesa-modal/cadastro-despesa-modal.component';
-import { addDays, addMonths, addYears, getDay, getMonth, getTime, getYear, setMonth, setYear } from 'date-fns';
 
 @Injectable({
   providedIn: 'root'
@@ -94,7 +95,7 @@ export class DespesasService {
    * @returns {Observable<DespesaRecorrenteImpl>} Um Observable que emite a despesa adicionada.
    */
   adicionarDespesa(despesa: DespesaRecorrenteImpl): Observable<DespesaRecorrenteImpl> {
-    const request = formatRequestDate(despesa);
+    const request = formatRequestDate(despesa.entity);
     return this._http.post<IDespesaRecorrente>(`${environment.apiUrl}/despesa`, request)
       .pipe(
         map(item => new DespesaRecorrenteImpl(item)),
@@ -111,7 +112,7 @@ export class DespesasService {
    * @returns {Observable<DespesaRecorrenteImpl>} Um Observable que emite a despesa atualizada.
    */
   atualizarDespesa(despesa: DespesaRecorrenteImpl): Observable<void> {
-    const request = formatRequestDate(despesa);
+    const request = formatRequestDate(despesa.entity);
     return this._http.put<void>(`${environment.apiUrl}/despesa`, request)
       .pipe(
         catchError(error => {

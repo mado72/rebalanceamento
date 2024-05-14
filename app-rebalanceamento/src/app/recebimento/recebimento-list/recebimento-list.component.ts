@@ -1,32 +1,33 @@
-import { Component, OnInit } from '@angular/core';
+import { Component } from '@angular/core';
 import { DateTime } from 'luxon';
+import { RecebimentoImpl } from '../models/recebimento.model';
+import { RecebimentosService } from '../services/recebimentos.service';
 import { AlertService } from 'src/app/services/alert.service';
-import { Mes, Periodicidade } from 'src/app/transacao/models/transacao.model';
-import { DespesaRecorrenteImpl } from '../models/despesa.model';
-import { DespesasService } from '../services/despesas.service';
+import { getDate, getDay } from 'date-fns';
+import { Periodicidade, Mes, TransacaoImpl } from 'src/app/transacao/models/transacao.model';
 
-type Pagamentos = {[classe: string] : {[mes: string] : DespesaRecorrenteImpl | undefined}};
+type TransacaoMatriz = {[classe: string] : {[mes: string] : RecebimentoImpl | undefined}};
 
 @Component({
-  selector: 'app-despesas-list',
-  templateUrl: './despesas-list.component.html',
-  styleUrls: ['./despesas-list.component.scss']
+  selector: 'app-recebimento-list',
+  templateUrl: './recebimento-list.component.html',
+  styleUrls: ['./recebimento-list.component.scss']
 })
-export class DespesasListComponent implements OnInit {
+export class RecebimentoListComponent {
 
-  private despesas: DespesaRecorrenteImpl[] = [];
+  private recebimentos: RecebimentoImpl[] = [];
 
-  pagamentos : Pagamentos = {};
+  matriz : TransacaoMatriz = {};
 
   private _visao!: Periodicidade;
 
   constructor(
-    private _despesasService: DespesasService,
+    private _recebimentosService: RecebimentosService,
     private _alertService: AlertService
   ) {}
 
   ngOnInit(): void {
-    this.obterDespesas();
+    this.obterRecebimentos();
   }
 
   public get visao(): Periodicidade {
@@ -35,24 +36,24 @@ export class DespesasListComponent implements OnInit {
   public set visao(value: Periodicidade) {
     this._visao = value;
 
-    this.despesas.forEach(despesa => {
+    this.recebimentos.forEach(despesa => {
       const descricao = despesa.descricao || 'Não classificado';
       let periodo;
       switch (this.visao) {
         case Periodicidade.SEMANAL:
         case Periodicidade.QUINZENAL:
         case Periodicidade.MENSAL:
-          periodo = DateTime.fromJSDate(despesa.dataVencimento).day.toString();
+          periodo = DateTime.fromJSDate(despesa.dataInicial).day.toString();
           break;
         case Periodicidade.TRIMESTRAL:
         case Periodicidade.SEMESTRAL:
         case Periodicidade.ANUAL:
         default:
-          periodo = Object.keys(Mes)[DateTime.fromJSDate(despesa.dataVencimento).month-1];
+          periodo = Object.keys(Mes)[DateTime.fromJSDate(despesa.dataInicial).month-1];
           break;
       }
-      this.pagamentos[descricao] = this.pagamentos[descricao] || {};
-      this.pagamentos[descricao][periodo] = despesa;
+      this.matriz[descricao] = this.matriz[descricao] || {};
+      this.matriz[descricao][periodo] = despesa;
     });
   }
 
@@ -60,14 +61,14 @@ export class DespesasListComponent implements OnInit {
     return [Periodicidade.ANUAL, Periodicidade.SEMESTRAL, Periodicidade.TRIMESTRAL, Periodicidade.MENSAL, Periodicidade.QUINZENAL, Periodicidade.SEMANAL];
   }
   
-  private obterDespesas() {
+  private obterRecebimentos() {
     const ateData = DateTime.now().endOf("year").toJSDate();
-    this.pagamentos = {};
+    this.matriz = {};
 
-    this._despesasService.obterDespesas().subscribe(despesas => {
-      this.despesas = despesas.flatMap(despesa => {
-        const projecao = despesa.programacaoDespesas(ateData);
-        projecao.push(despesa);
+    this._recebimentosService.obterRecebimentos().subscribe(recebimentos => {
+      this.recebimentos = recebimentos.flatMap(recebimento => {
+        const projecao = recebimento.programacaoInstancias(ateData);
+        projecao.push(recebimento);
         return projecao;
       });
       this.visao = Periodicidade.ANUAL;
@@ -92,14 +93,20 @@ export class DespesasListComponent implements OnInit {
   }
 
   get classesDespesas() {
-    return Object.keys(this.pagamentos)
+    return Object.keys(this.matriz)
+  }
+
+  private compareTransacoes(): (a: number | undefined, b: number | undefined) => number {
+    return (a, b) => !a ? (!b ? 0 : 1) : (!b ? -1 : a - b);
   }
 
   diaVencimento(classe: string) {
-    return Object.values(this.pagamentos[classe]).map(despesa=>despesa?.diaVencimento).sort(this.comparePagamentos())[0];
+    return Object.values(this.matriz[classe])
+        .map(recebimento=>getDate(recebimento?.dataInicial || 0))
+        .sort((a, b) => !a ? (!b ? 0 : 1) : (!b ? -1 : a - b));
   }
 
-  private comparePagamentos(): (a: number | undefined, b: number | undefined) => number {
+  private compareRecebimentos(): (a: number | undefined, b: number | undefined) => number {
     return (a, b) => !a ? (!b ? 0 : 1) : (!b ? -1 : a - b);
   }
 
@@ -155,8 +162,8 @@ export class DespesasListComponent implements OnInit {
   
   get totaisClasse() {
     const totais : {[classe: string] : number} = {};
-    Object.keys(this.pagamentos).forEach(classe=>{
-      totais[classe] = Object.values(this.pagamentos[classe])
+    Object.keys(this.matriz).forEach(classe=>{
+      totais[classe] = Object.values(this.matriz[classe])
           .map(despesa=>despesa?.valor)
           .reduce((acc, vl) => acc = (acc || 0) + (vl || 0)) || 0;
     });
@@ -165,7 +172,7 @@ export class DespesasListComponent implements OnInit {
   
   get totaisMes() {
     const totais : {[mes: string] : number} = {};
-    Object.values(this.pagamentos).forEach(pagamento=>{
+    Object.values(this.matriz).forEach(pagamento=>{
       Object.keys(pagamento).forEach(mes=>{
         totais[mes] = (totais[mes] || 0) + (pagamento[mes]?.valor || 0);
       });
@@ -177,11 +184,11 @@ export class DespesasListComponent implements OnInit {
     return Object.values(this.totaisMes).reduce((acc,vl)=>acc+=vl, 0);
   }
 
-  abrirDespesaForm(despesa: DespesaRecorrenteImpl, titulo: string) {
-    this._despesasService.abrirDespesaForm(despesa, titulo).subscribe(()=>{
-      console.log(`Atualizando despesas`)
-      this.obterDespesas();
-    })
+  abrirDespesaForm(despesa: RecebimentoImpl, titulo: string) {
+    // this._recebimentosService.abrirDespesaForm(despesa, titulo).subscribe(()=>{
+    //   console.log(`Atualizando despesas`)
+    //   this.obterRecebimentos();
+    // })
   }
 }
 

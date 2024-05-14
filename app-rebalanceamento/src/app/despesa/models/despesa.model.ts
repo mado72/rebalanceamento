@@ -1,6 +1,7 @@
 import { getTime } from "date-fns";
 import { DateTime } from "luxon";
 import { Conta } from "src/app/conta/model/conta.model";
+import { Mes, Periodicidade, TipoLiquidacao } from "src/app/transacao/models/transacao.model";
 
 export interface IDespesaRecorrente {
     _id?: string; // Identificador único da despesa (quando persistida)
@@ -14,36 +15,6 @@ export interface IDespesaRecorrente {
     categoria?: string; // Identifica a categoria da despesa (opcional)
     liquidacao: TipoLiquidacao; // Tipo de liquidação
     contaLiquidacao?: Conta // Conta de Liquidação
-}
-
-export enum Periodicidade {
-    UNICO = "UNICO",
-    SEMANAL = "SEMANAL",
-    QUINZENAL = "QUINZENAL",
-    MENSAL = "MENSAL",
-    TRIMESTRAL = "TRIMESTRAL",
-    SEMESTRAL = "SEMESTRAL",
-    ANUAL = "ANUAL"
-}
-
-export enum Mes {
-    JANEIRO = 'JANEIRO',
-    FEVEREIRO = 'FEVEREIRO',
-    MARCO = 'MARCO',
-    ABRIL = 'ABRIL',
-    MAIO = 'MAIO',
-    JUNHO = 'JUNHO',
-    JULHO = 'JULHO',
-    AGOSTO = 'AGOSTO',
-    SETEMBRO = 'SETEMBRO',
-    OUTUBRO = 'OUTUBRO',
-    NOVEMBRO = 'NOVEMBRO',
-    DEZEMBRO = 'DEZEMBRO'
-}
-
-export enum TipoLiquidacao {
-    CONTA = 'CONTA',
-    CARTAO = 'CARTAO'
 }
 
 export function obterMes(mesStr: string): Mes | undefined {
@@ -75,6 +46,16 @@ export class DespesaRecorrenteImpl implements IDespesaRecorrente {
         this.categoria = valorInicial.categoria;
         this.liquidacao = valorInicial.liquidacao || TipoLiquidacao.CONTA;
         this.contaLiquidacao = valorInicial.contaLiquidacao;
+    }
+
+    get entity() {
+        const entity = Object.assign({}, this) as any;
+        if (!entity.dataPagamento) entity.dataPagamento = null;
+        if (!entity.categoria) entity.categoria = null;
+        if (!entity.contaLiquidacao) entity.contaLiquidacao = null;
+        if (!entity.dataFinal) entity.dataFinal = null;
+        if (!entity.origem) entity.origem = null;
+        return entity;
     }
 
     private toDate(d: any) {

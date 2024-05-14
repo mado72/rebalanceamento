@@ -1,10 +1,6 @@
-import { Component, Input, OnInit } from '@angular/core';
-import { DespesasService } from '../services/despesas.service';
-import { DespesaRecorrenteImpl, Periodicidade, TipoLiquidacao } from '../models/despesa.model';
-import { ActivatedRoute } from '@angular/router';
-import { DateTime } from 'luxon';
-import { Observable, Subscription, catchError } from 'rxjs';
-import { AlertService } from 'src/app/services/alert.service';
+import { Component, Input } from '@angular/core';
+import { DespesaRecorrenteImpl } from '../models/despesa.model';
+import { Periodicidade, TipoLiquidacao } from 'src/app/transacao/models/transacao.model';
 
 @Component({
   selector: 'app-despesa-form',

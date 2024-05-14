@@ -1,32 +1,31 @@
-import { Component, OnInit } from '@angular/core';
-import { DateTime } from 'luxon';
+import { Component } from '@angular/core';
+import { Mes, Periodicidade, TransacaoImpl } from '../models/transacao.model';
+import { TransacaoService } from '../services/transacao.service';
 import { AlertService } from 'src/app/services/alert.service';
-import { Mes, Periodicidade } from 'src/app/transacao/models/transacao.model';
-import { DespesaRecorrenteImpl } from '../models/despesa.model';
-import { DespesasService } from '../services/despesas.service';
+import { endOfMonth, endOfYear, getDate, getMonth, set, startOfDay, startOfMonth, startOfYear } from 'date-fns';
 
-type Pagamentos = {[classe: string] : {[mes: string] : DespesaRecorrenteImpl | undefined}};
+type Lancamentos = {[classe: string] : {[mes: string] : TransacaoImpl | undefined}};
 
 @Component({
-  selector: 'app-despesas-list',
-  templateUrl: './despesas-list.component.html',
-  styleUrls: ['./despesas-list.component.scss']
+  selector: 'app-transacao-list',
+  templateUrl: './transacao-list.component.html',
+  styleUrls: ['./transacao-list.component.scss']
 })
-export class DespesasListComponent implements OnInit {
+export class TransacaoListComponent {
 
-  private despesas: DespesaRecorrenteImpl[] = [];
+  private transacoes: TransacaoImpl[] = [];
 
-  pagamentos : Pagamentos = {};
+  lancamentos : Lancamentos = {};
 
   private _visao!: Periodicidade;
 
   constructor(
-    private _despesasService: DespesasService,
+    private _transacaoService: TransacaoService,
     private _alertService: AlertService
   ) {}
 
   ngOnInit(): void {
-    this.obterDespesas();
+    this.obterTransacoes();
   }
 
   public get visao(): Periodicidade {
@@ -35,24 +34,24 @@ export class DespesasListComponent implements OnInit {
   public set visao(value: Periodicidade) {
     this._visao = value;
 
-    this.despesas.forEach(despesa => {
-      const descricao = despesa.descricao || 'Não classificado';
+    this.transacoes.forEach(transacao => {
+      const descricao = transacao.descricao || 'Não classificado';
       let periodo;
       switch (this.visao) {
         case Periodicidade.SEMANAL:
         case Periodicidade.QUINZENAL:
         case Periodicidade.MENSAL:
-          periodo = DateTime.fromJSDate(despesa.dataVencimento).day.toString();
+          periodo = getDate(transacao.dataInicial);
           break;
         case Periodicidade.TRIMESTRAL:
         case Periodicidade.SEMESTRAL:
         case Periodicidade.ANUAL:
         default:
-          periodo = Object.keys(Mes)[DateTime.fromJSDate(despesa.dataVencimento).month-1];
+          periodo = Object.keys(Mes)[getMonth(transacao.dataInicial)-1];
           break;
       }
-      this.pagamentos[descricao] = this.pagamentos[descricao] || {};
-      this.pagamentos[descricao][periodo] = despesa;
+      this.lancamentos[descricao] = this.lancamentos[descricao] || {};
+      this.lancamentos[descricao][periodo] = transacao;
     });
   }
 
@@ -60,14 +59,14 @@ export class DespesasListComponent implements OnInit {
     return [Periodicidade.ANUAL, Periodicidade.SEMESTRAL, Periodicidade.TRIMESTRAL, Periodicidade.MENSAL, Periodicidade.QUINZENAL, Periodicidade.SEMANAL];
   }
   
-  private obterDespesas() {
-    const ateData = DateTime.now().endOf("year").toJSDate();
-    this.pagamentos = {};
+  private obterTransacoes() {
+    const ateData = endOfYear(new Date())
+    this.lancamentos = {};
 
-    this._despesasService.obterDespesas().subscribe(despesas => {
-      this.despesas = despesas.flatMap(despesa => {
-        const projecao = despesa.programacaoDespesas(ateData);
-        projecao.push(despesa);
+    this._transacaoService.obterTransacoes().subscribe(transacoes => {
+      this.transacoes = transacoes.flatMap(transacao => {
+        const projecao = transacao.programacaoTransacoes(ateData);
+        projecao.push(transacao);
         return projecao;
       });
       this.visao = Periodicidade.ANUAL;
@@ -80,9 +79,9 @@ export class DespesasListComponent implements OnInit {
       case Periodicidade.QUINZENAL:
       case Periodicidade.MENSAL:
         const mes = Object.keys(Periodicidade).indexOf(this.periodoCorrente);
-        const primeiroDia = DateTime.now().set({month: mes, day: 1});
-        const ultimoDia = primeiroDia.endOf('month');
-        return [...Array(ultimoDia.day)].map((_d,index)=>index+1).map(d=>d.toString() as string);
+        const primeiroDia = startOfDay(set(new Date(), {month: mes, date: 1}));
+        const ultimoDia = endOfMonth(primeiroDia);
+        return [...Array(getDate(ultimoDia))].map((_d,index)=>index+1).map(d=>d.toString() as string);
       case Periodicidade.TRIMESTRAL:
       case Periodicidade.SEMESTRAL:
       case Periodicidade.ANUAL:
@@ -92,11 +91,11 @@ export class DespesasListComponent implements OnInit {
   }
 
   get classesDespesas() {
-    return Object.keys(this.pagamentos)
+    return Object.keys(this.lancamentos)
   }
 
-  diaVencimento(classe: string) {
-    return Object.values(this.pagamentos[classe]).map(despesa=>despesa?.diaVencimento).sort(this.comparePagamentos())[0];
+  diaInicial(classe: string) {
+    return Object.values(this.lancamentos[classe]).map(transacao=>!!transacao ? getDate(transacao.dataInicial):undefined).sort(this.comparePagamentos())[0];
   }
 
   private comparePagamentos(): (a: number | undefined, b: number | undefined) => number {
@@ -109,9 +108,9 @@ export class DespesasListComponent implements OnInit {
       case Periodicidade.QUINZENAL:
       case Periodicidade.MENSAL:
         const mes = Object.keys(Periodicidade).indexOf(this.periodoCorrente);
-        const primeiroDia = DateTime.local(DateTime.now().year, mes, 1);
-        const ultimoDia = primeiroDia.endOf('month');
-        return [...Array(ultimoDia.day)].map(d=>d+1).map(d=>d.toString() as string);
+        const primeiroDia = startOfMonth(set(new Date, {month: mes}));
+        const ultimoDia = endOfMonth(primeiroDia);
+        return [...Array(getDate(ultimoDia))].map(d=>d+1).map(d=>d.toString() as string);
       case Periodicidade.TRIMESTRAL:
       case Periodicidade.SEMESTRAL:
       case Periodicidade.ANUAL:
@@ -125,12 +124,12 @@ export class DespesasListComponent implements OnInit {
       case Periodicidade.SEMANAL:
       case Periodicidade.QUINZENAL:
       case Periodicidade.MENSAL:
-        return DateTime.now().day.toString();
+        return getDate(new Date()).toString();
       case Periodicidade.TRIMESTRAL:
       case Periodicidade.SEMESTRAL:
       case Periodicidade.ANUAL:
         default:
-          const mesCorrente = DateTime.now().month - 1;
+          const mesCorrente = getMonth(new Date())-1;
           return Object.values(Mes)[mesCorrente];
     }
   }
@@ -144,20 +143,20 @@ export class DespesasListComponent implements OnInit {
       case Periodicidade.SEMANAL:
       case Periodicidade.QUINZENAL:
       case Periodicidade.MENSAL:
-        return parseInt(periodo) < DateTime.now().day;
+        return parseInt(periodo) < getDate(new Date());
       case Periodicidade.TRIMESTRAL:
       case Periodicidade.SEMESTRAL:
       case Periodicidade.ANUAL:
         default:
-          return parseInt(periodo) < DateTime.now().month - 1;
+          return parseInt(periodo) < getMonth(new Date())-1;
     }
   }
   
   get totaisClasse() {
     const totais : {[classe: string] : number} = {};
-    Object.keys(this.pagamentos).forEach(classe=>{
-      totais[classe] = Object.values(this.pagamentos[classe])
-          .map(despesa=>despesa?.valor)
+    Object.keys(this.lancamentos).forEach(classe=>{
+      totais[classe] = Object.values(this.lancamentos[classe])
+          .map(transacao=>transacao?.valor)
           .reduce((acc, vl) => acc = (acc || 0) + (vl || 0)) || 0;
     });
     return totais;
@@ -165,7 +164,7 @@ export class DespesasListComponent implements OnInit {
   
   get totaisMes() {
     const totais : {[mes: string] : number} = {};
-    Object.values(this.pagamentos).forEach(pagamento=>{
+    Object.values(this.lancamentos).forEach(pagamento=>{
       Object.keys(pagamento).forEach(mes=>{
         totais[mes] = (totais[mes] || 0) + (pagamento[mes]?.valor || 0);
       });
@@ -177,10 +176,11 @@ export class DespesasListComponent implements OnInit {
     return Object.values(this.totaisMes).reduce((acc,vl)=>acc+=vl, 0);
   }
 
-  abrirDespesaForm(despesa: DespesaRecorrenteImpl, titulo: string) {
-    this._despesasService.abrirDespesaForm(despesa, titulo).subscribe(()=>{
-      console.log(`Atualizando despesas`)
-      this.obterDespesas();
+  editarTransacao(transacao: TransacaoImpl, titulo: string) {
+    console.log(`Abrir Formulário Transação`)
+    this._transacaoService.editarTransacao(transacao, titulo).subscribe(()=>{
+      console.log(`Atualizando transações`)
+      this.obterTransacoes();
     })
   }
 }

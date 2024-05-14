@@ -1,6 +1,5 @@
 import { Injectable } from '@angular/core';
 import { Observable, filter, map, of, tap } from 'rxjs';
-import { Mes } from '../models/despesa.model';
 import { DespesasService } from './despesas.service';
 
 @Injectable({

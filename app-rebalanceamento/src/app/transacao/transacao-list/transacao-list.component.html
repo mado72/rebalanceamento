@@ -1,0 +1,70 @@
+<select name="tipoPeriodo" [(ngModel)]="visao">
+    <option [value]="tipo" *ngFor="let tipo of tiposPeriodo">{{tipo}}</option>
+</select>
+
+<table *ngIf="!!lancamentos" class="table">
+    <thead>
+        <tr>
+            <td>Despesa</td>
+            <td>Dia Venc.</td>
+            <td *ngFor="let periodo of periodos" [style.font-weight]="periodo === periodoCorrente ? 'bold' : null" >
+                {{periodo}}
+            </td>
+            <td>Total</td>
+        </tr>
+    </thead>
+    <tbody>
+        <tr *ngFor="let classe of classesDespesas">
+            <td>
+                {{classe}}
+            </td>
+            <td>{{diaInicial(classe)}}</td>
+            <td *ngFor="let periodo of periodos">
+
+                <div *ngIf="!! lancamentos[classe][periodo]; else TransacaoUndefined" class=" text-end">
+                    <ng-container
+                        [ngTemplateOutlet]="lancamentos[classe][periodo]?._id ? textPagto : criarPagto" 
+                        [ngTemplateOutletContext]="{periodo,lancamento:lancamentos[classe][periodo],name:'pagto_'+periodo+'_'+(lancamentos[classe][periodo]?._id || 0)}">
+                    </ng-container>
+                    <!-- <ng-container 
+                        [ngTemplateOutlet]="anteriorMesCorrente(mes) ?  textPagto : inputPagto" 
+                        [ngTemplateOutletContext]="{mes,despesa:lancamentos[classe][mes],name:'pagto_'+mes+'_'+(lancamentos[classe][mes]?._id || 0)}">
+                    </ng-container> -->
+                </div>
+            </td>
+            <td class="text-end">
+                {{totaisClasse[classe] | number:'1.2-2'}}
+            </td>
+        </tr>
+    </tbody>
+    <tfoot>
+        <tr>
+            <td colspan="2">Totais:</td>
+            <td class="text-end" *ngFor="let periodo of periodos">{{totaisMes[periodo] | number:'1.2-2'}}</td>
+            <td class="text-end">{{totais | number:'1.2-2'}}</td>
+        </tr>
+    </tfoot>
+</table>
+
+<pre class="debug">{{ lancamentos | json }}</pre>
+<a routerLink="/despesas/edit">Criar Despesa</a>
+|
+<a routerLink="/despesas/lancamentos">Pagamentos</a>
+
+<ng-template #textPagto let-periodo="periodo" let-lancamento="lancamento" let-classe>
+    <!-- <a [routerLink]="['/despesas/edit/', lancamento._id]" class="lancamento-valor pago"> -->
+    <a href="javascript:void(0)" (click)="editarTransacao(lancamento, 'Edição Transação')" class="transacao-valor" 
+        [ngClass]="{'pago': !!lancamento.dataLancamento, 'salvo': !lancamento.dataLancamento}">
+        {{ lancamento.valor | number : '1.2-2' }}
+    </a>
+</ng-template>
+
+<ng-template #criarPagto let-periodo="periodo" let-lancamento="lancamento">
+    <a href="javascript:void(0)" (click)="editarTransacao(lancamento, 'Cadastro transação')" class="transacao-valor">
+        {{ lancamento.valor | number : '1.2-2' }}
+    </a>
+</ng-template>
+
+<ng-template #TransacaoUndefined >
+    <div class="text-end">-</div>
+</ng-template>
