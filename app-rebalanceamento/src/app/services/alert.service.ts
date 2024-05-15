@@ -1,7 +1,7 @@
 import { Injectable, OnDestroy } from '@angular/core';
 import { DateTime } from 'luxon';
 import { ToastrService } from 'ngx-toastr';
-import { Observable, Subscriber, Subscription, bufferTime, filter, interval, last, map, mergeAll, mergeMap, scan, skipWhile, takeUntil } from 'rxjs';
+import { Subscription, interval, map, skipWhile } from 'rxjs';
 
 export interface Alert {
   tipo: 'http' | 'common' | 'sucesso' | 'erro' | undefined;
