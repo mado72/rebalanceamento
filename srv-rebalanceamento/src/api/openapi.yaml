@@ -990,6 +990,7 @@ components:
             - JCP
             - DIVIDENDO
             - BONUS
+            - TAXA
             - EXTRA
         dataInicial:
           type: string
@@ -1000,7 +1001,7 @@ components:
           format: date
           nullable: true
           example: 2020-01-01
-        dataLancamento:
+        dataLiquidacao:
           type: string
           format: date
           nullable: true

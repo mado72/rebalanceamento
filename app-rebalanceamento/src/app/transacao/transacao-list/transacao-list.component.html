@@ -5,7 +5,7 @@
 <table *ngIf="!!lancamentos" class="table">
     <thead>
         <tr>
-            <td>Despesa</td>
+            <td>Transação</td>
             <td>Dia Venc.</td>
             <td *ngFor="let periodo of periodos" [style.font-weight]="periodo === periodoCorrente ? 'bold' : null" >
                 {{periodo}}
@@ -14,7 +14,7 @@
         </tr>
     </thead>
     <tbody>
-        <tr *ngFor="let classe of classesDespesas">
+        <tr *ngFor="let classe of classesTransacao">
             <td>
                 {{classe}}
             </td>
@@ -47,14 +47,14 @@
 </table>
 
 <pre class="debug">{{ lancamentos | json }}</pre>
-<a routerLink="/despesas/edit">Criar Despesa</a>
+<a (click)="criarTransacao()" href="javascript:void(0)">Criar Transação</a>
 |
 <a routerLink="/despesas/lancamentos">Pagamentos</a>
 
 <ng-template #textPagto let-periodo="periodo" let-lancamento="lancamento" let-classe>
     <!-- <a [routerLink]="['/despesas/edit/', lancamento._id]" class="lancamento-valor pago"> -->
     <a href="javascript:void(0)" (click)="editarTransacao(lancamento, 'Edição Transação')" class="transacao-valor" 
-        [ngClass]="{'pago': !!lancamento.dataLancamento, 'salvo': !lancamento.dataLancamento}">
+        [ngClass]="{'pago': !!lancamento.dataLiquidacao, 'salvo': !lancamento.dataLiquidacao}">
         {{ lancamento.valor | number : '1.2-2' }}
     </a>
 </ng-template>

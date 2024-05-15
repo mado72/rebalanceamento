@@ -2,15 +2,12 @@ import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { addDays, addMonths, addYears, getTime } from 'date-fns';
-import { DateTime } from 'luxon';
-import { Observable, Observer, catchError, map, mergeAll } from 'rxjs';
-import { ITransacao, Periodicidade, TipoTransacao, TransacaoImpl } from 'src/app/transacao/models/transacao.model';
+import { Observable, Observer, catchError, map } from 'rxjs';
 import { AlertService } from 'src/app/services/alert.service';
+import { ITransacao, Periodicidade, TransacaoImpl } from 'src/app/transacao/models/transacao.model';
 import { formatRequestDate } from 'src/app/util/date-formatter.util';
 import { environment } from 'src/environments/environment.development';
 import { TransacaoModalComponent } from '../transacao-modal/transacao-modal.component';
-import { DespesasService } from 'src/app/despesa/services/despesas.service';
-import { DespesaRecorrenteImpl } from 'src/app/despesa/models/despesa.model';
 
 @Injectable({
   providedIn: 'root'
@@ -20,8 +17,7 @@ export class TransacaoService {
   constructor(
     private _http: HttpClient,
     private _alertService: AlertService,
-    private _modalService: NgbModal,
-    private _despesaService: DespesasService ) { }
+    private _modalService: NgbModal ) { }
 
   /**
    * Retorna um Observable que emite o array de todas as transacoes.
@@ -29,32 +25,15 @@ export class TransacaoService {
    * @returns {Observable<TransacaoImpl[]>} Um Observable que emite o array de todas as transacoes.
    */
   obterTransacoes(): Observable<TransacaoImpl[]> {
-    return this._despesaService.obterDespesas()
+    return this._http.get<TransacaoImpl[]>(`${environment.apiUrl}/transacao`)
       .pipe(
-        map(despesas=>{
-          return despesas.map(despesa=>{
-            return this.converterDespesaEmTransacao(despesa);
-          })
+        map(result => {
+          return result.map(item => new TransacaoImpl(item))
+        }),
+        catchError(error => {
+          throw new Error(JSON.stringify(error));
         })
       )
-    // return this._http.get<TransacaoImpl[]>(`${environment.apiUrl}/transacoes`)
-    //   .pipe(
-    //     map(result => {
-    //       return result.map(item => new TransacaoImpl(item))
-    //     }),
-    //     catchError(error => {
-    //       throw new Error(JSON.stringify(error));
-    //     })
-    //   )
-  }
-
-  private converterDespesaEmTransacao(despesa: DespesaRecorrenteImpl) {
-    const entity = despesa.entity;
-    entity.dataInicial = entity.dataVencimento;
-    entity.dataLancamento = entity.dataPagamento;
-    const transacao = new TransacaoImpl(entity);
-    transacao.tipoTransacao = TipoTransacao.DEBITO;
-    return transacao;
   }
 
   /**
@@ -64,17 +43,13 @@ export class TransacaoService {
    * @returns {Observable<TransacaoImpl>} Um Observable que emite a transacao especificada.
    */
   obterTransacao(id: string): Observable<TransacaoImpl> {
-    return this._despesaService.obterDespesa(id)
+    return this._http.get<ITransacao>(`${environment.apiUrl}/transacao/id/${id}`)
       .pipe(
-        map(transacao=>this.converterDespesaEmTransacao(transacao))
-      )
-    // return this._http.get<ITransacao>(`${environment.apiUrl}/transacao/id/${id}`)
-    //   .pipe(
-    //     map(item => new TransacaoImpl(item)),
-    //     catchError(error => {
-    //       throw new Error(error);
-    //     })
-    //   );
+        map(item => new TransacaoImpl(item)),
+        catchError(error => {
+          throw new Error(error);
+        })
+      );
   }
 
   /**
@@ -84,8 +59,7 @@ export class TransacaoService {
    */
   removerTransacao(id: string) {
     // Remove a transacao específica da lista de transacoes.
-    // return this._http.delete<ITransacao>(`${environment.apiUrl}/transacao/id/${id}`);
-    return this._despesaService.removerDespesa(id);
+    return this._http.delete<ITransacao>(`${environment.apiUrl}/transacao/id/${id}`);
   }
 
   /**
@@ -95,18 +69,14 @@ export class TransacaoService {
    * @returns {Observable<TransacaoImpl>} Um Observable que emite a transacao adicionada.
    */
   adicionarTransacao(transacao: TransacaoImpl): Observable<TransacaoImpl> {
-    // const request = formatRequestDate(transacao);
-    // return this._http.post<ITransacao>(`${environment.apiUrl}/transacao`, request)
-    //   .pipe(
-    //     map(item => new TransacaoImpl(item)),
-    //     catchError(error => {
-    //       throw new Error(error);
-    //     })
-    //   )
-    return this._despesaService.adicionarDespesa(new DespesaRecorrenteImpl(transacao))
+    const request = formatRequestDate(transacao);
+    return this._http.post<ITransacao>(`${environment.apiUrl}/transacao`, request)
       .pipe(
-        map(transacao=>this.converterDespesaEmTransacao(transacao))
-      );
+        map(item => new TransacaoImpl(item)),
+        catchError(error => {
+          throw new Error(error);
+        })
+      )
   }
 
   /**
@@ -116,14 +86,13 @@ export class TransacaoService {
    * @returns {Observable<TransacaoImpl>} Um Observable que emite a transacao atualizada.
    */
   atualizarTransacao(transacao: TransacaoImpl): Observable<void> {
-    // const request = formatRequestDate(transacao);
-    // return this._http.put<void>(`${environment.apiUrl}/transacao`, request)
-    //   .pipe(
-    //     catchError(error => {
-    //       throw new Error(error);
-    //     })
-    //   )
-    return this._despesaService.atualizarDespesa(new DespesaRecorrenteImpl(transacao));
+    const request = formatRequestDate(transacao);
+    return this._http.put<void>(`${environment.apiUrl}/transacao`, request)
+      .pipe(
+        catchError(error => {
+          throw new Error(error);
+        })
+      )
   }
 
   /**
@@ -132,7 +101,7 @@ export class TransacaoService {
    * @param transacao - A transacao atual a ser analisada.
    */
   gerarNovaTransacao(transacao: TransacaoImpl) {
-    if (!!transacao.dataLancamento && (!transacao.dataFinal || getTime(transacao.dataFinal) > getTime(transacao.dataInicial))) {
+    if (!!transacao.dataLiquidacao && (!transacao.dataFinal || getTime(transacao.dataFinal) > getTime(transacao.dataInicial))) {
       let novoVencimento: Date;
       switch (transacao.periodicidade) {
         case Periodicidade.ANUAL: novoVencimento = addYears(transacao.dataInicial, 1); break;
@@ -144,11 +113,11 @@ export class TransacaoService {
         default:
           return undefined;
       }
-      if (!transacao.dataLancamento || getTime(transacao.dataLancamento) < getTime(novoVencimento)) {
+      if (!transacao.dataLiquidacao || getTime(transacao.dataLiquidacao) < getTime(novoVencimento)) {
         const novaTransacao = new TransacaoImpl(transacao);
         novaTransacao.dataInicial = novoVencimento;
         novaTransacao._id = undefined;
-        novaTransacao.dataLancamento = undefined;
+        novaTransacao.dataLiquidacao = undefined;
         return novaTransacao;
       }
     }
@@ -189,7 +158,7 @@ export class TransacaoService {
             observer.next(transacao);
             this._alertService.alert({mensagem: 'Transacao atualizada com sucesso!', titulo: 'Resultado da operação', tipo:'sucesso'});
             const proxima = transacao.proxima;
-            if (!!proxima && !! transacao.dataLancamento) {
+            if (!!proxima && !! transacao.dataLiquidacao) {
               this.adicionarTransacao(proxima.entity).subscribe((nova)=>{
                 observer.next(nova);
                 this._alertService.alert({

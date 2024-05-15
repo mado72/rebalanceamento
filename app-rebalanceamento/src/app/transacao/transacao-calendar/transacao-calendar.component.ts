@@ -13,19 +13,16 @@ import {
 } from 'angular-calendar';
 import { EventColor } from 'calendar-utils';
 import {
-  addDays,
-  addHours,
   endOfDay,
   endOfMonth,
   format,
   getTime,
   isSameDay,
   isSameMonth,
-  startOfDay,
-  subDays
+  startOfDay
 } from 'date-fns';
 import { DateTime } from 'luxon';
-import { Subject, map, mergeAll, tap } from 'rxjs';
+import { Subject, map, mergeAll } from 'rxjs';
 import { AlertService } from 'src/app/services/alert.service';
 import { Mes, TipoTransacao, TransacaoImpl } from 'src/app/transacao/models/transacao.model';
 import { TransacaoService } from '../services/transacao.service';
@@ -124,21 +121,24 @@ export class TransacaoCalendarComponent implements OnInit {
   }
 
   obterEventos() {
+    console.log(`Obter eventos...`);
     const ateData = endOfMonth(this.viewDate);
     this.events.splice(0);
     this._transacaoService.obterTransacoes()
       .pipe(
         mergeAll(),
-        map(transacao=>!!transacao.dataLancamento ? [transacao] : transacao.programacaoTransacoes(ateData)),
+        map(transacao=>!!transacao.dataLiquidacao ? [transacao] : transacao.programacaoTransacoes(ateData)),
         mergeAll(),
-        tap(transacao=>{
-          console.log(`transacao: ${transacao._id}, ${transacao.descricao}, ${format(transacao.dataInicial, 'yyyy-MM-dd')}, ${transacao.dataLancamento && format(transacao.dataLancamento, 'yyyy-MM-dd')}`);
-        }),
         map(transacao => this.converterParaEvento(transacao))
       )
       .subscribe({
         next: (evento) => {
           this.events.push(evento);
+          const transacao = evento.meta;
+          console.log(`transacao: ${transacao._id}, ${transacao.descricao}, ${format(transacao.dataInicial, 'yyyy-MM-dd')}, ${transacao.dataLiquidacao && format(transacao.dataLiquidacao, 'yyyy-MM-dd')}`);
+        },
+        complete: ()=> {
+          console.log(`Concluiu obter eventos.`)
         }
       });
   }
@@ -154,10 +154,10 @@ export class TransacaoCalendarComponent implements OnInit {
   converterParaEvento(transacao: TransacaoImpl) : CalendarEvent {
     const color : ColorType = 
         transacao.tipoTransacao == TipoTransacao.DEBITO 
-            ? !! transacao.dataLancamento ? 'green' : !! transacao._id ? 'red' : 'yellow'
-            : !! transacao.dataLancamento ? 'blue' : !! transacao._id ? 'purple' : 'yellow' ;
+            ? !! transacao.dataLiquidacao ? 'green' : !! transacao._id ? 'red' : 'yellow'
+            : !! transacao.dataLiquidacao ? 'blue' : !! transacao._id ? 'purple' : 'yellow' ;
     return {
-      start: transacao.dataLancamento || transacao.dataInicial,
+      start: transacao.dataLiquidacao || transacao.dataInicial,
       title: transacao.descricao,
       color: colors[color],
       meta: transacao

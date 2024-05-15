@@ -4,6 +4,16 @@ const mongoosePaginate = require('mongoose-paginate-v2');
 
 var Schema = mongoose.Schema;
 
+const TipoTransacao = Object.freeze({
+    DEBITO : "DEBITO",
+    CREDITO : "CREDITO",
+    DIVIDENDO: "DIVIDENDO",
+    JCP : "JCP",
+    TAXA: "TAXA",
+    BONUS: "BONUS",
+    EXTRA: "EXTRA"
+})
+
 const TipoPeriodicidade = Object.freeze({
     SEMANAL : "SEMANAL",
     QUINZENAL : "QUINZENAL",
@@ -42,13 +52,14 @@ var Transacao = new Schema({
     descricao: { type: String, required: true}, // Descrição da transação
     valor: {type: Number, required: true}, // Valor da transação
     periodicidade: {type: String, required: true, enum: Object.values(TipoPeriodicidade)}, // Periodicidade da transação (mensal, trimestral, anual, etc.)
+    tipoTransacao: {type: String, required: true, enum: Object.values(TipoTransacao)}, // Tipo da transação
     dataInicial: {type: String, required: true}, // Data de vencimento da transação
     dataFinal: {type: String}, // Data final da recorrência (opcional)
     origem: {type: String}, // Identifica se a transação surgiu de uma transação anterior (opcional)
     categoria: {type: String}, // Identifica a categoria da transação (opcional)
     liquidacao: {type: String, required: true, enum: Object.values(TipoLiquidacao)}, // Tipo de liquidação
     dataLiquidacao: {type: String}, // Data em que a transação foi paga (opcional)
-    contaLiquidacao: {type: String} // Conta de Liquidação
+    contaLiquidacao: {type: String}, // Conta de Liquidação
 }, {
     statics: {
         toObjectInstance: (dbInstance)=> {

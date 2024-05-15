@@ -90,7 +90,7 @@ export class TransacaoListComponent {
     }
   }
 
-  get classesDespesas() {
+  get classesTransacao() {
     return Object.keys(this.lancamentos)
   }
 
@@ -182,6 +182,10 @@ export class TransacaoListComponent {
       console.log(`Atualizando transações`)
       this.obterTransacoes();
     })
+  }
+
+  criarTransacao() {
+    this.editarTransacao(new TransacaoImpl({}), "Criar transação");
   }
 }
 

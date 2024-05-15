@@ -41,9 +41,10 @@ export interface ITransacao {
     _id?: string; // Identificador único da transação (quando persistida)
     descricao: string; // Descrição da transação
     valor: number; // Valor da transação
+    tipoTransacao: TipoTransacao; // Tipo de transação
     periodicidade: Periodicidade; // Periodicidade da transação (mensal, trimestral, anual, etc.)
     dataInicial: Date; // Data de vencimento da transação
-    dataLancamento?: Date; // Data de lançamento da transação
+    dataLiquidacao?: Date; // Data de lançamento da transação
     dataFinal?: Date // Data final da recorrência (opcional)
     contaLiquidacao?: Conta // Conta de Liquidação
     origem?: string; // Origem da transação
@@ -55,13 +56,13 @@ export class TransacaoImpl implements ITransacao {
     _id?: string; // Identificador único da transação (quando persistida)
     descricao!: string; // Descrição da transação
     valor!: number; // Valor da transação
+    tipoTransacao!: TipoTransacao; // Tipo de transação
     periodicidade!: Periodicidade; // Periodicidade da transação (mensal, trimestral, anual, etc.)
     dataInicial!: Date; // Data de vencimento da transação
-    dataLancamento?: Date; // Data de vencimento da transação
+    dataLiquidacao?: Date; // Data de vencimento da transação
     dataFinal?: Date // Data final da recorrência (opcional)
     contaLiquidacao?: Conta // Conta de Liquidação
     origem?: string; // Origem da transação
-    tipoTransacao!: TipoTransacao; // Tipo de transação
     categoria?: string | undefined; // Categoria
     liquidacao!: TipoLiquidacao; // Tipo de liquidação
 
@@ -69,9 +70,10 @@ export class TransacaoImpl implements ITransacao {
         this._id = valorInicial._id;
         this.descricao = valorInicial.descricao || '';
         this.valor = valorInicial.valor || 0;
+        this.tipoTransacao = valorInicial.tipoTransacao || TipoTransacao.DEBITO;
         this.periodicidade = valorInicial.periodicidade || Periodicidade.MENSAL;
         this.dataInicial = valorInicial.dataInicial ? this.toDate(valorInicial.dataInicial) : new Date();
-        this.dataLancamento = valorInicial.dataLancamento ? this.toDate(valorInicial.dataLancamento) : undefined;
+        this.dataLiquidacao = valorInicial.dataLiquidacao ? this.toDate(valorInicial.dataLiquidacao) : undefined;
         this.dataFinal = valorInicial.dataFinal ? this.toDate(valorInicial.dataFinal) : undefined;
         this.contaLiquidacao = valorInicial.contaLiquidacao;
         this.origem = valorInicial.origem;
@@ -128,7 +130,7 @@ export class TransacaoImpl implements ITransacao {
             let d = new TransacaoImpl(this);
             d.dataInicial = data;
             d._id = undefined;
-            d.dataLancamento = undefined;
+            d.dataLiquidacao = undefined;
             d.origem = this._id;
             return d;
         });
@@ -161,7 +163,7 @@ export class TransacaoImpl implements ITransacao {
                 case Periodicidade.UNICO:
                     return undefined;
         }
-        proxima.dataLancamento = undefined;
+        proxima.dataLiquidacao = undefined;
         proxima._id = undefined;
         return proxima;
     }
@@ -170,11 +172,11 @@ export class TransacaoImpl implements ITransacao {
         let entity = Object.assign({}, this) as any;
         if (entity.dataFinal === undefined) entity.dataFinal = null;
         if (entity.dataInicial === undefined) entity.dataInicial = null; else entity.dataVencimento = entity.dataInicial;
-        if (entity.dataLancamento === undefined) {
+        if (entity.dataLiquidacao === undefined) {
           entity.dataPagamento = null;
         }
         else {
-          entity.dataPagamento = entity.dataLancamento;
+          entity.dataPagamento = entity.dataLiquidacao;
         }
         return entity;
     }
@@ -201,15 +203,15 @@ export class TransacaoImpl implements ITransacao {
     }
     
     get dtLancamentoStr(): string | undefined{
-        return this.dataLancamento ? format(this.dataLancamento, 'yyyy-MM-dd') : undefined;
+        return this.dataLiquidacao ? format(this.dataLiquidacao, 'yyyy-MM-dd') : undefined;
     }
 
     set dtLancamentoStr(data: string | undefined) {
         if (!data) {
-            this.dataLancamento = undefined
+            this.dataLiquidacao = undefined
         }
         else {
-            this.dataLancamento = parse(data, 'yyyy-MM-dd', startOfDay(new Date()))
+            this.dataLiquidacao = parse(data, 'yyyy-MM-dd', startOfDay(new Date()))
         }
     }
 
