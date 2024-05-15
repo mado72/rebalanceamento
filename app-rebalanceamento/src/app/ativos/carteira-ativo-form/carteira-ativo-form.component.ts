@@ -67,7 +67,9 @@ export class CarteiraAtivoFormComponent {
    */
   constructor() {
     this.carteiraAtivo = {
-      sigla: "",
+      ativo: {
+        sigla: ""
+      },
       qtd: 0,
       vlUnitario: 0,
       vlInicial: 0,

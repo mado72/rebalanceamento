@@ -7,8 +7,12 @@ info:
 servers:
 - url: http://localhost:4201/api/v1
 tags:
+- name: Health
+  description: Endpoints úteis para verificar saúde da aplicação
 - name: Seguranca
   description: Endpoints de segurança
+- name: Recebimento
+  description: CRUD para definição de recebumentos
 - name: Despesa
   description: CRUD para definição de despesas
 - name: Carteira
@@ -16,13 +20,27 @@ tags:
 - name: Conta
   description: CRUD para definição de contas
 paths:
+  /health-check:
+    get:
+      x-swagger-router-controller: Health
+      operationId: healthCheckGET
+      tags:
+      - Health
+      responses:
+        "200":
+          description: Health status
+          content:
+            application/json:
+              schema:
+                type: object
   /auth:
     post:
+      x-swagger-router-controller: Seguranca
+      operationId: authPOST
       tags:
       - Seguranca
       summary: Autentica um serviço
       description: Retorna um token válido para as futuras requisições
-      operationId: auth
       parameters:
       - name: X-API-KEY
         in: header
@@ -49,14 +67,266 @@ paths:
                 $ref: '#/components/schemas/Error'
       security:
       - ApiKeyAuth: []
-      x-swagger-router-controller: Seguranca
-  /despesa:
+      
+  /recebimento:
+    get:
+      x-swagger-router-controller: Recebimento
+      operationId: recebimentoGET
+      tags:
+      - Recebimento
+      summary: Lista as recebimentos
+      description: Lista as recebimentos programados
+      responses:
+        "200":
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Recebimento'
+                x-content-type: application/json
+      security:
+      - bearerAuth:
+        - write:domain
+        - read:domain
+    post:
+      x-swagger-router-controller: Recebimento
+      operationId: recebimentoPOST
+      tags:
+      - Recebimento
+      summary: Adiciona um novo recebimento
+      description: Adiciona um novo recebimento
+      requestBody:
+        description: Cria um novo recebimento
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Recebimento'
+        required: true
+      responses:
+        "200":
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Recebimento'
+        "400":
+          description: The specified resource is invalid
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        "422":
+          description: The specified resource is not valid
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      security:
+      - bearerAuth:
+        - write:domain
+        - read:domain
     put:
+      x-swagger-router-controller: Recebimento
+      operationId: recebimentoPUT
+      tags:
+      - Recebimento
+      summary: Atualiza um recebimento
+      description: Atualiza um recebimento identificado pelo seu id
+      requestBody:
+        description: Dados do Recebimento
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Recebimento'
+        required: true
+      responses:
+        "200":
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Recebimento'
+        "400":
+          description: The specified resource is invalid
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        "404":
+          description: The specified resource was not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        "422":
+          description: The specified resource is not valid
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      security:
+      - bearerAuth:
+        - write:domain
+        - read:domain
+  /recebimento/id/{recebimentoId}:
+    parameters:
+    - name: recebimentoId
+      in: path
+      description: ID do recebimento
+      required: true
+      style: simple
+      explode: false
+      schema:
+        type: string
+    get:
+      x-swagger-router-controller: Recebimento
+      operationId: recebimentoIdGET
+      tags:
+      - Recebimento
+      summary: Busca os dados de um recebimento pelo Id
+      description: Returna um único recebimento
+      responses:
+        "200":
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Recebimento'
+        "400":
+          description: The specified resource is invalid
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        "404":
+          description: The specified resource was not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      security:
+      - bearerAuth:
+        - write:domain
+        - read:domain
+    delete:
+      x-swagger-router-controller: Recebimento
+      operationId: recebimentoIdDELETE
+      tags:
+      - Recebimento
+      summary: Remove um recebimento
+      description: Remove um recebimento
+      responses:
+        "400":
+          description: The specified resource is invalid
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        "404":
+          description: The specified resource was not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        "422":
+          description: The specified resource is not valid
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      security:
+      - bearerAuth:
+        - write:domain
+        - read:domain
+      
+  /despesa:
+    get:
+      x-swagger-router-controller: Despesa
+      operationId: despesaGET
+      tags:
+      - Despesa
+      summary: Lista as despesas
+      description: Lista as despesas programadas do ano
+      parameters:
+      - in: query
+        name: mes
+        required: false
+        schema:
+          type: integer
+          minimum: 1
+          maximum: 12
+      - in: query
+        name: pago
+        required: false
+        description: Se informado, filtra apenas as despesas pagas
+        schema:
+          type: boolean
+      - in: query
+        name: categoria
+        required: false
+        description: Filtra pela categoria
+        schema:
+          type: string
+      responses:
+        "200":
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Despesa'
+                x-content-type: application/json
+      security:
+      - bearerAuth:
+        - write:domain
+        - read:domain
+    post:
+      x-swagger-router-controller: Despesa
+      operationId: despesaPOST
+      tags:
+      - Despesa
+      summary: Adiciona uma nova despesa
+      description: Adiciona uma nova despesa
+      requestBody:
+        description: Cria uma nova despesa
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Despesa'
+        required: true
+      responses:
+        "200":
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Despesa'
+        "400":
+          description: The specified resource is invalid
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        "422":
+          description: The specified resource is not valid
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      security:
+      - bearerAuth:
+        - write:domain
+        - read:domain
+    put:
+      x-swagger-router-controller: Despesa
+      operationId: despesaPUT
       tags:
       - Despesa
       summary: Atualiza uma despesa
       description: Atualiza uma despesa identificada pelo seu id
-      operationId: atualizarDespesa
       requestBody:
         description: Dados da despesa
         content:
@@ -93,85 +363,23 @@ paths:
       - bearerAuth:
         - write:domain
         - read:domain
-      x-swagger-router-controller: Despesa
-  /despesa/mes/{mes}:
-    get:
-      tags:
-      - Despesa
-      summary: Retorna as despesas programadas para o mês
-      description: O mês deve ser informado para apresentar as despesas mensais
-      operationId: obterDespesasMes
-      parameters:
-      - name: mes
-        in: path
-        description: Define o mês da pesquisa
-        required: true
-        style: simple
-        explode: true
-        schema:
-          maximum: 12
-          minimum: 1
-          type: number
-      responses:
-        "200":
-          description: successful operation
-          content:
-            application/json:
-              schema:
-                type: array
-                items:
-                  $ref: '#/components/schemas/Despesa'
-                x-content-type: application/json
-        "400":
-          description: The specified resource is invalid
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
-      security:
-      - bearerAuth:
-        - write:domain
-        - read:domain
-      x-swagger-router-controller: Despesa
-  /despesa/programadas:
-    get:
-      tags:
-      - Despesa
-      summary: Lista as despesas
-      description: Lista as despesas programadas do ano
-      operationId: obterDespesasProgramadas
-      responses:
-        "200":
-          description: successful operation
-          content:
-            application/json:
-              schema:
-                type: array
-                items:
-                  $ref: '#/components/schemas/Despesa'
-                x-content-type: application/json
-      security:
-      - bearerAuth:
-        - write:domain
-        - read:domain
-      x-swagger-router-controller: Despesa
   /despesa/id/{despesaId}:
+    parameters:
+    - name: despesaId
+      in: path
+      description: ID da despesa
+      required: true
+      style: simple
+      explode: false
+      schema:
+        type: string
     get:
+      x-swagger-router-controller: Despesa
+      operationId: despesaIdGET
       tags:
       - Despesa
       summary: Busca os dados de uma despesa pelo Id
       description: Returna uma única despesa
-      operationId: obterDespesaId
-      parameters:
-      - name: despesaId
-        in: path
-        description: ID da despesa
-        required: true
-        style: simple
-        explode: false
-        schema:
-          type: integer
-          format: int64
       responses:
         "200":
           description: successful operation
@@ -195,70 +403,13 @@ paths:
       - bearerAuth:
         - write:domain
         - read:domain
-      x-swagger-router-controller: Despesa
-    post:
-      tags:
-      - Despesa
-      summary: Adiciona uma nova despesa
-      description: Adiciona uma nova despesa
-      operationId: adicionaDespesa
-      parameters:
-      - name: despesaId
-        in: path
-        description: ID da despesa
-        required: true
-        style: simple
-        explode: false
-        schema:
-          type: integer
-          format: int64
-      requestBody:
-        description: Cria uma nova despesa
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/Despesa'
-        required: true
-      responses:
-        "200":
-          description: Successful operation
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Despesa'
-        "400":
-          description: The specified resource is invalid
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
-        "422":
-          description: The specified resource is not valid
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
-      security:
-      - bearerAuth:
-        - write:domain
-        - read:domain
-      x-swagger-router-controller: Despesa
     delete:
+      x-swagger-router-controller: Despesa
+      operationId: despesaIdDELETE
       tags:
       - Despesa
       summary: Remove uma nova despesa
       description: Remove uma nova despesa
-      operationId: removeDespesa
-      parameters:
-      - name: despesaId
-        in: path
-        description: ID da despesa
-        required: true
-        style: simple
-        explode: false
-        schema:
-          type: integer
-          format: int64
       responses:
         "400":
           description: The specified resource is invalid
@@ -282,14 +433,20 @@ paths:
       - bearerAuth:
         - write:domain
         - read:domain
-      x-swagger-router-controller: Despesa
   /ativo:
     get:
+      x-swagger-router-controller: Carteira
+      operationId: ativoGET
       tags:
       - Carteira
       summary: Lista os ativos disponíveis
       description: Lista os ativos cadastrados
-      operationId: obterAtivos
+      parameters: 
+      - in: query
+        name: classe
+        required: false
+        schema:
+          $ref: '#/components/schemas/Classe'
       responses:
         "200":
           description: Successful operation
@@ -304,13 +461,13 @@ paths:
       - bearerAuth:
         - write:domain
         - read:domain
-      x-swagger-router-controller: Carteira
     post:
+      x-swagger-router-controller: Carteira
+      operationId: ativoPOST
       tags:
       - Carteira
       summary: Adiciona um ativo
       description: Adiciona um ativo ao portifólio
-      operationId: adicionarAtivo
       requestBody:
         description: Dados do Ativo
         content:
@@ -341,64 +498,13 @@ paths:
       - bearerAuth:
         - write:domain
         - read:domain
-      x-swagger-router-controller: Carteira
-  /ativo/id/{ativoId}:
-    get:
-      tags:
-      - Carteira
-      summary: Obtém um ativo
-      description: Obtém um ativo pelo seu id
-      operationId: obterAtivo
-      parameters:
-      - name: ativoId
-        in: path
-        description: Id do ativo
-        required: true
-        style: simple
-        explode: false
-        schema:
-          type: integer
-          format: int64
-      responses:
-        "200":
-          description: Successful operation
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Ativo'
-        "400":
-          description: The specified resource is invalid
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
-        "404":
-          description: The specified resource was not found
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
-      security:
-      - bearerAuth:
-        - write:domain
-        - read:domain
-      x-swagger-router-controller: Carteira
     put:
+      x-swagger-router-controller: Carteira
+      operationId: ativoPUT
       tags:
       - Carteira
       summary: Atualiza um ativo
       description: Atualiza um ativo identificado pelo seu id
-      operationId: atualizarAtivo
-      parameters:
-      - name: ativoId
-        in: path
-        description: Id do ativo
-        required: true
-        style: simple
-        explode: false
-        schema:
-          type: integer
-          format: int64
       requestBody:
         description: Dados do ativo
         content:
@@ -431,23 +537,53 @@ paths:
       - bearerAuth:
         - write:domain
         - read:domain
+  /ativo/id/{ativoId}:
+    parameters:
+    - name: ativoId
+      in: path
+      description: Id do ativo
+      required: true
+      style: simple
+      explode: false
+      schema:
+        type: string
+    get:
       x-swagger-router-controller: Carteira
+      operationId: ativoIdGET
+      tags:
+      - Carteira
+      summary: Obtém um ativo
+      description: Obtém um ativo pelo seu id
+      responses:
+        "200":
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Ativo'
+        "400":
+          description: The specified resource is invalid
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        "404":
+          description: The specified resource was not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      security:
+      - bearerAuth:
+        - write:domain
+        - read:domain
     delete:
+      x-swagger-router-controller: Carteira
+      operationId: ativoIdDELETE
       tags:
       - Carteira
       summary: Remove um ativo
       description: Remove um ativo identificado pelo seu id
-      operationId: removerAtivo
-      parameters:
-      - name: ativoId
-        in: path
-        description: Id do ativo
-        required: true
-        style: simple
-        explode: false
-        schema:
-          type: integer
-          format: int64
       responses:
         "200":
           description: Successful operation
@@ -473,54 +609,25 @@ paths:
       - bearerAuth:
         - write:domain
         - read:domain
-      x-swagger-router-controller: Carteira
-  /ativo/classe/{classe}:
-    get:
-      tags:
-      - Carteira
-      summary: Obtém ativos de uma classe
-      description: Obtém ativos identificados pela sua classe
-      operationId: obterAtivoPorClasse
-      parameters:
-      - name: classe
-        in: path
-        description: Classe do ativo
-        required: true
-        style: simple
-        explode: false
-        schema:
-          $ref: '#/components/schemas/Classe'
-      responses:
-        "200":
-          description: Successful operation
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Carteira'
-        "400":
-          description: The specified resource is invalid
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
-        "422":
-          description: The specified resource is not valid
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
-      security:
-      - bearerAuth:
-        - write:domain
-        - read:domain
-      x-swagger-router-controller: Carteira
   /carteira:
     get:
+      x-swagger-router-controller: Carteira
+      operationId: carteiraGET
       tags:
       - Carteira
       summary: Obtém lista de carteiras do portifólio
       description: Recebe um array de Carteira
-      operationId: obterCarteiras
+      parameters: 
+      - in: query
+        name: moeda
+        required: false
+        schema:
+          $ref: '#/components/schemas/Moeda'
+      - in: query
+        name: classe
+        required: false
+        schema:
+          $ref: '#/components/schemas/Classe'
       responses:
         "200":
           description: Successful operation
@@ -535,13 +642,13 @@ paths:
       - bearerAuth:
         - write:domain
         - read:domain
-      x-swagger-router-controller: Carteira
     post:
+      x-swagger-router-controller: Carteira
+      operationId: carteiraPOST
       tags:
       - Carteira
       summary: Adiciona uma carteira
       description: Adiciona uma carteira ao portifólio
-      operationId: adicionarCarteira
       requestBody:
         description: Dados da carteira
         content:
@@ -572,180 +679,13 @@ paths:
       - bearerAuth:
         - write:domain
         - read:domain
-      x-swagger-router-controller: Carteira
-  /carteira/classe/{classe}:
-    get:
-      tags:
-      - Carteira
-      summary: Obtém lista de carteiras de uma classe
-      description: Obtém array de carteiras que utilizam uma classe
-      operationId: obterCarteirasClasse
-      parameters:
-      - name: classe
-        in: path
-        description: Código da classe
-        required: true
-        style: simple
-        explode: false
-        schema:
-          $ref: '#/components/schemas/Classe'
-      responses:
-        "200":
-          description: Successful operation
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Carteira'
-        "400":
-          description: The specified resource is invalid
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
-      security:
-      - bearerAuth:
-        - write:domain
-        - read:domain
-      x-swagger-router-controller: Carteira
-  /carteira/moeda/{moeda}:
-    get:
-      tags:
-      - Carteira
-      summary: Obtém lista de carteiras de uma moeda
-      description: Obtém array de carteiras que utilizam uma moeda
-      operationId: obterCarteirasMoeda
-      parameters:
-      - name: moeda
-        in: path
-        description: Código da moeda
-        required: true
-        style: simple
-        explode: false
-        schema:
-          $ref: '#/components/schemas/Moeda'
-      responses:
-        "200":
-          description: Successful operation
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Carteira'
-        "400":
-          description: The specified resource is invalid
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
-      security:
-      - bearerAuth:
-        - write:domain
-        - read:domain
-      x-swagger-router-controller: Carteira
-  /carteira/classe/{classe}/moeda/{moeda}:
-    get:
-      tags:
-      - Carteira
-      summary: Obtém lista de carteiras de uma classe e de uma moeda
-      description: Obtém array de carteiras que utilizam uma classe
-      operationId: obterCarteirasClasseMoeda
-      parameters:
-      - name: classe
-        in: path
-        description: Código da classe
-        required: true
-        style: simple
-        explode: false
-        schema:
-          $ref: '#/components/schemas/Classe'
-      - name: moeda
-        in: path
-        description: Código da moeda
-        required: true
-        style: simple
-        explode: false
-        schema:
-          $ref: '#/components/schemas/Moeda'
-      responses:
-        "200":
-          description: Successful operation
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Carteira'
-        "400":
-          description: The specified resource is invalid
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
-      security:
-      - bearerAuth:
-        - write:domain
-        - read:domain
-      x-swagger-router-controller: Carteira
-  /carteira/{carteiraId}:
-    get:
-      tags:
-      - Carteira
-      summary: Obtém uma carteira
-      description: Obtém uma carteira identificada pelo seu id
-      operationId: obterCarteira
-      parameters:
-      - name: carteiraId
-        in: path
-        description: Id da carteira
-        required: true
-        style: simple
-        explode: false
-        schema:
-          type: integer
-          format: int64
-      responses:
-        "200":
-          description: Successful operation
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Carteira'
-        "400":
-          description: The specified resource is invalid
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
-        "404":
-          description: The specified resource was not found
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
-        "422":
-          description: The specified resource is not valid
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
-      security:
-      - bearerAuth:
-        - write:domain
-        - read:domain
-      x-swagger-router-controller: Carteira
     put:
+      x-swagger-router-controller: Carteira
+      operationId: carteiraPUT
       tags:
       - Carteira
       summary: Atualiza uma carteira
       description: Atualiza uma carteira identificada pelo seu id
-      operationId: atualizarCarteira
-      parameters:
-      - name: carteiraId
-        in: path
-        description: Id da carteira
-        required: true
-        style: simple
-        explode: false
-        schema:
-          type: integer
-          format: int64
       requestBody:
         description: Dados da carteira
         content:
@@ -782,23 +722,59 @@ paths:
       - bearerAuth:
         - write:domain
         - read:domain
+  /carteira/{carteiraId}:
+    parameters:
+    - name: carteiraId
+      in: path
+      description: Id da carteira
+      required: true
+      style: simple
+      explode: false
+      schema:
+        type: string
+    get:
       x-swagger-router-controller: Carteira
+      operationId: carteiraIdGET
+      tags:
+      - Carteira
+      summary: Obtém uma carteira
+      description: Obtém uma carteira identificada pelo seu id
+      responses:
+        "200":
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Carteira'
+        "400":
+          description: The specified resource is invalid
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        "404":
+          description: The specified resource was not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        "422":
+          description: The specified resource is not valid
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      security:
+      - bearerAuth:
+        - write:domain
+        - read:domain
     delete:
+      x-swagger-router-controller: Carteira
+      operationId: carteiraIdDELETE
       tags:
       - Carteira
       summary: Remove uma carteira
       description: Remove uma carteira identificada pelo seu id
-      operationId: removerCarteira
-      parameters:
-      - name: carteiraId
-        in: path
-        description: Id da carteira
-        required: true
-        style: simple
-        explode: false
-        schema:
-          type: integer
-          format: int64
       responses:
         "200":
           description: Successful operation
@@ -824,34 +800,30 @@ paths:
       - bearerAuth:
         - write:domain
         - read:domain
-      x-swagger-router-controller: Carteira
   /carteira/{carteiraId}/alocacao:
+    parameters:
+    - name: carteiraId
+      in: path
+      description: Id da carteira
+      required: true
+      style: simple
+      explode: false
+      schema:
+        type: string
     get:
+      x-swagger-router-controller: Carteira
+      operationId: carteiraIdAlocacaoGET
       tags:
       - Carteira
       summary: Obtém as alocações dos ativos de uma carteira
       description: Obtém os ativos de uma carteira identificada pelo seu id
-      operationId: obterCarteiraAtivos
-      parameters:
-      - name: carteiraId
-        in: path
-        description: Id da carteira
-        required: true
-        style: simple
-        explode: false
-        schema:
-          type: integer
-          format: int64
       responses:
         "200":
           description: Successful operation
           content:
             application/json:
               schema:
-                type: array
-                items:
-                  $ref: '#/components/schemas/CarteiraAtivo'
-                x-content-type: application/json
+                $ref: '#/components/schemas/CarteiraAtivos'
         "400":
           description: The specified resource is invalid
           content:
@@ -874,32 +846,20 @@ paths:
       - bearerAuth:
         - write:domain
         - read:domain
-      x-swagger-router-controller: Carteira
     post:
+      x-swagger-router-controller: Carteira
+      operationId: carteiraIdAlocacaoPOST
       tags:
       - Carteira
       summary: Atualiza as alocações de um conjunto de ativos em uma carteira
       description: Atualiza as alocações de um conjunto de ativos em uma carteira
         identificada pelo seu id
-      operationId: atualizarCarteiraAtivos
-      parameters:
-      - name: carteiraId
-        in: path
-        description: Id da carteira
-        required: true
-        style: simple
-        explode: false
-        schema:
-          type: integer
-          format: int64
       requestBody:
         description: Dados das alocações
         content:
           application/json:
             schema:
-              type: array
-              items:
-                $ref: '#/components/schemas/CarteiraAtivo'
+              $ref: '#/components/schemas/CarteiraAtivos'
         required: true
       responses:
         "200":
@@ -907,10 +867,7 @@ paths:
           content:
             application/json:
               schema:
-                type: array
-                items:
-                  $ref: '#/components/schemas/CarteiraAtivo'
-                x-content-type: application/json
+                $ref: '#/components/schemas/CarteiraAtivos'
         "400":
           description: The specified resource is invalid
           content:
@@ -933,14 +890,25 @@ paths:
       - bearerAuth:
         - write:domain
         - read:domain
-      x-swagger-router-controller: Carteira
   /conta:
     get:
+      x-swagger-router-controller: Conta
+      operationId: contaGET
       tags:
       - Conta
       summary: Obtém lista de contas do portifólio
       description: Recebe um array de Conta
-      operationId: obterContas
+      parameters: 
+      - in: query
+        name: moeda
+        required: false
+        schema: 
+          $ref: '#/components/schemas/Moeda'
+      - in: query
+        name: conta
+        required: false
+        schema:
+          type: string
       responses:
         "200":
           description: Successful operation
@@ -955,13 +923,13 @@ paths:
       - bearerAuth:
         - write:domain
         - read:domain
-      x-swagger-router-controller: Conta
     post:
+      x-swagger-router-controller: Conta
+      operationId: contaPOST
       tags:
       - Conta
       summary: Adiciona uma conta
       description: Adiciona uma conta ao portifólio
-      operationId: adicionarConta
       requestBody:
         description: Dados da conta
         content:
@@ -998,24 +966,59 @@ paths:
       - bearerAuth:
         - write:domain
         - read:domain
+    put:
       x-swagger-router-controller: Conta
+      operationId: contaPUT
+      tags:
+      - Conta
+      summary: Atualiza uma conta
+      description: Atualiza uma conta identificada pelo seu id
+      responses:
+        "200":
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Conta'
+        "400":
+          description: The specified resource is invalid
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        "404":
+          description: The specified resource was not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        "422":
+          description: The specified resource is not valid
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      security:
+      - bearerAuth:
+        - write:domain
+        - read:domain
   /conta/id/{contaId}:
+    parameters:
+    - name: contaId
+      in: path
+      description: Id da conta
+      required: true
+      style: simple
+      explode: false
+      schema:
+        type: string
     get:
+      x-swagger-router-controller: Conta
+      operationId: contaIdGET
       tags:
       - Conta
       summary: Obtém uma conta
       description: Obtém uma conta identificada pelo seu id
-      operationId: obterConta
-      parameters:
-      - name: contaId
-        in: path
-        description: Id da conta
-        required: true
-        style: simple
-        explode: false
-        schema:
-          type: integer
-          format: int64
       responses:
         "200":
           description: Successful operation
@@ -1045,76 +1048,13 @@ paths:
       - bearerAuth:
         - write:domain
         - read:domain
-      x-swagger-router-controller: Conta
-    put:
-      tags:
-      - Conta
-      summary: Atualiza uma conta
-      description: Atualiza uma conta identificada pelo seu id
-      operationId: atualizarConta
-      parameters:
-      - name: contaId
-        in: path
-        description: Id da conta
-        required: true
-        style: simple
-        explode: false
-        schema:
-          type: integer
-          format: int64
-      requestBody:
-        description: Dados da conta
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/Conta'
-        required: true
-      responses:
-        "200":
-          description: Successful operation
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Conta'
-        "400":
-          description: The specified resource is invalid
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
-        "404":
-          description: The specified resource was not found
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
-        "422":
-          description: The specified resource is not valid
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
-      security:
-      - bearerAuth:
-        - write:domain
-        - read:domain
-      x-swagger-router-controller: Conta
     delete:
+      x-swagger-router-controller: Conta
+      operationId: contaIdDELETE
       tags:
       - Conta
       summary: Remove uma conta
       description: Remove uma conta identificada pelo seu id
-      operationId: removerConta
-      parameters:
-      - name: contaId
-        in: path
-        description: Id da conta
-        required: true
-        style: simple
-        explode: false
-        schema:
-          type: integer
-          format: int64
       responses:
         "200":
           description: Successful operation
@@ -1140,44 +1080,26 @@ paths:
       - bearerAuth:
         - write:domain
         - read:domain
-      x-swagger-router-controller: Conta
-  /conta/moeda/{moeda}:
+        
+  /contas/saldoTotal:
     get:
+      x-swagger-router-controller: Conta
+      operationId: contasSaldoTotalGET
       tags:
       - Conta
-      summary: Obter contas de uma moeda
-      description: Retorna array de contas
-      operationId: obterContasMoeda
-      parameters:
-      - name: moeda
-        in: path
-        description: Moeda a pesquisar
-        required: true
-        style: simple
-        explode: false
-        schema:
-          $ref: '#/components/schemas/Moeda'
+      summary: Obtém o saldo total
+      description: Soma todos os saldos das contas
       responses:
         "200":
-          description: Successful operation
+          description: O saldo total das contas
           content:
             application/json:
               schema:
-                type: array
-                items:
-                  $ref: '#/components/schemas/Conta'
-                x-content-type: application/json
-        "400":
-          description: The specified resource is invalid
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
-      security:
-      - bearerAuth:
-        - write:domain
-        - read:domain
-      x-swagger-router-controller: Conta
+                type: object
+                properties:
+                  total:
+                    type: number
+              
 components:
   schemas:
     Moeda:
@@ -1186,6 +1108,7 @@ components:
       - REAL
       - DOLAR
       - USDT
+    
     Classe:
       type: string
       enum:
@@ -1197,38 +1120,126 @@ components:
       - ALTCOINS
       - CDB
       - RF
+    
+    Recebimento:
+      type: object
+      required:
+        - descricao
+        - valor
+        - periodicidade
+      properties:
+        _id:
+          type: string
+          description: Identificador do Recebimento
+        descricao:
+          maxLength: 200
+          minLength: 3
+          type: string
+          example: Salário
+        valor:
+          type: number
+          format: double
+          example: 202.1
+        periodicidade:
+          type: string
+          example: MENSAL
+          enum:
+            - UNICO
+            - SEMANAL
+            - QUINZENAL
+            - MENSAL
+            - TRIMESTRAL
+            - SEMESTRAL
+            - ANUAL
+        dataRecebimento:
+          type: string
+          format: date
+          example: 2020-01-01
+        dataFinal:
+          type: string
+          format: date
+          nullable: true
+          example: 2020-01-01
+          description: Quando o recebimento possui uma data final
+        origem:
+          type: string
+          minLength: 8
+          nullable: true
+          description: Referência ao recebimento de origem
+        contaLiquidacao:
+          type: string
+          nullable: true
+          minLength: 8
+          description: Referência à conta de liquidação
+    
     Despesa:
       type: object
+      required:
+        - descricao
+        - valor
+        - periodicidade
+        - dataVencimento
+        - liquidacao
       properties:
-        id:
-          type: integer
-          format: int64
-          example: 100
-        despesa:
+        _id:
+          type: string
+          description: Identificador da Despesa
+        descricao:
           maxLength: 200
           minLength: 3
           type: string
           example: Impostos
-        diaPagamento:
-          maximum: 31
-          minimum: 1
-          type: integer
-          example: 2
-        valores:
-          type: array
-          items:
-            maxItems: 12
-            minItems: 12
-            type: number
-            format: double
-            nullable: true
-      example:
-        despesa: Impostos
-        valores:
-        - 0.80082819046101150206595775671303272247314453125
-        - 0.80082819046101150206595775671303272247314453125
-        id: 100
-        diaPagamento: 2
+        valor:
+          type: number
+          format: double
+          example: 202.1
+        periodicidade:
+          type: string
+          example: SMN
+          enum:
+            - UNICO
+            - SEMANAL
+            - QUINZENAL
+            - MENSAL
+            - TRIMESTRAL
+            - SEMESTRAL
+            - ANUAL
+        dataVencimento:
+          type: string
+          format: date
+          example: 2020-01-01
+        dataFinal:
+          type: string
+          format: date
+          nullable: true
+          example: 2020-01-01
+        dataPagamento:
+          type: string
+          format: date
+          nullable: true
+          example: 2020-01-01
+        origem:
+          type: string
+          minLength: 8
+          nullable: true
+          description: Referência à despesa de origem
+        categoria:
+          type: string
+          example: Custo Fixo
+          nullable: true
+        liquidacao:
+          type: string
+          example: CONTA
+          enum:
+            - CONTA
+            - CARTAO
+            - OUTROS
+        contaLiquidacao:
+          type: string
+          nullable: true
+          minLength: 8
+          description: Referência à conta de liquidação
+
     Carteira:
       required:
       - classe
@@ -1237,11 +1248,9 @@ components:
       - objetivo
       type: object
       properties:
-        id:
-          type: integer
-          description: Id da carteira
-          format: int64
-          example: 100
+        _id:
+          type: string
+          description: Id da Carteira
         nome:
           maxLength: 200
           minLength: 3
@@ -1287,16 +1296,14 @@ components:
       - simbolo
       type: object
       properties:
-        id:
-          type: integer
-          format: int64
-          example: 100
+        _id:
+          type: string
+          description: Id do Ativo
         ativo:
           minLength: 1
           type: string
           example: GOOGLE
         moeda:
-          minLength: 1
           type: string
           example: REAL
           enum:
@@ -1335,30 +1342,23 @@ components:
         moeda: REAL
         id: 100
         descricao: Google na NYSE
-    CarteiraAtivo:
-      required:
-      - ativoId
-      - carteiraId
-      - objetivo
-      type: object
-      properties:
-        carteiraId:
-          type: number
-          format: int64
-          example: 100
-        ativoId:
-          type: number
-          format: int64
-          example: 102
-        objetivo:
-          type: number
-          description: Percentual de alocação do ativo na carteira
-          format: double
-          example: 0.02
-      example:
-        objetivo: 0.02
-        ativoId: 102
-        carteiraId: 100
+    CarteiraAtivos:
+      type: array
+      items:
+        type: object
+        required: 
+          - ativoId
+          - objetivo
+        properties:
+          ativoId:
+            type: string
+            description: Id do ativo
+            example: 100
+          objetivo:
+            type: number
+            format: double
+            description: Percentual do objetivo do ativo na carteira
+            example: 0.5
     Conta:
       required:
       - conta
@@ -1366,10 +1366,8 @@ components:
       - saldo
       type: object
       properties:
-        id:
-          type: number
-          format: int64
-          example: 15
+        _id:
+          type: string
         conta:
           maxLength: 50
           minLength: 2

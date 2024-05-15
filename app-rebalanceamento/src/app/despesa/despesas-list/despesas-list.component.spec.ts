@@ -3,7 +3,7 @@ import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { BrowserModule } from '@angular/platform-browser';
-import { Meses } from '../models/despesa';
+import { Mes } from '../models/despesa.model';
 import { DespesasListComponent } from './despesas-list.component';
 import { DespesasService } from '../services/despesas.service';
 import { RouterTestingModule } from '@angular/router/testing';
@@ -36,7 +36,7 @@ describe('DespesasListComponent', () => {
           useValue: {
             snapshot: {
               queryParams: {
-                mes: Meses.JANEIRO
+                mes: Mes.JANEIRO
               }
             }
           }
@@ -71,7 +71,7 @@ describe('DespesasListComponent', () => {
 
   it('deve obter o pagamento para um mes aleatório', () => {
     component.ngOnInit();
-    Object.values(Meses).forEach(mes => {
+    Object.values(Mes).forEach(mes => {
       let pagamentos = component.pagamentos[mes];
       debugger;
       expect(pagamentos).toBeTruthy();

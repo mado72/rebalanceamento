@@ -1,52 +1,66 @@
 'use strict';
+var Model = require('../models/model');
+var mongoose = require('mongoose');
+const { DateTime } = require("luxon");
 
+const { respondWithCode } = require('../utils/writer');
+const Despesa = mongoose.model('despesa');
 
 /**
- * Adiciona uma nova despesa
- * Adiciona uma nova despesa
+ * Lista as despesas
+ * Lista as despesas programadas do ano
  *
- * body Despesa Cria uma nova despesa
- * despesaId Long ID da despesa
- * returns Despesa
+ * mes Integer  (optional)
+ * pago boolean (optional)
+ * categoria string (optional)
+ * returns List
  **/
-exports.adicionaDespesa = function(body,despesaId) {
-  return new Promise(function(resolve, reject) {
-    var examples = {};
-    examples['application/json'] = {
-  "despesa" : "Impostos",
-  "valores" : [ 0.8008281904610115, 0.8008281904610115 ],
-  "id" : 100,
-  "diaPagamento" : 2
-};
-    if (Object.keys(examples).length > 0) {
-      resolve(examples[Object.keys(examples)[0]]);
-    } else {
-      resolve();
+exports.despesaGET = function (mes, pago, categoria) {
+  var filter = {};
+  if (!!mes) {
+    var now = DateTime.now();
+    var inicio = DateTime.local(now.year, Number(mes), 1).toFormat('yyyy-MM-dd');
+    var fim = DateTime.local(now.year, Number(mes), 1).endOf('month').toFormat('yyyy-MM-dd');
+    filter.dataVencimento = {
+      $gte: inicio,
+      $lte: fim
+    };
+  };
+  if (pago !== undefined) {
+    filter.dataPagamento = { $exists: pago };
+  };
+  if (!!categoria) filter.categoria = categoria;
+
+  return new Promise(async (resolve, reject) => {
+    try {
+      var result = await Despesa.find(filter);
+      result = result.map(item=>Despesa.toObjectInstance(item));
+      resolve(result);
+    } catch (error) {
+      reject(error);
     }
   });
 }
 
-
 /**
- * Atualiza uma despesa
- * Atualiza uma despesa identificada pelo seu id
+ * Remove uma nova despesa
+ * Remove uma nova despesa
  *
- * body Despesa Dados da despesa
- * returns Despesa
+ * despesaId Long ID da despesa
+ * no response value expected for this operation
  **/
-exports.atualizarDespesa = function(body) {
-  return new Promise(function(resolve, reject) {
-    var examples = {};
-    examples['application/json'] = {
-  "despesa" : "Impostos",
-  "valores" : [ 0.8008281904610115, 0.8008281904610115 ],
-  "id" : 100,
-  "diaPagamento" : 2
-};
-    if (Object.keys(examples).length > 0) {
-      resolve(examples[Object.keys(examples)[0]]);
-    } else {
-      resolve();
+exports.despesaIdDELETE = function (despesaId) {
+  return new Promise(async (resolve, reject) => {
+    try {
+      var id = new mongoose.Types.ObjectId(despesaId);
+      var despesa = await Despesa.findByIdAndDelete(id)
+      if (!despesa) {
+        resolve(respondWithCode(404, 'Despesa não encontrada'));
+        return;
+      }
+      resolve(Despesa.toObjectInstance(despesa));
+    } catch (error) {
+      reject(error);
     }
   });
 }
@@ -59,93 +73,67 @@ exports.atualizarDespesa = function(body) {
  * despesaId Long ID da despesa
  * returns Despesa
  **/
-exports.obterDespesaId = function(despesaId) {
-  return new Promise(function(resolve, reject) {
-    var examples = {};
-    examples['application/json'] = {
-  "despesa" : "Impostos",
-  "valores" : [ 0.8008281904610115, 0.8008281904610115 ],
-  "id" : 100,
-  "diaPagamento" : 2
-};
-    if (Object.keys(examples).length > 0) {
-      resolve(examples[Object.keys(examples)[0]]);
-    } else {
-      resolve();
+exports.despesaIdGET = function (despesaId) {
+  return new Promise(async (resolve, reject) => {
+    try {
+      var id = new mongoose.Types.ObjectId(despesaId);
+
+      var despesa = await Despesa.findById(id);
+      if (!despesa) {
+        resolve(respondWithCode(404, 'Despesa não encontrada'));
+        return;
+      }
+      resolve(Despesa.toObjectInstance(despesa));
+
+    } catch (error) {
+      reject(error);
     }
   });
 }
 
 
 /**
- * Retorna as despesas programadas para o mês
- * O mês deve ser informado para apresentar as despesas mensais
+ * Adiciona uma nova despesa
+ * Adiciona uma nova despesa
  *
- * mes BigDecimal Define o mês da pesquisa
- * returns List
+ * body Despesa Cria uma nova despesa
+ * returns Despesa
  **/
-exports.obterDespesasMes = function(mes) {
-  return new Promise(function(resolve, reject) {
-    var examples = {};
-    examples['application/json'] = [ {
-  "despesa" : "Impostos",
-  "valores" : [ 0.8008281904610115, 0.8008281904610115 ],
-  "id" : 100,
-  "diaPagamento" : 2
-}, {
-  "despesa" : "Impostos",
-  "valores" : [ 0.8008281904610115, 0.8008281904610115 ],
-  "id" : 100,
-  "diaPagamento" : 2
-} ];
-    if (Object.keys(examples).length > 0) {
-      resolve(examples[Object.keys(examples)[0]]);
-    } else {
-      resolve();
+exports.despesaPOST = function (body) {
+  return new Promise(async (resolve, reject) => {
+    try {
+      var despesa = new Despesa(body);
+      despesa = await despesa.save();
+      resolve(Despesa.toObjectInstance(despesa));
+    } catch (error) {
+      reject(error);
     }
   });
 }
 
 
 /**
- * Lista as despesas
- * Lista as despesas programadas do ano
+ * Atualiza uma despesa
+ * Atualiza uma despesa identificada pelo seu id
  *
- * returns List
+ * body Despesa Dados da despesa
+ * returns Despesa
  **/
-exports.obterDespesasProgramadas = function() {
-  return new Promise(function(resolve, reject) {
-    var examples = {};
-    examples['application/json'] = [ {
-  "despesa" : "Impostos",
-  "valores" : [ 101, 102, 103, 104, 105, 106, 107, 108, 109, 110, 111, 112 ],
-  "id" : 100,
-  "diaPagamento" : 2
-}, {
-  "despesa" : "Impostos",
-  "valores" : [ 101.1, 102.2, 103.3, 104.4, 105.5, 106.6, 107.7, 108.8, 109.9, 110, 111.1, 112.2 ],
-  "id" : 100,
-  "diaPagamento" : 3
-} ];
-    if (Object.keys(examples).length > 0) {
-      resolve(examples[Object.keys(examples)[0]]);
-    } else {
+exports.despesaPUT = function (body) {
+  return new Promise(async (resolve, reject) => {
+    try {
+      var id = new mongoose.Types.ObjectId(body._id);
+      var despesa = await Despesa.findByIdAndUpdate(id, body);
+
+      if (!despesa) {
+        resolve(respondWithCode(404, 'Despesa não encontrada'));
+        return;
+      }
       resolve();
+    } catch (error) {
+      error.code = 422;
+      reject(error);
     }
-  });
-}
-
-
-/**
- * Remove uma nova despesa
- * Remove uma nova despesa
- *
- * despesaId Long ID da despesa
- * no response value expected for this operation
- **/
-exports.removeDespesa = function(despesaId) {
-  return new Promise(function(resolve, reject) {
-    resolve();
   });
 }
 

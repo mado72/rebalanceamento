@@ -1,0 +1,16 @@
+<div class="modal-header">
+    <h4 class="modal-title">{{titulo}}</h4>
+    <button type="button" class="btn-close" aria-label="Close" (click)="dispensar()"></button>
+</div>
+<div class="modal-body">
+    <app-despesa-form 
+        [despesa]="despesa"
+        (onSalvar)="salvar()"
+        (onCancelar)="cancelar()"
+        />
+</div>
+<div class="modal-footer">
+    <button type="button" class="btn btn-primary" (click)="salvar()">Salvar</button>
+    <button type="button" class="btn btn-secondary" (click)="cancelar()">Cancelar</button>
+    <button type="button" class="btn btn-danger" (click)="excluir()">Excluir</button>
+</div>

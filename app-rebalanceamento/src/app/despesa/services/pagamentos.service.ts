@@ -1,14 +1,13 @@
 import { Injectable } from '@angular/core';
 import { Observable, filter, map, of, tap } from 'rxjs';
-import { Meses, Pagamento, PagamentoProgramado } from '../models/despesa';
+import { Mes } from '../models/despesa.model';
 import { DespesasService } from './despesas.service';
 
 @Injectable({
   providedIn: 'root'
 })
 export class PagamentosService {
-  [x: string]: any;
-
+/*
   private pagamentos: Pagamento[] = [];
 
   constructor(private despesaService: DespesasService) { }
@@ -42,8 +41,8 @@ export class PagamentosService {
     );
   }
 
-  obterPagamentosMes(mes: Meses): Observable<Pagamento[]> {
-    const mesIdx = Object.values(Meses).indexOf(mes);
+  obterPagamentosMes(mes: Mes): Observable<Pagamento[]> {
+    const mesIdx = Object.values(Mes).indexOf(mes);
     return this.obterPagamentos().pipe(
       map((pagamentos)=>{
         return pagamentos.filter((pagto)=>{
@@ -57,4 +56,5 @@ export class PagamentosService {
     this.pagamentos = pagamentos;
     return of('Salvo com sucesso!');
   }
+  */
 }

@@ -1,0 +1,16 @@
+input {
+    width: 80px;
+    text-align: right;
+}
+a.despesa-valor {
+    text-decoration: none;
+}
+.pago {
+    color: green;
+}
+.salvo {
+    color: red;
+}
+.novo {
+    color: rgba(var(--bs-link-color-rgb), var(--bs-link-opacity, 1));
+}
