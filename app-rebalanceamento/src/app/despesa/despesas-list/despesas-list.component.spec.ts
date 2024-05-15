@@ -1,14 +1,14 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 
 import { CommonModule } from '@angular/common';
+import { Component } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { BrowserModule } from '@angular/platform-browser';
-import { Mes } from '../models/despesa.model';
-import { DespesasListComponent } from './despesas-list.component';
-import { DespesasService } from '../services/despesas.service';
+import { ActivatedRoute } from '@angular/router';
 import { RouterTestingModule } from '@angular/router/testing';
-import { Component } from '@angular/core';
-import { ActivatedRoute, RouterModule, provideRouter, withDebugTracing, withRouterConfig } from '@angular/router';
+import { Mes } from 'src/app/transacao/models/transacao.model';
+import { DespesasService } from '../services/despesas.service';
+import { DespesasListComponent } from './despesas-list.component';
 
 @Component({
   template: ''

@@ -25,7 +25,7 @@
         <tr *ngFor="let registro of carteira.items; index as index">
             <td>
                 <a (click)="selecionar(registro)" href="javascript:void(0)">
-                    <b>{{registro.ativo.sigla}}</b>
+                    <b>{{registro.ativo && registro.ativo.sigla}}</b>
                 </a>
             </td>
             <td>{{registro.qtd}}</td>

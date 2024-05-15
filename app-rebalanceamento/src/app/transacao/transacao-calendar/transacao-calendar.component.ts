@@ -13,24 +13,21 @@ import {
 } from 'angular-calendar';
 import { EventColor } from 'calendar-utils';
 import {
-  addDays,
-  addHours,
   endOfDay,
   endOfMonth,
-  getYear,
+  format,
+  getTime,
   isSameDay,
   isSameMonth,
-  startOfDay,
-  subDays
+  startOfDay
 } from 'date-fns';
 import { DateTime } from 'luxon';
 import { Subject, map, mergeAll } from 'rxjs';
-import { Mes } from 'src/app/transacao/models/transacao.model';
 import { AlertService } from 'src/app/services/alert.service';
-import { DespesaRecorrenteImpl } from '../models/despesa.model';
-import { DespesasService } from '../services/despesas.service';
+import { Mes, TipoTransacao, TransacaoImpl } from 'src/app/transacao/models/transacao.model';
+import { TransacaoService } from '../services/transacao.service';
 
-type ColorType = 'red' | 'green' | 'blue' | 'yellow';
+type ColorType = 'red' | 'green' | 'blue' | 'yellow' | 'purple';
 
 const colors: Record<ColorType, EventColor> = {
   red: {
@@ -49,15 +46,18 @@ const colors: Record<ColorType, EventColor> = {
     primary: '#0fe308',
     secondary: '#bcfdba',
   },
+  purple: {
+    primary: '#663399',
+    secondary: '#D8BFD8',
+  }
 };
 
-
 @Component({
-  selector: 'app-despesa-calendario',
-  templateUrl: './despesa-calendario.component.html',
-  styleUrls: ['./despesa-calendario.component.scss']
+  selector: 'app-transacao-calendar',
+  templateUrl: './transacao-calendar.component.html',
+  styleUrls: ['./transacao-calendar.component.scss']
 })
-export class DespesaCalendarioComponent implements OnInit {
+export class TransacaoCalendarComponent implements OnInit {
 
   num: number = 1;
 
@@ -66,8 +66,6 @@ export class DespesaCalendarioComponent implements OnInit {
   view: CalendarView = CalendarView.Month;
 
   CalendarView = CalendarView;
-
-  viewDate: Date = new Date();
 
   modalData!: {
     action: string;
@@ -94,71 +92,54 @@ export class DespesaCalendarioComponent implements OnInit {
 
   refresh = new Subject<void>();
 
-  events: CalendarEvent[] = [
-    {
-      start: subDays(startOfDay(new Date()), 1),
-      end: addDays(new Date(), 1),
-      title: 'A 3 day event',
-      color: { ...colors['red'] },
-      actions: this.actions,
-      allDay: true,
-      resizable: {
-        beforeStart: true,
-        afterEnd: true,
-      },
-      draggable: true,
-    },
-    {
-      start: startOfDay(new Date()),
-      title: 'An event with no end date',
-      color: { ...colors['yellow'] },
-      actions: this.actions,
-    },
-    {
-      start: subDays(endOfMonth(new Date()), 3),
-      end: addDays(endOfMonth(new Date()), 3),
-      title: 'A long event that spans 2 months',
-      color: { ...colors['blue'] },
-      allDay: true,
-    },
-    {
-      start: addHours(startOfDay(new Date()), 2),
-      end: addHours(new Date(), 2),
-      title: 'A draggable and resizable event',
-      color: { ...colors['yellow'] },
-      actions: this.actions,
-      resizable: {
-        beforeStart: true,
-        afterEnd: true,
-      },
-      draggable: true,
-    },
-  ];
+  events: CalendarEvent[] = [];
 
   activeDayIsOpen: boolean = true;
 
+  _viewDate: Date = new Date();
+
   constructor(
-    private modal: NgbModal, 
-    private alertService: AlertService,
-    private despesaService: DespesasService,
+    private _modalService: NgbModal, 
+    private _alertService: AlertService,
+    private _transacaoService: TransacaoService,
   ) {}
 
-  ngOnInit(): void {
+  get viewDate() {
+    return this._viewDate;
+  }
+
+  set viewDate(value: Date) {
+    const changed = getTime(startOfDay(this._viewDate)) != getTime(startOfDay(value));
+    this._viewDate = value;
+    if (changed) {
+      this.obterEventos();
+    }
+  }
+
+  ngOnInit() {
     this.obterEventos();
   }
-  
+
   obterEventos() {
-    this.events = [];
-    this.despesaService.obterDespesasParaAno(getYear(this.viewDate))
+    console.log(`Obter eventos...`);
+    const ateData = endOfMonth(this.viewDate);
+    this.events.splice(0);
+    this._transacaoService.obterTransacoes()
       .pipe(
         mergeAll(),
-        map(despesa => this.converterParaEvento(despesa))
+        map(transacao=>!!transacao.dataLiquidacao ? [transacao] : transacao.programacaoTransacoes(ateData)),
+        mergeAll(),
+        map(transacao => this.converterParaEvento(transacao))
       )
       .subscribe({
         next: (evento) => {
           this.events.push(evento);
+          const transacao = evento.meta;
+          console.log(`transacao: ${transacao._id}, ${transacao.descricao}, ${format(transacao.dataInicial, 'yyyy-MM-dd')}, ${transacao.dataLiquidacao && format(transacao.dataLiquidacao, 'yyyy-MM-dd')}`);
         },
-        complete: () => this.dayClicked({date: new Date(), events: []})
+        complete: ()=> {
+          console.log(`Concluiu obter eventos.`)
+        }
       });
   }
 
@@ -170,17 +151,21 @@ export class DespesaCalendarioComponent implements OnInit {
     return this.meses[DateTime.fromJSDate(this.viewDate).month-1];
   }
 
-  converterParaEvento(despesa: DespesaRecorrenteImpl) : CalendarEvent {
-    const color : ColorType = !! despesa.dataPagamento ? 'green' : !! despesa._id ? 'red' : 'yellow';
+  converterParaEvento(transacao: TransacaoImpl) : CalendarEvent {
+    const color : ColorType = 
+        transacao.tipoTransacao == TipoTransacao.DEBITO 
+            ? !! transacao.dataLiquidacao ? 'green' : !! transacao._id ? 'red' : 'yellow'
+            : !! transacao.dataLiquidacao ? 'blue' : !! transacao._id ? 'purple' : 'yellow' ;
     return {
-      start: despesa.dataPagamento || despesa.dataVencimento,
-      title: despesa.descricao,
+      start: transacao.dataLiquidacao || transacao.dataInicial,
+      title: transacao.descricao,
       color: colors[color],
-      meta: despesa
+      meta: transacao
     }
   }
 
   dayClicked({ date, events }: { date: Date; events: CalendarEvent[] }): void {
+    console.log('dayClicked');
     if (isSameMonth(date, this.viewDate)) {
       if (
         (isSameDay(this.viewDate, date) && this.activeDayIsOpen === true) ||
@@ -215,7 +200,7 @@ export class DespesaCalendarioComponent implements OnInit {
 
   handleEvent(action: string, event: CalendarEvent): void {
     this.modalData = { event, action };
-    this.modal.open(this.modalContent, { size: 'lg' });
+    this._modalService.open(this.modalContent, { size: 'lg' });
   }
 
   addEvent(): void {
@@ -248,7 +233,7 @@ export class DespesaCalendarioComponent implements OnInit {
   }
 
   editar() {
-    this.despesaService.abrirDespesaForm(this.modalData.event.meta, 'Editar despesa').subscribe(()=>{
+    this._transacaoService.editarTransacao(this.modalData.event.meta, 'Editar despesa').subscribe(()=>{
       this.obterEventos();
     })
   }

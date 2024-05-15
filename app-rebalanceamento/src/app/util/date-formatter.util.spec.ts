@@ -1,7 +1,6 @@
-import { DateFormatter } from './date-formatter.util';
-
+import { formatRequestDate } from './date-formatter.util'
 describe('DateFormatter', () => {
-  it('should create an instance', () => {
-    expect(new DateFormatter()).toBeTruthy();
+  it('formatRequestDate formata data', () => {
+    expect(formatRequestDate(new Date(2024, 3, 1))).toBeTruthy();
   });
 });

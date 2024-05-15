@@ -1,9 +1,9 @@
 import { Component, OnInit } from '@angular/core';
-import { DespesaRecorrenteImpl, IDespesaRecorrente, Mes } from '../models/despesa.model';
-import { DespesasService } from '../services/despesas.service';
-import { PagamentosService } from '../services/pagamentos.service';
 import { DateTime } from 'luxon';
-import { combineLatest, map } from 'rxjs';
+import { map } from 'rxjs';
+import { DespesaRecorrenteImpl, IDespesaRecorrente } from '../models/despesa.model';
+import { DespesasService } from '../services/despesas.service';
+import { Mes } from 'src/app/transacao/models/transacao.model';
 
 class Pagamento extends DespesaRecorrenteImpl {
   antecipado = false;

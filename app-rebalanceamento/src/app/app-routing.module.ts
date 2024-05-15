@@ -10,6 +10,12 @@ const routes: Routes = [{
   path: 'home',
   component: HomeComponent
 },{
+  path: 'recebimentos',
+  loadChildren: () => import('./recebimento/recebimento.module').then(m => m.RecebimentoModule)
+},{
+  path: 'transacoes',
+  loadChildren: () => import('./transacao/transacao.module').then(m => m.TransacaoModule)
+},{
   path: 'despesas',
   loadChildren: () => import('./despesa/despesa.module').then(m => m.DespesaModule)
 },{

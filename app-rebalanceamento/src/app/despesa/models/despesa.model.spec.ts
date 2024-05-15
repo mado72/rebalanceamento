@@ -1,4 +1,5 @@
-import { DespesaRecorrenteImpl, Mes, Periodicidade } from './despesa.model';
+import { Mes, Periodicidade } from 'src/app/transacao/models/transacao.model';
+import { DespesaRecorrenteImpl } from './despesa.model';
 
 describe('Despesa', () => {
   it('should create an instance', () => {
