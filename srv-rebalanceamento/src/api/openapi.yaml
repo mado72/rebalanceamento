@@ -1,0 +1,1451 @@
+openapi: 3.0.3
+info:
+  title: API Rebalanceamento
+  description: "API para manter portifólio de ativos, carteiras, despesas e contas\
+    \ no mongodb"
+  version: 1.0.0
+servers:
+- url: http://localhost:4201/api/v1
+tags:
+- name: Seguranca
+  description: Endpoints de segurança
+- name: Despesa
+  description: CRUD para definição de despesas
+- name: Carteira
+  description: CRUD para definição de carteiras
+- name: Conta
+  description: CRUD para definição de contas
+paths:
+  /auth:
+    post:
+      tags:
+      - Seguranca
+      summary: Autentica um serviço
+      description: Retorna um token válido para as futuras requisições
+      operationId: auth
+      parameters:
+      - name: X-API-KEY
+        in: header
+        description: Key
+        required: true
+        style: simple
+        explode: false
+        schema:
+          type: string
+          format: uuid
+      responses:
+        "200":
+          description: Jwt Token
+          content:
+            text/plain:
+              schema:
+                type: string
+                x-content-type: application/json
+        "400":
+          description: The specified resource is invalid
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      security:
+      - ApiKeyAuth: []
+      x-swagger-router-controller: Seguranca
+  /despesa:
+    put:
+      tags:
+      - Despesa
+      summary: Atualiza uma despesa
+      description: Atualiza uma despesa identificada pelo seu id
+      operationId: atualizarDespesa
+      requestBody:
+        description: Dados da despesa
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Despesa'
+        required: true
+      responses:
+        "200":
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Despesa'
+        "400":
+          description: The specified resource is invalid
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        "404":
+          description: The specified resource was not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        "422":
+          description: The specified resource is not valid
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      security:
+      - bearerAuth:
+        - write:domain
+        - read:domain
+      x-swagger-router-controller: Despesa
+  /despesa/mes/{mes}:
+    get:
+      tags:
+      - Despesa
+      summary: Retorna as despesas programadas para o mês
+      description: O mês deve ser informado para apresentar as despesas mensais
+      operationId: obterDespesasMes
+      parameters:
+      - name: mes
+        in: path
+        description: Define o mês da pesquisa
+        required: true
+        style: simple
+        explode: true
+        schema:
+          maximum: 12
+          minimum: 1
+          type: number
+      responses:
+        "200":
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Despesa'
+                x-content-type: application/json
+        "400":
+          description: The specified resource is invalid
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      security:
+      - bearerAuth:
+        - write:domain
+        - read:domain
+      x-swagger-router-controller: Despesa
+  /despesa/programadas:
+    get:
+      tags:
+      - Despesa
+      summary: Lista as despesas
+      description: Lista as despesas programadas do ano
+      operationId: obterDespesasProgramadas
+      responses:
+        "200":
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Despesa'
+                x-content-type: application/json
+      security:
+      - bearerAuth:
+        - write:domain
+        - read:domain
+      x-swagger-router-controller: Despesa
+  /despesa/id/{despesaId}:
+    get:
+      tags:
+      - Despesa
+      summary: Busca os dados de uma despesa pelo Id
+      description: Returna uma única despesa
+      operationId: obterDespesaId
+      parameters:
+      - name: despesaId
+        in: path
+        description: ID da despesa
+        required: true
+        style: simple
+        explode: false
+        schema:
+          type: integer
+          format: int64
+      responses:
+        "200":
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Despesa'
+        "400":
+          description: The specified resource is invalid
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        "404":
+          description: The specified resource was not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      security:
+      - bearerAuth:
+        - write:domain
+        - read:domain
+      x-swagger-router-controller: Despesa
+    post:
+      tags:
+      - Despesa
+      summary: Adiciona uma nova despesa
+      description: Adiciona uma nova despesa
+      operationId: adicionaDespesa
+      parameters:
+      - name: despesaId
+        in: path
+        description: ID da despesa
+        required: true
+        style: simple
+        explode: false
+        schema:
+          type: integer
+          format: int64
+      requestBody:
+        description: Cria uma nova despesa
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Despesa'
+        required: true
+      responses:
+        "200":
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Despesa'
+        "400":
+          description: The specified resource is invalid
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        "422":
+          description: The specified resource is not valid
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      security:
+      - bearerAuth:
+        - write:domain
+        - read:domain
+      x-swagger-router-controller: Despesa
+    delete:
+      tags:
+      - Despesa
+      summary: Remove uma nova despesa
+      description: Remove uma nova despesa
+      operationId: removeDespesa
+      parameters:
+      - name: despesaId
+        in: path
+        description: ID da despesa
+        required: true
+        style: simple
+        explode: false
+        schema:
+          type: integer
+          format: int64
+      responses:
+        "400":
+          description: The specified resource is invalid
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        "404":
+          description: The specified resource was not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        "422":
+          description: The specified resource is not valid
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      security:
+      - bearerAuth:
+        - write:domain
+        - read:domain
+      x-swagger-router-controller: Despesa
+  /ativo:
+    get:
+      tags:
+      - Carteira
+      summary: Lista os ativos disponíveis
+      description: Lista os ativos cadastrados
+      operationId: obterAtivos
+      responses:
+        "200":
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Ativo'
+                x-content-type: application/json
+      security:
+      - bearerAuth:
+        - write:domain
+        - read:domain
+      x-swagger-router-controller: Carteira
+    post:
+      tags:
+      - Carteira
+      summary: Adiciona um ativo
+      description: Adiciona um ativo ao portifólio
+      operationId: adicionarAtivo
+      requestBody:
+        description: Dados do Ativo
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Ativo'
+        required: true
+      responses:
+        "200":
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Ativo'
+        "400":
+          description: The specified resource is invalid
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        "422":
+          description: The specified resource is not valid
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      security:
+      - bearerAuth:
+        - write:domain
+        - read:domain
+      x-swagger-router-controller: Carteira
+  /ativo/id/{ativoId}:
+    get:
+      tags:
+      - Carteira
+      summary: Obtém um ativo
+      description: Obtém um ativo pelo seu id
+      operationId: obterAtivo
+      parameters:
+      - name: ativoId
+        in: path
+        description: Id do ativo
+        required: true
+        style: simple
+        explode: false
+        schema:
+          type: integer
+          format: int64
+      responses:
+        "200":
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Ativo'
+        "400":
+          description: The specified resource is invalid
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        "404":
+          description: The specified resource was not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      security:
+      - bearerAuth:
+        - write:domain
+        - read:domain
+      x-swagger-router-controller: Carteira
+    put:
+      tags:
+      - Carteira
+      summary: Atualiza um ativo
+      description: Atualiza um ativo identificado pelo seu id
+      operationId: atualizarAtivo
+      parameters:
+      - name: ativoId
+        in: path
+        description: Id do ativo
+        required: true
+        style: simple
+        explode: false
+        schema:
+          type: integer
+          format: int64
+      requestBody:
+        description: Dados do ativo
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Ativo'
+        required: true
+      responses:
+        "200":
+          description: Successful operation
+        "400":
+          description: The specified resource is invalid
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        "404":
+          description: The specified resource was not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        "422":
+          description: The specified resource is not valid
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      security:
+      - bearerAuth:
+        - write:domain
+        - read:domain
+      x-swagger-router-controller: Carteira
+    delete:
+      tags:
+      - Carteira
+      summary: Remove um ativo
+      description: Remove um ativo identificado pelo seu id
+      operationId: removerAtivo
+      parameters:
+      - name: ativoId
+        in: path
+        description: Id do ativo
+        required: true
+        style: simple
+        explode: false
+        schema:
+          type: integer
+          format: int64
+      responses:
+        "200":
+          description: Successful operation
+        "400":
+          description: The specified resource is invalid
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        "404":
+          description: The specified resource was not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        "422":
+          description: The specified resource is not valid
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      security:
+      - bearerAuth:
+        - write:domain
+        - read:domain
+      x-swagger-router-controller: Carteira
+  /ativo/classe/{classe}:
+    get:
+      tags:
+      - Carteira
+      summary: Obtém ativos de uma classe
+      description: Obtém ativos identificados pela sua classe
+      operationId: obterAtivoPorClasse
+      parameters:
+      - name: classe
+        in: path
+        description: Classe do ativo
+        required: true
+        style: simple
+        explode: false
+        schema:
+          $ref: '#/components/schemas/Classe'
+      responses:
+        "200":
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Carteira'
+        "400":
+          description: The specified resource is invalid
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        "422":
+          description: The specified resource is not valid
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      security:
+      - bearerAuth:
+        - write:domain
+        - read:domain
+      x-swagger-router-controller: Carteira
+  /carteira:
+    get:
+      tags:
+      - Carteira
+      summary: Obtém lista de carteiras do portifólio
+      description: Recebe um array de Carteira
+      operationId: obterCarteiras
+      responses:
+        "200":
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Carteira'
+                x-content-type: application/json
+      security:
+      - bearerAuth:
+        - write:domain
+        - read:domain
+      x-swagger-router-controller: Carteira
+    post:
+      tags:
+      - Carteira
+      summary: Adiciona uma carteira
+      description: Adiciona uma carteira ao portifólio
+      operationId: adicionarCarteira
+      requestBody:
+        description: Dados da carteira
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Carteira'
+        required: true
+      responses:
+        "200":
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Carteira'
+        "400":
+          description: The specified resource is invalid
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        "422":
+          description: The specified resource is not valid
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      security:
+      - bearerAuth:
+        - write:domain
+        - read:domain
+      x-swagger-router-controller: Carteira
+  /carteira/classe/{classe}:
+    get:
+      tags:
+      - Carteira
+      summary: Obtém lista de carteiras de uma classe
+      description: Obtém array de carteiras que utilizam uma classe
+      operationId: obterCarteirasClasse
+      parameters:
+      - name: classe
+        in: path
+        description: Código da classe
+        required: true
+        style: simple
+        explode: false
+        schema:
+          $ref: '#/components/schemas/Classe'
+      responses:
+        "200":
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Carteira'
+        "400":
+          description: The specified resource is invalid
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      security:
+      - bearerAuth:
+        - write:domain
+        - read:domain
+      x-swagger-router-controller: Carteira
+  /carteira/moeda/{moeda}:
+    get:
+      tags:
+      - Carteira
+      summary: Obtém lista de carteiras de uma moeda
+      description: Obtém array de carteiras que utilizam uma moeda
+      operationId: obterCarteirasMoeda
+      parameters:
+      - name: moeda
+        in: path
+        description: Código da moeda
+        required: true
+        style: simple
+        explode: false
+        schema:
+          $ref: '#/components/schemas/Moeda'
+      responses:
+        "200":
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Carteira'
+        "400":
+          description: The specified resource is invalid
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      security:
+      - bearerAuth:
+        - write:domain
+        - read:domain
+      x-swagger-router-controller: Carteira
+  /carteira/classe/{classe}/moeda/{moeda}:
+    get:
+      tags:
+      - Carteira
+      summary: Obtém lista de carteiras de uma classe e de uma moeda
+      description: Obtém array de carteiras que utilizam uma classe
+      operationId: obterCarteirasClasseMoeda
+      parameters:
+      - name: classe
+        in: path
+        description: Código da classe
+        required: true
+        style: simple
+        explode: false
+        schema:
+          $ref: '#/components/schemas/Classe'
+      - name: moeda
+        in: path
+        description: Código da moeda
+        required: true
+        style: simple
+        explode: false
+        schema:
+          $ref: '#/components/schemas/Moeda'
+      responses:
+        "200":
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Carteira'
+        "400":
+          description: The specified resource is invalid
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      security:
+      - bearerAuth:
+        - write:domain
+        - read:domain
+      x-swagger-router-controller: Carteira
+  /carteira/{carteiraId}:
+    get:
+      tags:
+      - Carteira
+      summary: Obtém uma carteira
+      description: Obtém uma carteira identificada pelo seu id
+      operationId: obterCarteira
+      parameters:
+      - name: carteiraId
+        in: path
+        description: Id da carteira
+        required: true
+        style: simple
+        explode: false
+        schema:
+          type: integer
+          format: int64
+      responses:
+        "200":
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Carteira'
+        "400":
+          description: The specified resource is invalid
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        "404":
+          description: The specified resource was not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        "422":
+          description: The specified resource is not valid
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      security:
+      - bearerAuth:
+        - write:domain
+        - read:domain
+      x-swagger-router-controller: Carteira
+    put:
+      tags:
+      - Carteira
+      summary: Atualiza uma carteira
+      description: Atualiza uma carteira identificada pelo seu id
+      operationId: atualizarCarteira
+      parameters:
+      - name: carteiraId
+        in: path
+        description: Id da carteira
+        required: true
+        style: simple
+        explode: false
+        schema:
+          type: integer
+          format: int64
+      requestBody:
+        description: Dados da carteira
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Carteira'
+        required: true
+      responses:
+        "200":
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Carteira'
+        "400":
+          description: The specified resource is invalid
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        "404":
+          description: The specified resource was not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        "422":
+          description: The specified resource is not valid
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      security:
+      - bearerAuth:
+        - write:domain
+        - read:domain
+      x-swagger-router-controller: Carteira
+    delete:
+      tags:
+      - Carteira
+      summary: Remove uma carteira
+      description: Remove uma carteira identificada pelo seu id
+      operationId: removerCarteira
+      parameters:
+      - name: carteiraId
+        in: path
+        description: Id da carteira
+        required: true
+        style: simple
+        explode: false
+        schema:
+          type: integer
+          format: int64
+      responses:
+        "200":
+          description: Successful operation
+        "400":
+          description: The specified resource is invalid
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        "404":
+          description: The specified resource was not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        "422":
+          description: The specified resource is not valid
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      security:
+      - bearerAuth:
+        - write:domain
+        - read:domain
+      x-swagger-router-controller: Carteira
+  /carteira/{carteiraId}/alocacao:
+    get:
+      tags:
+      - Carteira
+      summary: Obtém as alocações dos ativos de uma carteira
+      description: Obtém os ativos de uma carteira identificada pelo seu id
+      operationId: obterCarteiraAtivos
+      parameters:
+      - name: carteiraId
+        in: path
+        description: Id da carteira
+        required: true
+        style: simple
+        explode: false
+        schema:
+          type: integer
+          format: int64
+      responses:
+        "200":
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/CarteiraAtivo'
+                x-content-type: application/json
+        "400":
+          description: The specified resource is invalid
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        "404":
+          description: The specified resource was not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        "422":
+          description: The specified resource is not valid
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      security:
+      - bearerAuth:
+        - write:domain
+        - read:domain
+      x-swagger-router-controller: Carteira
+    post:
+      tags:
+      - Carteira
+      summary: Atualiza as alocações de um conjunto de ativos em uma carteira
+      description: Atualiza as alocações de um conjunto de ativos em uma carteira
+        identificada pelo seu id
+      operationId: atualizarCarteiraAtivos
+      parameters:
+      - name: carteiraId
+        in: path
+        description: Id da carteira
+        required: true
+        style: simple
+        explode: false
+        schema:
+          type: integer
+          format: int64
+      requestBody:
+        description: Dados das alocações
+        content:
+          application/json:
+            schema:
+              type: array
+              items:
+                $ref: '#/components/schemas/CarteiraAtivo'
+        required: true
+      responses:
+        "200":
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/CarteiraAtivo'
+                x-content-type: application/json
+        "400":
+          description: The specified resource is invalid
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        "404":
+          description: The specified resource was not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        "422":
+          description: The specified resource is not valid
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      security:
+      - bearerAuth:
+        - write:domain
+        - read:domain
+      x-swagger-router-controller: Carteira
+  /conta:
+    get:
+      tags:
+      - Conta
+      summary: Obtém lista de contas do portifólio
+      description: Recebe um array de Conta
+      operationId: obterContas
+      responses:
+        "200":
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Conta'
+                x-content-type: application/json
+      security:
+      - bearerAuth:
+        - write:domain
+        - read:domain
+      x-swagger-router-controller: Conta
+    post:
+      tags:
+      - Conta
+      summary: Adiciona uma conta
+      description: Adiciona uma conta ao portifólio
+      operationId: adicionarConta
+      requestBody:
+        description: Dados da conta
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Conta'
+        required: true
+      responses:
+        "200":
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Conta'
+        "400":
+          description: The specified resource is invalid
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        "404":
+          description: The specified resource was not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        "422":
+          description: The specified resource is not valid
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      security:
+      - bearerAuth:
+        - write:domain
+        - read:domain
+      x-swagger-router-controller: Conta
+  /conta/id/{contaId}:
+    get:
+      tags:
+      - Conta
+      summary: Obtém uma conta
+      description: Obtém uma conta identificada pelo seu id
+      operationId: obterConta
+      parameters:
+      - name: contaId
+        in: path
+        description: Id da conta
+        required: true
+        style: simple
+        explode: false
+        schema:
+          type: integer
+          format: int64
+      responses:
+        "200":
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Carteira'
+        "400":
+          description: The specified resource is invalid
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        "404":
+          description: The specified resource was not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        "422":
+          description: The specified resource is not valid
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      security:
+      - bearerAuth:
+        - write:domain
+        - read:domain
+      x-swagger-router-controller: Conta
+    put:
+      tags:
+      - Conta
+      summary: Atualiza uma conta
+      description: Atualiza uma conta identificada pelo seu id
+      operationId: atualizarConta
+      parameters:
+      - name: contaId
+        in: path
+        description: Id da conta
+        required: true
+        style: simple
+        explode: false
+        schema:
+          type: integer
+          format: int64
+      requestBody:
+        description: Dados da conta
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Conta'
+        required: true
+      responses:
+        "200":
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Conta'
+        "400":
+          description: The specified resource is invalid
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        "404":
+          description: The specified resource was not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        "422":
+          description: The specified resource is not valid
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      security:
+      - bearerAuth:
+        - write:domain
+        - read:domain
+      x-swagger-router-controller: Conta
+    delete:
+      tags:
+      - Conta
+      summary: Remove uma conta
+      description: Remove uma conta identificada pelo seu id
+      operationId: removerConta
+      parameters:
+      - name: contaId
+        in: path
+        description: Id da conta
+        required: true
+        style: simple
+        explode: false
+        schema:
+          type: integer
+          format: int64
+      responses:
+        "200":
+          description: Successful operation
+        "400":
+          description: The specified resource is invalid
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        "404":
+          description: The specified resource was not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        "422":
+          description: The specified resource is not valid
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      security:
+      - bearerAuth:
+        - write:domain
+        - read:domain
+      x-swagger-router-controller: Conta
+  /conta/moeda/{moeda}:
+    get:
+      tags:
+      - Conta
+      summary: Obter contas de uma moeda
+      description: Retorna array de contas
+      operationId: obterContasMoeda
+      parameters:
+      - name: moeda
+        in: path
+        description: Moeda a pesquisar
+        required: true
+        style: simple
+        explode: false
+        schema:
+          $ref: '#/components/schemas/Moeda'
+      responses:
+        "200":
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Conta'
+                x-content-type: application/json
+        "400":
+          description: The specified resource is invalid
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      security:
+      - bearerAuth:
+        - write:domain
+        - read:domain
+      x-swagger-router-controller: Conta
+components:
+  schemas:
+    Moeda:
+      type: string
+      enum:
+      - REAL
+      - DOLAR
+      - USDT
+    Classe:
+      type: string
+      enum:
+      - MOEDA
+      - ACAO
+      - FII
+      - INTERNACIONAL
+      - CRYPTO
+      - ALTCOINS
+      - CDB
+      - RF
+    Despesa:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+          example: 100
+        despesa:
+          maxLength: 200
+          minLength: 3
+          type: string
+          example: Impostos
+        diaPagamento:
+          maximum: 31
+          minimum: 1
+          type: integer
+          example: 2
+        valores:
+          type: array
+          items:
+            maxItems: 12
+            minItems: 12
+            type: number
+            format: double
+            nullable: true
+      example:
+        despesa: Impostos
+        valores:
+        - 0.80082819046101150206595775671303272247314453125
+        - 0.80082819046101150206595775671303272247314453125
+        id: 100
+        diaPagamento: 2
+    Carteira:
+      required:
+      - classe
+      - moeda
+      - nome
+      - objetivo
+      type: object
+      properties:
+        id:
+          type: integer
+          description: Id da carteira
+          format: int64
+          example: 100
+        nome:
+          maxLength: 200
+          minLength: 3
+          type: string
+          description: Nome da carteira
+          example: Ações
+        moeda:
+          type: string
+          example: REAL
+          enum:
+          - REAL
+          - DOLAR
+          - USDT
+        objetivo:
+          type: number
+          description: Percentual da alocação desta carteira no portifólio
+          format: double
+          example: 0.01
+        classe:
+          type: string
+          example: ACAO
+          enum:
+          - MOEDA
+          - ACAO
+          - FII
+          - INTERNACIONAL
+          - CRYPTO
+          - ALTCOINS
+          - CDB
+          - RF
+      example:
+        objetivo: 0.01
+        classe: ACAO
+        moeda: REAL
+        nome: Ações
+        id: 100
+    Ativo:
+      required:
+      - ativo
+      - classe
+      - moeda
+      - setor
+      - simbolo
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+          example: 100
+        ativo:
+          minLength: 1
+          type: string
+          example: GOOGLE
+        moeda:
+          minLength: 1
+          type: string
+          example: REAL
+          enum:
+          - REAL
+          - DOLAR
+          - USDT
+        simbolo:
+          minLength: 1
+          type: string
+          example: NYSE:GOOGL
+        descricao:
+          minLength: 3
+          type: string
+          example: Google na NYSE
+        setor:
+          minLength: 3
+          type: string
+          example: Tecnologia
+        classe:
+          type: string
+          example: ACAO
+          enum:
+          - MOEDA
+          - ACAO
+          - FII
+          - INTERNACIONAL
+          - CRYPTO
+          - ALTCOINS
+          - CDB
+          - RF
+      example:
+        simbolo: NYSE:GOOGL
+        setor: Tecnologia
+        ativo: GOOGLE
+        classe: ACAO
+        moeda: REAL
+        id: 100
+        descricao: Google na NYSE
+    CarteiraAtivo:
+      required:
+      - ativoId
+      - carteiraId
+      - objetivo
+      type: object
+      properties:
+        carteiraId:
+          type: number
+          format: int64
+          example: 100
+        ativoId:
+          type: number
+          format: int64
+          example: 102
+        objetivo:
+          type: number
+          description: Percentual de alocação do ativo na carteira
+          format: double
+          example: 0.02
+      example:
+        objetivo: 0.02
+        ativoId: 102
+        carteiraId: 100
+    Conta:
+      required:
+      - conta
+      - moeda
+      - saldo
+      type: object
+      properties:
+        id:
+          type: number
+          format: int64
+          example: 15
+        conta:
+          maxLength: 50
+          minLength: 2
+          type: string
+          example: Itaú
+        saldo:
+          type: number
+          format: double
+          example: 150.23
+        moeda:
+          type: string
+          enum:
+          - REAL
+          - DOLAR
+          - USDT
+      example:
+        moeda: REAL
+        conta: Itaú
+        id: 15
+        saldo: 150.23
+    Error:
+      type: object
+  responses:
+    ValidationError:
+      description: The specified resource is not valid
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+    InvalidRequest:
+      description: The specified resource is invalid
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+    NotFound:
+      description: The specified resource was not found
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+    Unauthorized:
+      description: Unauthorized
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+  requestBodies:
+    Carteira:
+      description: Carteira para ser adicionada ao portifólio
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Carteira'
+    Ativo:
+      description: Ativo para ser adicionado ao portifólio
+      content:
+        application/json:
+          schema:
+            type: array
+            items:
+              $ref: '#/components/schemas/Ativo'
+    Conta:
+      description: Conta para ser adicionada ao portifólio
+      content:
+        application/json:
+          schema:
+            type: array
+            items:
+              $ref: '#/components/schemas/Conta'
+  securitySchemes:
+    ApiKeyAuth:
+      type: apiKey
+      name: X-API-KEY
+      in: header
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT

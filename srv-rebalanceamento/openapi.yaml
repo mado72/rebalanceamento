@@ -1,0 +1,1129 @@
+openapi: 3.0.3
+info:
+  title: API Rebalanceamento
+  description: |-
+    API para manter portifólio de ativos, carteiras, despesas e contas no mongodb
+  version: 1.0.0
+servers:
+  - url: http://localhost:4201/api/v1
+tags:
+  - name: Despesa
+    description: CRUD para definição de despesas
+  - name: Carteira
+    description: CRUD para definição de carteiras
+  - name: Conta
+    description: CRUD para definição de contas
+paths:
+  /auth:
+    post:
+      tags:
+        - Seguranca
+      summary: Autentica um serviço
+      description: Retorna um token válido para as futuras requisições
+      operationId: auth
+      parameters:
+        - name: X-API-KEY
+          in: header
+          description: Key
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: Jwt Token
+          content:
+            application/json:
+              schema:
+                type: string
+        '400':
+          $ref: '#/components/responses/InvalidRequest'
+      security:
+        - ApiKeyAuth: []
+
+  /despesa:
+    put:
+      tags:
+        - Despesa
+      summary: Atualiza uma despesa
+      description: Atualiza uma despesa identificada pelo seu id
+      operationId: atualizarDespesa
+      requestBody:
+        description: Dados da despesa
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Despesa'
+        required: true
+      responses:
+        '200':
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Despesa'
+        '400':
+          $ref: '#/components/responses/InvalidRequest'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '422':
+          $ref: '#/components/responses/ValidationError'
+      security:
+        - bearerAuth:
+            - write:domain
+            - read:domain
+  /despesa/mes/{mes}:
+    get:
+      tags:
+        - Despesa
+      summary: Retorna as despesas programadas para o mês
+      description: O mês deve ser informado para apresentar as despesas mensais
+      operationId: obterDespesasMes
+      parameters:
+        - name: mes
+          in: path
+          description: Define o mês da pesquisa
+          required: true
+          explode: true
+          schema:
+            type: number
+            minimum: 1
+            maximum: 12
+      responses:
+        '200':
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Despesa'
+        '400':
+          $ref: '#/components/responses/InvalidRequest'
+      security:
+        - bearerAuth:
+            - write:domain
+            - read:domain
+  /despesa/programadas:
+    get:
+      tags:
+        - Despesa
+      summary: Lista as despesas
+      description: Lista as despesas programadas do ano
+      operationId: obterDespesasProgramadas
+      responses:
+        '200':
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Despesa'
+      security:
+        - bearerAuth:
+            - write:domain
+            - read:domain
+  /despesa/id/{despesaId}:
+    get:
+      tags:
+        - Despesa
+      summary: Busca os dados de uma despesa pelo Id
+      description: Returna uma única despesa
+      operationId: obterDespesaId
+      parameters:
+        - name: despesaId
+          in: path
+          description: ID da despesa
+          required: true
+          schema:
+            type: integer
+            format: int64
+      responses:
+        '200':
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Despesa'
+        '400':
+          $ref: '#/components/responses/InvalidRequest'
+        '404':
+          $ref: '#/components/responses/NotFound'
+      security:
+        - bearerAuth:
+            - write:domain
+            - read:domain
+    post:
+      tags:
+        - Despesa
+      summary: Adiciona uma nova despesa
+      description: Adiciona uma nova despesa
+      operationId: adicionaDespesa
+      parameters:
+        - name: despesaId
+          in: path
+          description: ID da despesa
+          required: true
+          schema:
+            type: integer
+            format: int64
+      requestBody:
+        description: Cria uma nova despesa
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Despesa'
+        required: true
+      responses:
+        '200':
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Despesa'
+        '400':
+          $ref: '#/components/responses/InvalidRequest'
+        '422':
+          $ref: '#/components/responses/ValidationError'
+      security:
+        - bearerAuth:
+            - write:domain
+            - read:domain
+    delete:
+      tags:
+        - Despesa
+      summary: Remove uma nova despesa
+      description: Remove uma nova despesa
+      operationId: removeDespesa
+      parameters:
+        - name: despesaId
+          in: path
+          description: ID da despesa
+          required: true
+          schema:
+            type: integer
+            format: int64
+      responses:
+        '400':
+          $ref: '#/components/responses/InvalidRequest'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '422':
+          $ref: '#/components/responses/ValidationError'
+      security:
+        - bearerAuth:
+            - write:domain
+            - read:domain
+
+  /ativo:
+    get:
+      tags:
+        - Carteira
+      summary: Lista os ativos disponíveis
+      description: Lista os ativos cadastrados
+      operationId: obterAtivos
+      responses:
+        '200':
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Ativo'
+      security:
+        - bearerAuth:
+            - write:domain
+            - read:domain
+    post:
+      tags:
+        - Carteira
+      summary: Adiciona um ativo
+      description: Adiciona um ativo ao portifólio
+      operationId: adicionarAtivo
+      requestBody:
+        description: Dados do Ativo
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Ativo'
+        required: true
+      responses:
+        '200':
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Ativo'
+        '400':
+          $ref: '#/components/responses/InvalidRequest'
+        '422':
+          $ref: '#/components/responses/ValidationError'
+      security:
+        - bearerAuth:
+            - write:domain
+            - read:domain
+  
+  /ativo/id/{ativoId}:
+    get:
+      tags:
+        - Carteira
+      summary: Obtém um ativo
+      description: Obtém um ativo pelo seu id
+      operationId: obterAtivo
+      parameters: 
+        - name: ativoId
+          in: path
+          description: "Id do ativo"
+          required: true
+          schema:
+            type: integer
+            format: int64
+      responses:
+        '200':
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Ativo'
+        '400':
+          $ref: '#/components/responses/InvalidRequest'
+        '404':
+          $ref: '#/components/responses/NotFound'
+      security:
+        - bearerAuth:
+            - write:domain
+            - read:domain
+    put:
+      tags:
+        - Carteira
+      summary: Atualiza um ativo
+      description: Atualiza um ativo identificado pelo seu id
+      operationId: atualizarAtivo
+      requestBody:
+        description: Dados do ativo
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Ativo'
+        required: true
+      parameters: 
+        - name: ativoId
+          in: path
+          description: "Id do ativo"
+          required: true
+          schema:
+            type: integer
+            format: int64
+      responses:
+        '200':
+          description: Successful operation
+        '400':
+          $ref: '#/components/responses/InvalidRequest'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '422':
+          $ref: '#/components/responses/ValidationError'
+      security:
+        - bearerAuth:
+            - write:domain
+            - read:domain
+    delete:
+      tags:
+        - Carteira
+      summary: Remove um ativo
+      description: Remove um ativo identificado pelo seu id
+      operationId: removerAtivo
+      parameters: 
+        - name: ativoId
+          in: path
+          description: "Id do ativo"
+          required: true
+          schema:
+            type: integer
+            format: int64
+      responses:
+        '200':
+          description: Successful operation
+        '400':
+          $ref: '#/components/responses/InvalidRequest'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '422':
+          $ref: '#/components/responses/ValidationError'
+      security:
+        - bearerAuth:
+            - write:domain
+            - read:domain
+  
+  /ativo/classe/{classe}:
+    get:
+      tags:
+        - Carteira
+      summary: Obtém ativos de uma classe
+      description: Obtém ativos identificados pela sua classe
+      operationId: obterAtivoPorClasse
+      parameters: 
+        - name: classe
+          in: path
+          description: "Classe do ativo"
+          required: true
+          schema:
+            $ref: '#/components/schemas/Classe'
+      responses:
+        '200':
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Carteira'
+        '400':
+          $ref: '#/components/responses/InvalidRequest'
+        '422':
+          $ref: '#/components/responses/ValidationError'
+      security:
+        - bearerAuth:
+            - write:domain
+            - read:domain
+
+  /carteira:
+    get:
+      tags:
+        - Carteira
+      summary: Obtém lista de carteiras do portifólio
+      description: Recebe um array de Carteira
+      operationId: obterCarteiras
+      responses:
+        '200':
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Carteira'
+      security:
+        - bearerAuth:
+            - write:domain
+            - read:domain
+    post:
+      tags:
+        - Carteira
+      summary: Adiciona uma carteira
+      description: Adiciona uma carteira ao portifólio
+      operationId: adicionarCarteira
+      requestBody:
+        description: Dados da carteira
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Carteira'
+        required: true
+      responses:
+        '200':
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Carteira'
+        '400':
+          $ref: '#/components/responses/InvalidRequest'
+        '422':
+          $ref: '#/components/responses/ValidationError'
+      security:
+        - bearerAuth:
+            - write:domain
+            - read:domain
+
+  /carteira/classe/{classe}:
+    get:
+      tags:
+        - Carteira
+      summary: Obtém lista de carteiras de uma classe
+      description: Obtém array de carteiras que utilizam uma classe
+      operationId: obterCarteirasClasse
+      parameters: 
+        - name: classe
+          in: path
+          description: "Código da classe"
+          required: true
+          schema:
+            $ref: '#/components/schemas/Classe'
+      responses:
+        '200':
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Carteira'
+        '400':
+          $ref: '#/components/responses/InvalidRequest'
+      security:
+        - bearerAuth:
+            - write:domain
+            - read:domain
+
+  /carteira/moeda/{moeda}:
+    get:
+      tags:
+        - Carteira
+      summary: Obtém lista de carteiras de uma moeda
+      description: Obtém array de carteiras que utilizam uma moeda
+      operationId: obterCarteirasMoeda
+      parameters: 
+        - name: moeda
+          in: path
+          description: "Código da moeda"
+          required: true
+          schema:
+            $ref: '#/components/schemas/Moeda'
+      responses:
+        '200':
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Carteira'
+        '400':
+          $ref: '#/components/responses/InvalidRequest'
+      security:
+        - bearerAuth:
+            - write:domain
+            - read:domain
+
+  /carteira/classe/{classe}/moeda/{moeda}:
+    get:
+      tags:
+        - Carteira
+      summary: Obtém lista de carteiras de uma classe e de uma moeda
+      description: Obtém array de carteiras que utilizam uma classe
+      operationId: obterCarteirasClasseMoeda
+      parameters: 
+        - name: classe
+          in: path
+          description: "Código da classe"
+          required: true
+          schema:
+            $ref: '#/components/schemas/Classe'
+        - name: moeda
+          in: path
+          description: "Código da moeda"
+          required: true
+          schema:
+            $ref: '#/components/schemas/Moeda'
+      responses:
+        '200':
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Carteira'
+        '400':
+          $ref: '#/components/responses/InvalidRequest'
+      security:
+        - bearerAuth:
+            - write:domain
+            - read:domain
+
+  /carteira/{carteiraId}:
+    get:
+      tags:
+        - Carteira
+      summary: Obtém uma carteira
+      description: Obtém uma carteira identificada pelo seu id
+      operationId: obterCarteira
+      parameters: 
+        - name: carteiraId
+          in: path
+          description: "Id da carteira"
+          required: true
+          schema:
+            type: integer
+            format: int64
+      responses:
+        '200':
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Carteira'
+        '400':
+          $ref: '#/components/responses/InvalidRequest'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '422':
+          $ref: '#/components/responses/ValidationError'
+      security:
+        - bearerAuth:
+            - write:domain
+            - read:domain
+    put:
+      tags:
+        - Carteira
+      summary: Atualiza uma carteira
+      description: Atualiza uma carteira identificada pelo seu id
+      operationId: atualizarCarteira
+      requestBody:
+        description: Dados da carteira
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Carteira'
+        required: true
+      parameters: 
+        - name: carteiraId
+          in: path
+          description: "Id da carteira"
+          required: true
+          schema:
+            type: integer
+            format: int64
+      responses:
+        '200':
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Carteira'
+        '400':
+          $ref: '#/components/responses/InvalidRequest'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '422':
+          $ref: '#/components/responses/ValidationError'
+      security:
+        - bearerAuth:
+            - write:domain
+            - read:domain
+    delete:
+      tags:
+        - Carteira
+      summary: Remove uma carteira
+      description: Remove uma carteira identificada pelo seu id
+      operationId: removerCarteira
+      parameters: 
+        - name: carteiraId
+          in: path
+          description: "Id da carteira"
+          required: true
+          schema:
+            type: integer
+            format: int64
+      responses:
+        '200':
+          description: Successful operation
+        '400':
+          $ref: '#/components/responses/InvalidRequest'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '422':
+          $ref: '#/components/responses/ValidationError'
+      security:
+        - bearerAuth:
+            - write:domain
+            - read:domain
+            
+  /carteira/{carteiraId}/alocacao:
+    get:
+      tags:
+        - Carteira
+      summary: Obtém as alocações dos ativos de uma carteira
+      description: Obtém os ativos de uma carteira identificada pelo seu id
+      operationId: obterCarteiraAtivos
+      parameters: 
+        - name: carteiraId
+          in: path
+          description: "Id da carteira"
+          required: true
+          schema:
+            type: integer
+            format: int64
+      responses:
+        '200':
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/CarteiraAtivo'
+        '400':
+          $ref: '#/components/responses/InvalidRequest'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '422':
+          $ref: '#/components/responses/ValidationError'
+      security:
+        - bearerAuth:
+            - write:domain
+            - read:domain
+    post:
+      tags:
+        - Carteira
+      summary: Atualiza as alocações de um conjunto de ativos em uma carteira
+      description: Atualiza as alocações de um conjunto de ativos em uma carteira identificada pelo seu id
+      operationId: atualizarCarteiraAtivos
+      requestBody:
+        description: Dados das alocações
+        content:
+          application/json:
+            schema:
+              type: array
+              items:
+                $ref: '#/components/schemas/CarteiraAtivo'
+        required: true
+      parameters: 
+        - name: carteiraId
+          in: path
+          description: "Id da carteira"
+          required: true
+          schema:
+            type: integer
+            format: int64
+      responses:
+        '200':
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/CarteiraAtivo'
+        '400':
+          $ref: '#/components/responses/InvalidRequest'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '422':
+          $ref: '#/components/responses/ValidationError'
+      security:
+        - bearerAuth:
+            - write:domain
+            - read:domain
+
+  /conta:
+    get:
+      tags:
+        - Conta
+      summary: Obtém lista de contas do portifólio
+      description: Recebe um array de Conta
+      operationId: obterContas
+      responses:
+        '200':
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Conta'
+      security:
+        - bearerAuth:
+            - write:domain
+            - read:domain
+    post:
+      tags:
+        - Conta
+      summary: Adiciona uma conta
+      description: Adiciona uma conta ao portifólio
+      operationId: adicionarConta
+      requestBody:
+        description: Dados da conta
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Conta'
+        required: true
+      responses:
+        '200':
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Conta'
+        '400':
+          $ref: '#/components/responses/InvalidRequest'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '422':
+          $ref: '#/components/responses/ValidationError'
+      security:
+        - bearerAuth:
+            - write:domain
+            - read:domain
+  
+  /conta/id/{contaId}:
+    get:
+      tags:
+        - Conta
+      summary: Obtém uma conta
+      description: Obtém uma conta identificada pelo seu id
+      operationId: obterConta
+      parameters: 
+        - name: contaId
+          in: path
+          description: "Id da conta"
+          required: true
+          schema:
+            type: integer
+            format: int64
+      responses:
+        '200':
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Carteira'
+        '400':
+          $ref: '#/components/responses/InvalidRequest'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '422':
+          $ref: '#/components/responses/ValidationError'
+      security:
+        - bearerAuth:
+            - write:domain
+            - read:domain
+    put:
+      tags:
+        - Conta
+      summary: Atualiza uma conta
+      description: Atualiza uma conta identificada pelo seu id
+      operationId: atualizarConta
+      requestBody:
+        description: Dados da conta
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Conta'
+        required: true
+      parameters: 
+        - name: contaId
+          in: path
+          description: "Id da conta"
+          required: true
+          schema:
+            type: integer
+            format: int64
+      responses:
+        '200':
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Conta'
+        '400':
+          $ref: '#/components/responses/InvalidRequest'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '422':
+          $ref: '#/components/responses/ValidationError'
+      security:
+        - bearerAuth:
+            - write:domain
+            - read:domain
+    delete:
+      tags:
+        - Conta
+      summary: Remove uma conta
+      description: Remove uma conta identificada pelo seu id
+      operationId: removerConta
+      parameters: 
+        - name: contaId
+          in: path
+          description: "Id da conta"
+          required: true
+          schema:
+            type: integer
+            format: int64
+      responses:
+        '200':
+          description: Successful operation
+        '400':
+          $ref: '#/components/responses/InvalidRequest'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '422':
+          $ref: '#/components/responses/ValidationError'
+      security:
+        - bearerAuth:
+            - write:domain
+            - read:domain
+            
+  /conta/moeda/{moeda}:
+    get:
+      tags:
+        - Conta
+      summary: Obter contas de uma moeda
+      description: Retorna array de contas
+      operationId: obterContasMoeda
+      parameters:
+        - name: moeda
+          in: path
+          description: "Moeda a pesquisar"
+          required: true
+          schema:
+            $ref: '#/components/schemas/Moeda'
+      responses:
+        '200':
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Conta'
+        '400':
+          $ref: '#/components/responses/InvalidRequest'
+      security:
+        - bearerAuth:
+            - write:domain
+            - read:domain
+
+components:
+  securitySchemes:
+    ApiKeyAuth:        # arbitrary name for the security scheme
+      type: apiKey
+      in: header       # can be "header", "query" or "cookie"
+      name: X-API-KEY  # name of the header, query parameter or cookie
+    bearerAuth:            # arbitrary name for the security scheme
+      type: http
+      scheme: bearer
+      bearerFormat: JWT    # optional, arbitrary value for documentation purposes
+  
+  schemas:
+    Moeda:
+      type: string
+      enum:
+        - REAL
+        - DOLAR
+        - USDT
+    Classe:
+      type: string
+      enum:
+        - MOEDA
+        - ACAO
+        - FII
+        - INTERNACIONAL
+        - CRYPTO
+        - ALTCOINS
+        - CDB
+        - RF
+       
+    Despesa:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+          example: 100
+        despesa:
+          type: string
+          minLength: 3
+          maxLength: 200
+          example: 'Impostos'
+        diaPagamento:
+          type: integer
+          minimum: 1
+          maximum: 31
+          example: 2
+        valores:
+          type: array
+          items:
+            type: number
+            nullable: true
+            format: double
+            minItems: 12
+            maxItems: 12
+    Carteira:
+      type: object
+      properties:
+        id:
+          description: "Id da carteira"
+          type: integer
+          format: int64
+          example: 100
+        nome:
+          description: "Nome da carteira"
+          type: string
+          minLength: 3
+          maxLength: 200
+          example: 'Ações'
+        moeda:
+          type: string
+          example: "REAL"
+          enum:
+            - REAL
+            - DOLAR
+            - USDT
+        objetivo:
+          description: "Percentual da alocação desta carteira no portifólio"
+          type: number
+          format: double
+          example: 0.01
+        classe:
+          type: string
+          example: "ACAO"
+          enum:
+            - MOEDA
+            - ACAO
+            - FII
+            - INTERNACIONAL
+            - CRYPTO
+            - ALTCOINS
+            - CDB
+            - RF
+      required:
+        - nome
+        - moeda
+        - objetivo
+        - classe
+    Ativo:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+          example: 100
+        ativo:
+          type: string
+          example: "GOOGLE"
+          minLength: 1
+        moeda:
+          type: string
+          example: "REAL"
+          minLength: 1
+          enum:
+            - REAL
+            - DOLAR
+            - USDT
+        simbolo:
+          type: string
+          example: "NYSE:GOOGL"
+          minLength: 1
+        descricao:
+          type: string
+          example: "Google na NYSE"
+          minLength: 3
+        setor:
+          type: string
+          example: "Tecnologia"
+          minLength: 3
+        classe:
+          type: string
+          example: "ACAO"
+          enum:
+            - MOEDA
+            - ACAO
+            - FII
+            - INTERNACIONAL
+            - CRYPTO
+            - ALTCOINS
+            - CDB
+            - RF
+      required:
+        - ativo
+        - moeda
+        - simbolo
+        - setor
+        - classe
+    CarteiraAtivo:
+      type: object
+      properties:
+        carteiraId:
+          type: number
+          format: int64
+          example: 100
+        ativoId:
+          type: number
+          format: int64
+          example: 102
+        objetivo:
+          type: number
+          format: double
+          example: 0.02
+          description: "Percentual de alocação do ativo na carteira"
+      required:
+        - carteiraId
+        - ativoId
+        - objetivo
+    Conta:
+      type: object
+      required:
+        - conta
+        - saldo
+        - moeda
+      properties:
+        id:
+          type: number
+          format: int64
+          example: 15
+        conta:
+          type: string
+          minLength: 2
+          maxLength: 50
+          example: 'Itaú'
+        saldo:
+          type: number
+          format: double
+          example: 150.23
+        moeda:
+          type: string
+          enum:
+            - REAL
+            - DOLAR
+            - USDT
+            
+    Error:
+      type: object
+
+  responses:
+    ValidationError:
+      description: The specified resource is not valid
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+    InvalidRequest:
+      description: The specified resource is invalid
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+    NotFound:
+      description: The specified resource was not found
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+    Unauthorized:
+      description: Unauthorized
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+  
+  requestBodies:
+
+    Carteira:
+      description: Carteira para ser adicionada ao portifólio
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Carteira'
+    Ativo:
+      description: Ativo para ser adicionado ao portifólio
+      content:
+        application/json:
+          schema:
+            type: array
+            items:
+              $ref: '#/components/schemas/Ativo'
+    Conta:
+      description: Conta para ser adicionada ao portifólio
+      content:
+        application/json:
+          schema:
+            type: array
+            items:
+              $ref: '#/components/schemas/Conta'

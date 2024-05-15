@@ -1,74 +1,74 @@
 [
     {
         "_id": 1,
-        "Conta": "Itaú",
-        "Saldo": 693.01,
-        "Moeda": "REAL"
+        "conta": "Itaú",
+        "saldo": 693.01,
+        "moeda": "REAL"
     },
     {
         "_id": 2,
-        "Conta": "NuBank",
-        "Saldo": 382.82,
-        "Moeda": "REAL"
+        "conta": "NuBank",
+        "saldo": 382.82,
+        "moeda": "REAL"
     },
     {
         "_id": 3,
-        "Conta": "Nu Bank Finfor",
-        "Saldo": 0,
-        "Moeda": "REAL"
+        "conta": "Nu Bank Finfor",
+        "saldo": 0,
+        "moeda": "REAL"
     },
     {
         "_id": 4,
-        "Conta": "Rico",
-        "Saldo": 0,
-        "Moeda": "REAL"
+        "conta": "Rico",
+        "saldo": 0,
+        "moeda": "REAL"
     },
     {
         "_id": 5,
-        "Conta": "Rico Inv.",
-        "Saldo": 0,
-        "Moeda": "REAL"
+        "conta": "Rico Inv.",
+        "saldo": 0,
+        "moeda": "REAL"
     },
     {
         "_id": 6,
-        "Conta": "Itaú Finfor",
-        "Saldo": 0,
-        "Moeda": "REAL"
+        "conta": "Itaú Finfor",
+        "saldo": 0,
+        "moeda": "REAL"
     },
     {
         "_id": 7,
-        "Conta": "Nomad",
-        "Saldo": 0,
-        "Moeda": "DOLAR"
+        "conta": "Nomad",
+        "saldo": 0,
+        "moeda": "DOLAR"
     },
     {
         "_id": 8,
-        "Conta": "Bmg Vasco",
-        "Saldo": 0,
-        "Moeda": "REAL"
+        "conta": "Bmg Vasco",
+        "saldo": 0,
+        "moeda": "REAL"
     },
     {
         "_id": 9,
-        "Conta": "BTG",
-        "Saldo": 0,
-        "Moeda": "REAL"
+        "conta": "BTG",
+        "saldo": 0,
+        "moeda": "REAL"
     },
     {
         "_id": 10,
-        "Conta": "XP",
-        "Saldo": 0,
-        "Moeda": "REAL"
+        "conta": "XP",
+        "saldo": 0,
+        "moeda": "REAL"
     },
     {
         "_id": 11,
-        "Conta": "XP Inv.",
-        "Saldo": 6.41,
-        "Moeda": "REAL"
+        "conta": "XP Inv.",
+        "saldo": 6.41,
+        "moeda": "REAL"
     },
     {
         "_id": 12,
-        "Conta": "Binance",
-        "Saldo": 0,
-        "Moeda": "DOLAR"
+        "conta": "Binance",
+        "saldo": 0,
+        "moeda": "DOLAR"
     }
 ]
