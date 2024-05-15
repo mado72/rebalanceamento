@@ -1,16 +1,4 @@
 <p>calendario-mensal works!</p>
-<pre>
-    dataSelecionada: {{ dataSelecionada }}
-
-    primeiroDiaMes: {{ primeiroDiaMes }}
-
-    primeiraDataMes: {{primeiraDataMes}}
-
-    ultimaDataMes: {{ultimaDataMes}}
-
-    diasNoMes: {{diasNoMes}}
-</pre>
-
 <button class="btn btn-primary" (click)="mesAnterior()">Anterior</button>
 <button class="btn btn-primary" (click)="mesPosterior()">Posterior</button>
 
@@ -23,13 +11,14 @@
     <tbody>
         <tr *ngFor="let linha of [].constructor(6); let iLinha = index">
             <td *ngFor="let dia of [].constructor(7); let iColuna = index" class="p-0 m-0">
-                <div class="data" (click)="dataSelecionada=getData(iLinha, iColuna)">
-                    <app-calendario-celula
+                <div class="data" (click)="dataClick(getData(iLinha, iColuna))">
+                    <app-calendario-mensal-celula
                         [dataSelecionada]="dataSelecionada"
                         [data]="getData(iLinha, iColuna)"
                         [primeiraDataMes]="primeiraDataMes"
                         [ultimaDataMes]="ultimaDataMes"
                         [eventos]="getEventos(iLinha, iColuna)"
+                        (eventoClicked)="eventoClick($event)"
                     />
                 </div>
             </td>
@@ -37,9 +26,3 @@
     </tbody>
 
 </table>
-
-<pre>
-    {{primeiraDataMes}}
-
-    {{ultimaDataMes}}
-</pre>

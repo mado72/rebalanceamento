@@ -1,13 +1,13 @@
-import { Component, Input } from '@angular/core';
+import { Component, EventEmitter, Input, Output } from '@angular/core';
 import { getDate, isSameDay, isWithinInterval } from 'date-fns';
 import { Evento } from '../calendario.model';
 
 @Component({
-  selector: 'app-calendario-celula',
-  templateUrl: './calendario-celula.component.html',
-  styleUrls: ['./calendario-celula.component.scss']
+  selector: 'app-calendario-mensal-celula',
+  templateUrl: './calendario-mensal-celula.component.html',
+  styleUrls: ['./calendario-mensal-celula.component.scss']
 })
-export class CalendarioCelulaComponent {
+export class CalendarioMensalCelulaComponent {
 
   @Input() dataSelecionada!: Date;
 
@@ -18,6 +18,11 @@ export class CalendarioCelulaComponent {
   @Input() ultimaDataMes!: Date;
 
   @Input() eventos: Evento[] = [];
+
+  @Output() eventoClicked = new EventEmitter<Evento>();
+
+  constructor() { 
+  }
 
   get mesmaDataSelecionada() {
     return isSameDay(this.data, this.dataSelecionada);
@@ -41,6 +46,11 @@ export class CalendarioCelulaComponent {
 
   public get led() {
     return `led-${this.color}`;
+  }
+
+  eventoClick(evento:Evento) {
+    this.eventoClicked.emit(evento);
+    console.log(evento);
   }
 
 }

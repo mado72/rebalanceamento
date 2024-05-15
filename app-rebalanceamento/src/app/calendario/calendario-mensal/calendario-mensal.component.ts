@@ -1,4 +1,4 @@
-import { Component, Input } from '@angular/core';
+import { Component, EventEmitter, Input, Output } from '@angular/core';
 import { addDays, addMonths, endOfMonth, getDate, getDay, isSameDay, startOfMonth } from 'date-fns';
 import { Evento } from '../calendario.model';
 
@@ -11,35 +11,25 @@ export class CalendarioMensalComponent {
 
   @Input() dataSelecionada = new Date();
 
-  eventos: Evento[] = [{
-    data: addDays(new Date(), -20),
-    titulo: 'Evento 1',
-    cor: 'blue'
-  },{
-    data: addDays(new Date(), -10),
-    titulo: 'Evento 2',
-    cor:'red'
-  },{
-    data: addDays(new Date(), -5),
-    titulo: 'Evento 3',
-    cor: 'green'
-  },{
-    data: new Date(),
-    titulo: 'Evento 4',
-    cor: 'yellow'
-  },{
-    data: addDays(new Date(), 10),
-    titulo: 'Evento 5',
-    cor: 'orange'
-  },{
-    data: addDays(new Date(), 10),
-    titulo: 'Evento 6',
-    cor: 'purple'
-  },{
-    data: addDays(new Date(), 10),
-    titulo: 'Evento 7',
-    cor: 'cyan'
-  }]
+  @Input() eventos: Evento[] = [];
+
+  @Output() eventoClicked = new EventEmitter<Evento>();
+
+  @Output() dataClicked = new EventEmitter<Date>();
+
+  constructor() {
+    const colors = ['red','black','blue','green','yellow'];
+    const now = new Date();
+
+    for (let i = 0; i < 100; i++) {
+      this.eventos.push({
+        data: addDays(now, Math.random() * 30 - 15),
+        titulo: `Evento ${i+1}`,
+        descricao: `Descrição do evento ${i}`,
+        cor:colors[Math.trunc(Math.random() * colors.length)],
+      })
+    }
+  }
 
   get primeiroDiaMes() {
     return getDay(this.primeiraDataMes);
@@ -73,6 +63,16 @@ export class CalendarioMensalComponent {
 
   getEventos(linha: number, coluna: number) {
     return this.eventos.filter(e => isSameDay(e.data, this.getData(linha, coluna)));
+  }
+
+  eventoClick(evento:Evento) {
+    this.eventoClicked.emit(evento);
+  }
+
+  dataClick(data: Date) {
+    this.dataSelecionada = data;
+    this.dataClicked.emit(data);
+    console.log(data);
   }
 
 }

@@ -4,6 +4,6 @@
     </div>
     <div class="meio"></div>
     <div class="base">
-        <div [style.backgroundColor]="evento.cor" class="led" *ngFor="let evento of eventos"></div>
+        <div [style.backgroundColor]="evento.cor" class="led" *ngFor="let evento of eventos" (click)="eventoClick(evento)"></div>
     </div>
 </div>
