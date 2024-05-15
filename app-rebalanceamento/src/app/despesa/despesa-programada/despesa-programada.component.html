@@ -1,0 +1,49 @@
+<h3>Despesa programada</h3>
+<form class="p2" ((submit))="$event.stopPropagation()">
+    <div class="form-group">
+        <input type="checkbox" name="filtrarPagos" id="filtrarPagos" [(ngModel)]="filtrarPagos">
+        <label for="filtrarNaoPagos">Filtrar Pagos</label>
+        <input type="checkbox" name="filtrarVencidos" id="filtrarVencidos" [(ngModel)]="filtrarVencidos">
+        <label for="filtrarNaoPagos">Filtrar Vencidos</label>
+    </div>
+    <table class="table">
+        <thead class="table-dark">
+            <tr>
+                <th>Despesa</th>
+                <th>Periodicidade</th>
+                <th>Data Vencimento</th>
+                <th>Data Final</th>
+                <th>Data Pagamento</th>
+                <th>Categoria</th>
+                <th>Liquidação</th>
+                <th>Valor</th>
+            </tr>
+        </thead>
+        <tbody class="table-striped">
+            <tr *ngFor="let despesa of despesas">
+                <td>
+                    <a href="javascript:void()" (click)="abrirDespesaForm(despesa, 'Editar Despesa')">
+                        {{despesa.descricao}}
+                    </a>
+                </td>
+                <td class="text-center">{{despesa.periodicidade}}</td>
+                <td class="text-center">{{despesa.dataVencimento | date:'dd/MM'}}</td>
+                <td class="text-center">{{despesa.dataFinal | date:'dd/MM/yyyy'}}</td>
+                <td class="text-center">{{despesa.dataPagamento | date:'dd/MM/yyyy'}}</td>
+                <td>{{despesa.categoria}}</td>
+                <td>{{despesa.liquidacao}}</td>
+                <td class="text-end">{{despesa.valor | number:'1.2-2'}}</td>
+            </tr>
+        </tbody>
+        <tfoot class="table-light">
+            <tr>
+                <td colspan="7">Total:</td>
+                <td class="text-end">{{total | number:'1.2-2'}}</td>
+            </tr>
+        </tfoot>
+    </table>
+    
+    <button type="submit" class="btn btn-primary" (click)="adicionarDespesa()">
+        Adicionar Despesa
+    </button>
+</form>

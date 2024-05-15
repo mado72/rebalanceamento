@@ -1,4 +1,81 @@
 'use strict';
+var Model = require('../models/model');
+var mongoose = require('mongoose');
+const { respondWithCode } = require('../utils/writer');
+const Ativo = mongoose.model('ativo');
+const Carteira = mongoose.model('carteira');
+const CarteiraAtivo = mongoose.model('carteira-ativo');
+
+/**
+ * Lista os ativos disponíveis
+ * Lista os ativos cadastrados
+ *
+ * classe Classe  (optional)
+ * returns List
+ **/
+exports.ativoGET = function (classe) {
+  return new Promise(async function (resolve, reject) {
+    var filter = !!classe ? { "classe": classe } : {}
+    try {
+      var result = await Ativo.find(filter);
+      resolve(result);
+    } catch (err) {
+      reject(err);
+    }
+  });
+}
+
+
+/**
+ * Remove um ativo
+ * Remove um ativo identificado pelo seu id
+ *
+ * ativoId Long Id do ativo
+ * no response value expected for this operation
+ **/
+exports.ativoIdDELETE = function (ativoId) {
+  return new Promise(async function (resolve, reject) {
+    try {
+      var id = new mongoose.Types.ObjectId(ativoId);
+      var result = await Model.ativo.findByIdAndDelete(id);
+      if (!result) {
+        resolve(respondWithCode(404, `Não encontrado ${ativoId}`));
+      }
+      else {
+        resolve(result);
+      }
+    } catch (error) {
+      error.code = 422;
+      reject(error);
+    }
+  });
+}
+
+
+/**
+ * Obtém um ativo
+ * Obtém um ativo pelo seu id
+ *
+ * ativoId Long Id do ativo
+ * returns Ativo
+ **/
+exports.ativoIdGET = function (ativoId) {
+  console.log(ativoId);
+  return new Promise(function (resolve, reject) {
+    var id = new mongoose.Types.ObjectId(ativoId);
+    Ativo.findById(id).then(result => {
+      if (!result) {
+        resolve(respondWithCode(404, `Não encontrado ${result}`));
+      }
+      else {
+        resolve(result);
+      }
+    })
+      .catch(err => {
+        reject(err);
+      });
+  });
+}
 
 
 /**
@@ -8,90 +85,87 @@
  * body Ativo Dados do Ativo
  * returns Ativo
  **/
-exports.adicionarAtivo = function(body) {
-  return new Promise(function(resolve, reject) {
-    var examples = {};
-    examples['application/json'] = {
-  "simbolo" : "NYSE:GOOGL",
-  "setor" : "Tecnologia",
-  "ativo" : "GOOGLE",
-  "classe" : "ACAO",
-  "moeda" : "REAL",
-  "id" : 100,
-  "descricao" : "Google na NYSE"
-};
-    if (Object.keys(examples).length > 0) {
-      resolve(examples[Object.keys(examples)[0]]);
-    } else {
-      resolve();
+exports.ativoPOST = function (body) {
+  return new Promise(async function (resolve, reject) {
+    try {
+      var ativo = new Ativo(body);
+      var result = await ativo.save();
+      resolve(result);
+    } catch (err) {
+      reject(err);
     }
   });
 }
-
-
-/**
- * Adiciona uma carteira
- * Adiciona uma carteira ao portifólio
- *
- * body Carteira Dados da carteira
- * returns Carteira
- **/
-exports.adicionarCarteira = function(body) {
-  return new Promise(function(resolve, reject) {
-    var examples = {};
-    examples['application/json'] = {
-  "objetivo" : 0.01,
-  "classe" : "ACAO",
-  "moeda" : "REAL",
-  "nome" : "Ações",
-  "id" : 100
-};
-    if (Object.keys(examples).length > 0) {
-      resolve(examples[Object.keys(examples)[0]]);
-    } else {
-      resolve();
-    }
-  });
-}
-
 
 /**
  * Atualiza um ativo
  * Atualiza um ativo identificado pelo seu id
  *
  * body Ativo Dados do ativo
- * ativoId Long Id do ativo
  * no response value expected for this operation
  **/
-exports.atualizarAtivo = function(body,ativoId) {
-  return new Promise(function(resolve, reject) {
-    resolve();
+exports.ativoPUT = function (body) {
+  return new Promise(async function (resolve, reject) {
+    var id = new mongoose.Types.ObjectId(body._id);
+    try {
+      var result = await Ativo.findByIdAndUpdate(id, body);
+      if (!result) {
+        resolve(respondWithCode(404, `Não encontrado ${id}`));
+        return;
+      }
+      resolve(result);
+    } catch (error) {
+      error.code = 422;
+      reject(error);
+    }
   });
 }
 
 
 /**
- * Atualiza uma carteira
- * Atualiza uma carteira identificada pelo seu id
+ * Obtém lista de carteiras do portifólio
+ * Recebe um array de Carteira
  *
- * body Carteira Dados da carteira
- * carteiraId Long Id da carteira
- * returns Carteira
+ * moeda Moeda  (optional)
+ * classe Classe  (optional)
+ * returns List
  **/
-exports.atualizarCarteira = function(body,carteiraId) {
-  return new Promise(function(resolve, reject) {
-    var examples = {};
-    examples['application/json'] = {
-  "objetivo" : 0.01,
-  "classe" : "ACAO",
-  "moeda" : "REAL",
-  "nome" : "Ações",
-  "id" : 100
+exports.carteiraGET = function (moeda, classe) {
+  return new Promise(async function (resolve, reject) {
+    var filter = {};
+    if (!!moeda) filter.moeda = moeda;
+    if (!!classe) filter.classe = classe;
+
+    try {
+      var result = await Carteira.find(filter);
+      resolve(result);
+    } catch (err) {
+      reject(err);
+    }
+  })
 };
-    if (Object.keys(examples).length > 0) {
-      resolve(examples[Object.keys(examples)[0]]);
-    } else {
-      resolve();
+
+/**
+ * Obtém as alocações dos ativos de uma carteira
+ * Obtém os ativos de uma carteira identificada pelo seu id
+ *
+ * carteiraId Long Id da carteira
+ * returns List
+ **/
+exports.carteiraIdAlocacaoGET = function (carteiraId) {
+  return new Promise(async (resolve, reject) => {
+    var id = new mongoose.Types.ObjectId(carteiraId);
+
+    try {
+      var carteira = await Carteira.findById(id);
+      if (!carteira) {
+        resolve(respondWithCode(404, `Não encontrado ${carteiraId}`));
+        return;
+      }
+      resolve(carteira.ativos);
+
+    } catch (error) {
+      reject(error);
     }
   });
 }
@@ -105,111 +179,49 @@ exports.atualizarCarteira = function(body,carteiraId) {
  * carteiraId Long Id da carteira
  * returns List
  **/
-exports.atualizarCarteiraAtivos = function(body,carteiraId) {
-  return new Promise(function(resolve, reject) {
-    var examples = {};
-    examples['application/json'] = [ {
-  "objetivo" : 0.02,
-  "ativoId" : 102,
-  "carteiraId" : 100
-}, {
-  "objetivo" : 0.02,
-  "ativoId" : 102,
-  "carteiraId" : 100
-} ];
-    if (Object.keys(examples).length > 0) {
-      resolve(examples[Object.keys(examples)[0]]);
-    } else {
-      resolve();
+exports.carteiraIdAlocacaoPOST = function (body, carteiraId) {
+  return new Promise(async (resolve, reject) => {
+    var id = new mongoose.Types.ObjectId(carteiraId);
+    try {
+      var carteira = await Carteira.findById(id);
+      if (!carteira) {
+        resolve(respondWithCode(404, `Não encontrado ${carteiraId}`));
+        return;
+      }
+
+      var ativos = {};
+      body.forEach(item=>{
+        ativos[item.ativoId] = new CarteiraAtivo(item);
+      });
+      carteira.ativos = Object.values(ativos);
+      await carteira.save();
+      resolve(carteira);
+    } catch (error) {
+      reject(error);
     }
   });
 }
 
 
 /**
- * Obtém um ativo
- * Obtém um ativo pelo seu id
+ * Remove uma carteira
+ * Remove uma carteira identificada pelo seu id
  *
- * ativoId Long Id do ativo
- * returns Ativo
+ * carteiraId Long Id da carteira
+ * no response value expected for this operation
  **/
-exports.obterAtivo = function(ativoId) {
-  return new Promise(function(resolve, reject) {
-    var examples = {};
-    examples['application/json'] = {
-  "simbolo" : "NYSE:GOOGL",
-  "setor" : "Tecnologia",
-  "ativo" : "GOOGLE",
-  "classe" : "ACAO",
-  "moeda" : "REAL",
-  "id" : 100,
-  "descricao" : "Google na NYSE"
-};
-    if (Object.keys(examples).length > 0) {
-      resolve(examples[Object.keys(examples)[0]]);
-    } else {
-      resolve();
-    }
-  });
-}
-
-
-/**
- * Obtém ativos de uma classe
- * Obtém ativos identificados pela sua classe
- *
- * classe Classe Classe do ativo
- * returns Carteira
- **/
-exports.obterAtivoPorClasse = function(classe) {
-  return new Promise(function(resolve, reject) {
-    var examples = {};
-    examples['application/json'] = {
-  "objetivo" : 0.01,
-  "classe" : "ACAO",
-  "moeda" : "REAL",
-  "nome" : "Ações",
-  "id" : 100
-};
-    if (Object.keys(examples).length > 0) {
-      resolve(examples[Object.keys(examples)[0]]);
-    } else {
-      resolve();
-    }
-  });
-}
-
-
-/**
- * Lista os ativos disponíveis
- * Lista os ativos cadastrados
- *
- * returns List
- **/
-exports.obterAtivos = function() {
-  return new Promise(function(resolve, reject) {
-    var examples = {};
-    examples['application/json'] = [ {
-  "simbolo" : "NYSE:GOOGL",
-  "setor" : "Tecnologia",
-  "ativo" : "GOOGLE",
-  "classe" : "ACAO",
-  "moeda" : "REAL",
-  "id" : 100,
-  "descricao" : "Google na NYSE"
-}, {
-  "simbolo" : "NYSE:GOOGL",
-  "setor" : "Tecnologia",
-  "ativo" : "GOOGLE",
-  "classe" : "ACAO",
-  "moeda" : "REAL",
-  "id" : 100,
-  "descricao" : "Google na NYSE"
-} ];
-    if (Object.keys(examples).length > 0) {
-      resolve(examples[Object.keys(examples)[0]]);
-    } else {
-      resolve();
+exports.carteiraIdDELETE = function (carteiraId) {
+  return new Promise(async (resolve, reject) => {
+    try {
+      var id = new mongoose.Types.ObjectId(carteiraId);
+      var result = await Carteira.findByIdAndDelete(id);
+      if (!result) {
+        resolve(respondWithCode(404, `Não encontrado ${carteiraId}`));
+        return;
+      }
+      resolve(result);
+    } catch (error) {
+      reject(error);
     }
   });
 }
@@ -222,187 +234,65 @@ exports.obterAtivos = function() {
  * carteiraId Long Id da carteira
  * returns Carteira
  **/
-exports.obterCarteira = function(carteiraId) {
-  return new Promise(function(resolve, reject) {
-    var examples = {};
-    examples['application/json'] = {
-  "objetivo" : 0.01,
-  "classe" : "ACAO",
-  "moeda" : "REAL",
-  "nome" : "Ações",
-  "id" : 100
-};
-    if (Object.keys(examples).length > 0) {
-      resolve(examples[Object.keys(examples)[0]]);
-    } else {
-      resolve();
+exports.carteiraIdGET = function (carteiraId) {
+  return new Promise(async (resolve, reject) => {
+    try {
+      var id = new mongoose.Types.ObjectId(carteiraId);
+      var carteira = Carteira.findById(id);
+      if (!carteira) {
+        resolve(respondWithCode(404, `Não encontrado ${carteiraId}`));
+        return;
+      }
+      resolve(carteira);
+
+    } catch (error) {
+      reject(error);
     }
   });
 }
 
 
 /**
- * Obtém as alocações dos ativos de uma carteira
- * Obtém os ativos de uma carteira identificada pelo seu id
+ * Adiciona uma carteira
+ * Adiciona uma carteira ao portifólio
  *
- * carteiraId Long Id da carteira
- * returns List
- **/
-exports.obterCarteiraAtivos = function(carteiraId) {
-  return new Promise(function(resolve, reject) {
-    var examples = {};
-    examples['application/json'] = [ {
-  "objetivo" : 0.02,
-  "ativoId" : 102,
-  "carteiraId" : 100
-}, {
-  "objetivo" : 0.02,
-  "ativoId" : 102,
-  "carteiraId" : 100
-} ];
-    if (Object.keys(examples).length > 0) {
-      resolve(examples[Object.keys(examples)[0]]);
-    } else {
-      resolve();
-    }
-  });
-}
-
-
-/**
- * Obtém lista de carteiras do portifólio
- * Recebe um array de Carteira
- *
- * returns List
- **/
-exports.obterCarteiras = function() {
-  return new Promise(function(resolve, reject) {
-    var examples = {};
-    examples['application/json'] = [ {
-  "objetivo" : 0.01,
-  "classe" : "ACAO",
-  "moeda" : "REAL",
-  "nome" : "Ações",
-  "id" : 100
-}, {
-  "objetivo" : 0.01,
-  "classe" : "ACAO",
-  "moeda" : "REAL",
-  "nome" : "Ações",
-  "id" : 100
-} ];
-    if (Object.keys(examples).length > 0) {
-      resolve(examples[Object.keys(examples)[0]]);
-    } else {
-      resolve();
-    }
-  });
-}
-
-
-/**
- * Obtém lista de carteiras de uma classe
- * Obtém array de carteiras que utilizam uma classe
- *
- * classe Classe Código da classe
+ * body Carteira Dados da carteira
  * returns Carteira
  **/
-exports.obterCarteirasClasse = function(classe) {
-  return new Promise(function(resolve, reject) {
-    var examples = {};
-    examples['application/json'] = {
-  "objetivo" : 0.01,
-  "classe" : "ACAO",
-  "moeda" : "REAL",
-  "nome" : "Ações",
-  "id" : 100
-};
-    if (Object.keys(examples).length > 0) {
-      resolve(examples[Object.keys(examples)[0]]);
-    } else {
-      resolve();
+exports.carteiraPOST = function (body) {
+  return new Promise(async (resolve, reject) => {
+    try {
+      var carteira = new Carteira(body);
+      var result = await carteira.save();
+      resolve(result);
+    } catch (error) {
+      reject(error);
     }
   });
 }
 
 
 /**
- * Obtém lista de carteiras de uma classe e de uma moeda
- * Obtém array de carteiras que utilizam uma classe
+ * Atualiza uma carteira
+ * Atualiza uma carteira identificada pelo seu id
  *
- * classe Classe Código da classe
- * moeda Moeda Código da moeda
+ * body Carteira Dados da carteira
  * returns Carteira
  **/
-exports.obterCarteirasClasseMoeda = function(classe,moeda) {
-  return new Promise(function(resolve, reject) {
-    var examples = {};
-    examples['application/json'] = {
-  "objetivo" : 0.01,
-  "classe" : "ACAO",
-  "moeda" : "REAL",
-  "nome" : "Ações",
-  "id" : 100
-};
-    if (Object.keys(examples).length > 0) {
-      resolve(examples[Object.keys(examples)[0]]);
-    } else {
-      resolve();
+exports.carteiraPUT = function (body) {
+  return new Promise(async (resolve, reject) => {
+    try {
+      var carteira = Carteira.findById(body._id);
+      if (!carteira) {
+        resolve(respondWithCode(404, `Não encontrado ${body._id}`));
+        return;
+      }
+      carteira = Object.assign(carteira, body);
+      carteira.save();
+      resolve(carteira);
+    } catch (error) {
+      reject(error);
     }
-  });
-}
-
-
-/**
- * Obtém lista de carteiras de uma moeda
- * Obtém array de carteiras que utilizam uma moeda
- *
- * moeda Moeda Código da moeda
- * returns Carteira
- **/
-exports.obterCarteirasMoeda = function(moeda) {
-  return new Promise(function(resolve, reject) {
-    var examples = {};
-    examples['application/json'] = {
-  "objetivo" : 0.01,
-  "classe" : "ACAO",
-  "moeda" : "REAL",
-  "nome" : "Ações",
-  "id" : 100
-};
-    if (Object.keys(examples).length > 0) {
-      resolve(examples[Object.keys(examples)[0]]);
-    } else {
-      resolve();
-    }
-  });
-}
-
-
-/**
- * Remove um ativo
- * Remove um ativo identificado pelo seu id
- *
- * ativoId Long Id do ativo
- * no response value expected for this operation
- **/
-exports.removerAtivo = function(ativoId) {
-  return new Promise(function(resolve, reject) {
-    resolve();
-  });
-}
-
-
-/**
- * Remove uma carteira
- * Remove uma carteira identificada pelo seu id
- *
- * carteiraId Long Id da carteira
- * no response value expected for this operation
- **/
-exports.removerCarteira = function(carteiraId) {
-  return new Promise(function(resolve, reject) {
-    resolve();
   });
 }
 

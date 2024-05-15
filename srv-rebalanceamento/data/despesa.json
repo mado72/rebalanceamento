@@ -1,175 +1,116 @@
 [
     {
-      "_id": 1,
-      "despesa": "Cartão Itaú",
-      "diaPagamento": 6,
-      "valores": [
-          1000, 1000, 1856.12,
-        755.52, 1000,    1000,
-          1000, 1000,    1000,
-          1000, 1000,    1000
-      ]
+      "descricao": "Cartão Itaú",
+      "dataVencimento": "2024-04-06",
+      "valor":1856.12,
+      "periodicidade": "MENSAL",
+      "categoria": "Custo Fixo"
     },
     {
-      "_id": 2,
-      "despesa": "Cartão NuBank",
-      "diaPagamento": 20,
-      "valores": [
-           1000, 1000, 2537.27,
-        3664.76, 5000,    5000,
-           5000, 5000,    5000,
-           5000, 5000,    5000
-      ]
+      "descricao": "Cartão NuBank",
+      "dataVencimento": "2024-04-20",
+      "valor":2537.27,
+      "periodicidade": "MENSAL",
+      "categoria": "Custo Fixo"
     },
     {
-      "_id": 3,
-      "despesa": "Cartão Rico",
-      "diaPagamento": 10,
-      "valores": [
-           5000,    5000, 4166.34,
-        3603.84, 2431.33,    1000,
-           1000,    1000,    1000,
-           1000,    1000,    1000
-      ]
+      "descricao": "Cartão Rico",
+      "dataVencimento": "2024-04-10",
+      "valor":4166.34,
+      "periodicidade": "MENSAL",
+      "categoria": "Custo Fixo"
     },
     {
-      "_id": 4,
-      "despesa": "Gás",
-      "diaPagamento": 5,
-      "valores": [
-        70, 70, 66.97, 70,
-        70, 70,    70, 70,
-        70, 70,    70, 70
-      ]
+      "descricao": "Gás",
+      "dataVencimento": "2024-01-05",
+      "valor":97,
+      "periodicidade": "MENSAL",
+      "categoria": "Custo Fixo"
     },
     {
-      "_id": 5,
-      "despesa": "Plano de Saúde",
-      "diaPagamento": 15,
-      "valores": [
-        874.4, 874.4, 874.4,
-        874.4, 874.4, 874.4,
-        874.4, 874.4, 874.4,
-        874.4, 874.4, 874.4
-      ]
+      "descricao": "Plano de Saúde",
+      "dataVencimento": "2024-02-15",
+      "valor":874.4,
+      "periodicidade": "MENSAL",
+      "categoria": "Custo Fixo"
     },
     {
-      "_id": 6,
-      "despesa": "Fundação",
-      "diaPagamento": 5,
-      "valores": [
-        325, 325, 325, 325,
-        325, 325, 325, 325,
-        325, 325, 325, 325
-      ]
+      "descricao": "Fundação",
+      "dataVencimento": "2024-03-05",
+      "valor":325,
+      "periodicidade": "MENSAL",
+      "categoria": "Custo Fixo"
     },
     {
-      "_id": 7,
-      "despesa": "Alessandra",
-      "diaPagamento": 10,
-      "valores": [
-        2118, 2118, 2118,
-        2118, 2118, 2118,
-        2118, 2118, 2118,
-        2118, 2118, 2118
-      ]
+      "descricao": "Alessandra",
+      "dataVencimento": "2024-04-10",
+      "valor":2118,
+      "periodicidade": "MENSAL",
+      "categoria": "Custo Fixo"
     },
     {
-      "_id": 8,
-      "despesa": "Bernardo",
-      "diaPagamento": 10,
-      "valores": [
-        1212, 1212, 1212,
-        1212, 1212, 1212,
-        1212, 1212, 1212,
-        1212, 1212, 1212
-      ]
+      "descricao": "Bernardo",
+      "dataVencimento": "2024-04-10",
+      "valor":1212,
+      "periodicidade": "MENSAL",
+      "categoria": "Custo Fixo"
     },
     {
-      "_id": 9,
-      "despesa": "Bernardo",
-      "diaPagamento": 20,
-      "valores": [
-        616, 616, 616, 616,
-        616, 616, 616, 616,
-        616, 616, 616, 616
-      ]
+      "descricao": "Bernardo",
+      "dataVencimento": "2024-04-20",
+      "valor":616,
+      "periodicidade": "MENSAL",
+      "categoria": "Custo Fixo"
     },
     {
-      "_id": 10,
-      "despesa": "Contador",
-      "diaPagamento": 20,
-      "valores": [
-              0, 1867.83,
-        3735.66,  1224.3,
-         1849.2,  1849.2,
-         1849.2,  1849.2,
-         1849.2,  1849.2,
-         1849.2,  1849.2
-      ]
+      "descricao": "Contador",
+      "dataVencimento": "2024-04-20",
+      "valor":1867.83,
+      "periodicidade": "MENSAL",
+      "categoria": "Custo Fixo"
     },
     {
-      "_id": 11,
-      "despesa": "Emp. Nu",
-      "diaPagamento": 22,
-      "valores": [
-              0, 1864.75, 1864.75,
-        1845.69,       0,       0,
-              0,       0,       0,
-              0,       0,       0
-      ]
+      "descricao": "Emp. Nu",
+      "dataVencimento": "2024-04-22",
+      "valor":1864.75,
+      "periodicidade": "MENSAL",
+      "categoria": "Custo Fixo"
     },
     {
-      "_id": 12,
-      "despesa": "Emp. Itaú",
-      "diaPagamento": 10,
-      "valores": [
-              0,       0, 0,
-        1332.06, 1332.06, 0,
-              0,       0, 0,
-              0,       0, 0
-      ]
+      "descricao": "Emp. Itaú",
+      "dataVencimento": "2024-04-10",
+      "valor":0,
+      "periodicidade": "MENSAL",
+      "categoria": "Custo Fixo"
     },
     {
-      "_id": 13,
-      "despesa": "Emp. Itaú 2",
-      "diaPagamento": 30,
-      "valores": [
-        0, 0, 0, 1340, 1340,
-        0, 0, 0,    0,    0,
-        0, 0
-      ]
+      "descricao": "Emp. Itaú 2",
+      "dataVencimento": "2024-04-30",
+      "valor":1340,
+      "periodicidade": "MENSAL",
+      "categoria": "Custo Fixo"
     },
     {
-      "_id": 14,
-      "despesa": "Impostos",
-      "diaPagamento": 20,
-      "valores": [
-           2500, 2500, 3000,
-        2986.43, 3000, 3000,
-           3000, 3000, 3000,
-           3000, 3000, 3000
-      ]
+      "descricao": "Impostos",
+      "dataVencimento": "2024-04-20",
+      "valor":2500,
+      "periodicidade": "MENSAL",
+      "dataPagamento": "2024-04-20",
+      "categoria": "Custo Fixo"
     },
     {
-      "_id": 15,
-      "despesa": "Papai",
-      "diaPagamento": 20,
-      "valores": [
-          0,   0,   0, 500, 500,
-        500, 500, 500, 500, 500,
-        500, 500
-      ]
+      "descricao": "Papai",
+      "dataVencimento": "2024-04-20",
+      "valor":500,
+      "dataPagamento": "2024-04-20",
+      "periodicidade": "MENSAL",
+      "categoria": "Custo Fixo"
     },
     {
-      "_id": 16,
-      "despesa": "Gael",
-      "diaPagamento": 20,
-      "valores": [
-          0,   0, 864.14,
-        130, 130,    130,
-          0,   0,      0,
-          0,   0,      0
-      ]
+      "descricao": "Gael",
+      "dataVencimento": "2024-02-20",
+      "valor":864.14,
+      "periodicidade": "MENSAL",
+      "categoria": "Custo Fixo"
     }
   ]

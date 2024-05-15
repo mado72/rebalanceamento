@@ -1,137 +1,32 @@
 'use strict';
-
-
-/**
- * Adiciona uma conta
- * Adiciona uma conta ao portifólio
- *
- * body Conta Dados da conta
- * returns Conta
- **/
-exports.adicionarConta = function(body) {
-  return new Promise(function(resolve, reject) {
-    var examples = {};
-    examples['application/json'] = {
-  "moeda" : "REAL",
-  "conta" : "Itaú",
-  "id" : 15,
-  "saldo" : 150.23
-};
-    if (Object.keys(examples).length > 0) {
-      resolve(examples[Object.keys(examples)[0]]);
-    } else {
-      resolve();
-    }
-  });
-}
-
-
-/**
- * Atualiza uma conta
- * Atualiza uma conta identificada pelo seu id
- *
- * body Conta Dados da conta
- * contaId Long Id da conta
- * returns Conta
- **/
-exports.atualizarConta = function(body,contaId) {
-  return new Promise(function(resolve, reject) {
-    var examples = {};
-    examples['application/json'] = {
-  "moeda" : "REAL",
-  "conta" : "Itaú",
-  "id" : 15,
-  "saldo" : 150.23
-};
-    if (Object.keys(examples).length > 0) {
-      resolve(examples[Object.keys(examples)[0]]);
-    } else {
-      resolve();
-    }
-  });
-}
-
-
-/**
- * Obtém uma conta
- * Obtém uma conta identificada pelo seu id
- *
- * contaId Long Id da conta
- * returns Carteira
- **/
-exports.obterConta = function(contaId) {
-  return new Promise(function(resolve, reject) {
-    var examples = {};
-    examples['application/json'] = {
-  "objetivo" : 0.01,
-  "classe" : "ACAO",
-  "moeda" : "REAL",
-  "nome" : "Ações",
-  "id" : 100
-};
-    if (Object.keys(examples).length > 0) {
-      resolve(examples[Object.keys(examples)[0]]);
-    } else {
-      resolve();
-    }
-  });
-}
-
+var Model = require('../models/model');
+var mongoose = require('mongoose');
+const { respondWithCode } = require('../utils/writer');
+const Conta = mongoose.model('conta');
 
 /**
  * Obtém lista de contas do portifólio
  * Recebe um array de Conta
  *
+ * moeda Moeda  (optional)
  * returns List
  **/
-exports.obterContas = function() {
-  return new Promise(function(resolve, reject) {
-    var examples = {};
-    examples['application/json'] = [ {
-  "moeda" : "REAL",
-  "conta" : "Itaú",
-  "id" : 15,
-  "saldo" : 150.23
-}, {
-  "moeda" : "REAL",
-  "conta" : "Itaú",
-  "id" : 15,
-  "saldo" : 150.23
-} ];
-    if (Object.keys(examples).length > 0) {
-      resolve(examples[Object.keys(examples)[0]]);
-    } else {
-      resolve();
-    }
-  });
-}
-
-
-/**
- * Obter contas de uma moeda
- * Retorna array de contas
- *
- * moeda Moeda Moeda a pesquisar
- * returns List
- **/
-exports.obterContasMoeda = function(moeda) {
-  return new Promise(function(resolve, reject) {
-    var examples = {};
-    examples['application/json'] = [ {
-  "moeda" : "REAL",
-  "conta" : "Itaú",
-  "id" : 15,
-  "saldo" : 150.23
-}, {
-  "moeda" : "REAL",
-  "conta" : "Itaú",
-  "id" : 15,
-  "saldo" : 150.23
-} ];
-    if (Object.keys(examples).length > 0) {
-      resolve(examples[Object.keys(examples)[0]]);
-    } else {
-      resolve();
+exports.contaGET = function(moeda, conta) {
+  return new Promise(async (resolve, reject) => {
+    try {
+      var filter = {};
+      if (!!moeda) {
+        filter.moeda = moeda;
+      }
+      if (!!conta) {
+        filter.conta = {
+          conta: new RegExp(conta, 'i')
+        }
+      }
+      var result = await Conta.find(filter);
+      resolve(result);
+    } catch (error) {
+      reject(error);
     }
   });
 }
@@ -144,9 +39,101 @@ exports.obterContasMoeda = function(moeda) {
  * contaId Long Id da conta
  * no response value expected for this operation
  **/
-exports.removerConta = function(contaId) {
-  return new Promise(function(resolve, reject) {
+exports.contaIdDELETE = function(contaId) {
+  return new Promise(async (resolve, reject) => {
+    try {
+      var id = new mongoose.Types.ObjectId(contaId);
+      var result = await Conta.findByIdAndDelete(id);
+      if (!result) {
+        resolve(respondWithCode(404, `Não encontrado ${contaId}`));
+        return;
+      }
+      resolve(result);
+    } catch (error) {
+      reject(error);
+    }
     resolve();
   });
 }
 
+/**
+ * Obtém uma conta
+ * Obtém uma conta identificada pelo seu id
+ *
+ * contaId Long Id da conta
+ * returns Carteira
+ **/
+exports.contaIdGET = function(contaId) {
+  return new Promise(async (resolve, reject) => {
+    try {
+      var id = new mongoose.Types.ObjectId(contaId);
+      var result = await Conta.findById(id);
+      if (!result) {
+        resolve(respondWithCode(404, `Não encontrado ${contaId}`));
+        return;
+      }
+      resolve(result);
+    } catch (error) {
+      reject(error);      
+    }
+  });
+}
+
+/**
+ * Adiciona uma conta
+ * Adiciona uma conta ao portifólio
+ *
+ * body Conta Dados da conta
+ * returns Conta
+ **/
+exports.contaPOST = function(body) {
+  return new Promise(async (resolve, reject) => {
+    try {
+      var conta = new Conta(body);
+      var result = await conta.save();
+      resolve(result);
+    } catch (error) {
+      reject(error);
+    }
+  });
+}
+
+
+/**
+ * Atualiza uma conta
+ * Atualiza uma conta identificada pelo seu id
+ *
+ * returns Conta
+ **/
+exports.contaPUT = function() {
+  return new Promise(async (resolve, reject) => {
+    try {
+      var id = new mongoose.Types.ObjectId(body._id);
+      var result = await Conta.findByIdAndUpdate(id, body);
+      if (!result) {
+        resolve(respondWithCode(404, `Não encontrado ${result}`));
+        return;
+      }
+      resolve(result);
+    } catch (error) {
+      error.code = 422;
+      reject(error);
+    }
+  });
+}
+
+/*
+ * Retorna o saldo total das contas
+ **/
+exports.contasSaldoTotalGET = function() {
+  return new Promise(async (resolve, reject) => {
+    try {
+      var result = await Conta.aggregate([
+        { $group: { _id: null, total: { $sum: "$saldo" } } }
+      ]);
+      resolve(result);
+    } catch (error) {
+      reject(error);
+    }
+  });
+}

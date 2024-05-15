@@ -37,11 +37,20 @@ var writeJson = exports.writeJson = function(response, arg1, arg2) {
   }
   if(typeof payload === 'object') {
     payload = JSON.stringify(payload, null, 2);
-    response.writeHead(code, {'Content-Type': 'application/json'});
+    response.writeHead(code, {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*', 'Access-Control-Allow-Methods': 'GET,POST,PUT,DELETE,OPTIONS'});
   }
   else {
-    response.writeHead(code, {'Content-Type': 'text/plain'});
-
+    response.writeHead(code, {'Content-Type': 'text/plain', 'Access-Control-Allow-Origin': '*', 'Access-Control-Allow-Methods': 'GET,POST,PUT,DELETE,OPTIONS'});
   }
   response.end(payload);
+}
+
+var handleError = exports.handleError = function(res, arg1, status) {
+  var error = {
+    message: arg1.message,
+    stack: arg1.stack
+  }
+  var payload = JSON.stringify(error, null, 2);
+  res.writeHead(status || arg1.code || 400, {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*', 'Access-Control-Allow-Methods': 'GET,POST,PUT,DELETE,OPTIONS'});
+  res.end(payload);
 }

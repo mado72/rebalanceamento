@@ -3,162 +3,126 @@
 var utils = require('../utils/writer.js');
 var Carteira = require('../service/CarteiraService');
 
-module.exports.adicionarAtivo = function adicionarAtivo (req, res, next, body) {
-  Carteira.adicionarAtivo(body)
+module.exports.ativoGET = function ativoGET (req, res, next, classe) {
+  Carteira.ativoGET(classe)
     .then(function (response) {
       utils.writeJson(res, response);
     })
     .catch(function (response) {
-      utils.writeJson(res, response);
+      utils.handleError(res, response);
     });
 };
 
-module.exports.adicionarCarteira = function adicionarCarteira (req, res, next, body) {
-  Carteira.adicionarCarteira(body)
+module.exports.ativoIdDELETE = function ativoIdDELETE (req, res, next, ativoId) {
+  Carteira.ativoIdDELETE(ativoId)
     .then(function (response) {
       utils.writeJson(res, response);
     })
     .catch(function (response) {
-      utils.writeJson(res, response);
+      utils.handleError(res, response);
     });
 };
 
-module.exports.atualizarAtivo = function atualizarAtivo (req, res, next, body, ativoId) {
-  Carteira.atualizarAtivo(body, ativoId)
+module.exports.ativoIdGET = function ativoIdGET (req, res, next, ativoId) {
+  Carteira.ativoIdGET(ativoId)
     .then(function (response) {
       utils.writeJson(res, response);
     })
     .catch(function (response) {
-      utils.writeJson(res, response);
+      utils.handleError(res, response);
     });
 };
 
-module.exports.atualizarCarteira = function atualizarCarteira (req, res, next, body, carteiraId) {
-  Carteira.atualizarCarteira(body, carteiraId)
+module.exports.ativoPOST = function ativoPOST (req, res, next, body) {
+  Carteira.ativoPOST(body)
     .then(function (response) {
       utils.writeJson(res, response);
     })
     .catch(function (response) {
-      utils.writeJson(res, response);
+      utils.handleError(res, response);
     });
 };
 
-module.exports.atualizarCarteiraAtivos = function atualizarCarteiraAtivos (req, res, next, body, carteiraId) {
-  Carteira.atualizarCarteiraAtivos(body, carteiraId)
+module.exports.ativoPUT = function ativoPUT (req, res, next, body) {
+  Carteira.ativoPUT(body)
     .then(function (response) {
       utils.writeJson(res, response);
     })
     .catch(function (response) {
-      utils.writeJson(res, response);
+      utils.handleError(res, response);
     });
 };
 
-module.exports.obterAtivo = function obterAtivo (req, res, next, ativoId) {
-  Carteira.obterAtivo(ativoId)
+module.exports.carteiraGET = function carteiraGET (req, res, next, moeda, classe) {
+  Carteira.carteiraGET(moeda, classe)
     .then(function (response) {
       utils.writeJson(res, response);
     })
     .catch(function (response) {
-      utils.writeJson(res, response);
+      utils.handleError(res, response);
     });
 };
 
-module.exports.obterAtivoPorClasse = function obterAtivoPorClasse (req, res, next, classe) {
-  Carteira.obterAtivoPorClasse(classe)
+module.exports.carteiraIdAlocacaoGET = function carteiraIdAlocacaoGET (req, res, next, carteiraId) {
+  Carteira.carteiraIdAlocacaoGET(carteiraId)
     .then(function (response) {
       utils.writeJson(res, response);
     })
     .catch(function (response) {
-      utils.writeJson(res, response);
+      utils.handleError(res, response);
     });
 };
 
-module.exports.obterAtivos = function obterAtivos (req, res, next) {
-  Carteira.obterAtivos()
+module.exports.carteiraIdAlocacaoPOST = function carteiraIdAlocacaoPOST (req, res, next, body, carteiraId) {
+  if (!carteiraId && typeof body === 'string') {
+    carteiraId = body;
+    body = req.body;
+  }
+  Carteira.carteiraIdAlocacaoPOST(body, carteiraId)
     .then(function (response) {
       utils.writeJson(res, response);
     })
     .catch(function (response) {
-      utils.writeJson(res, response);
+      utils.handleError(res, response);
     });
 };
 
-module.exports.obterCarteira = function obterCarteira (req, res, next, carteiraId) {
-  Carteira.obterCarteira(carteiraId)
+module.exports.carteiraIdDELETE = function carteiraIdDELETE (req, res, next, carteiraId) {
+  Carteira.carteiraIdDELETE(carteiraId)
     .then(function (response) {
       utils.writeJson(res, response);
     })
     .catch(function (response) {
-      utils.writeJson(res, response);
+      utils.handleError(res, response);
     });
 };
 
-module.exports.obterCarteiraAtivos = function obterCarteiraAtivos (req, res, next, carteiraId) {
-  Carteira.obterCarteiraAtivos(carteiraId)
+module.exports.carteiraIdGET = function carteiraIdGET (req, res, next, carteiraId) {
+  Carteira.carteiraIdGET(carteiraId)
     .then(function (response) {
       utils.writeJson(res, response);
     })
     .catch(function (response) {
-      utils.writeJson(res, response);
+      utils.handleError(res, response);
     });
 };
 
-module.exports.obterCarteiras = function obterCarteiras (req, res, next) {
-  Carteira.obterCarteiras()
+module.exports.carteiraPOST = function carteiraPOST (req, res, next, body) {
+  Carteira.carteiraPOST(body)
     .then(function (response) {
       utils.writeJson(res, response);
     })
     .catch(function (response) {
-      utils.writeJson(res, response);
+      utils.handleError(res, response);
     });
 };
 
-module.exports.obterCarteirasClasse = function obterCarteirasClasse (req, res, next, classe) {
-  Carteira.obterCarteirasClasse(classe)
+module.exports.carteiraPUT = function carteiraPUT (req, res, next, body) {
+  Carteira.carteiraPUT(body)
     .then(function (response) {
       utils.writeJson(res, response);
     })
     .catch(function (response) {
-      utils.writeJson(res, response);
-    });
-};
-
-module.exports.obterCarteirasClasseMoeda = function obterCarteirasClasseMoeda (req, res, next, classe, moeda) {
-  Carteira.obterCarteirasClasseMoeda(classe, moeda)
-    .then(function (response) {
-      utils.writeJson(res, response);
-    })
-    .catch(function (response) {
-      utils.writeJson(res, response);
-    });
-};
-
-module.exports.obterCarteirasMoeda = function obterCarteirasMoeda (req, res, next, moeda) {
-  Carteira.obterCarteirasMoeda(moeda)
-    .then(function (response) {
-      utils.writeJson(res, response);
-    })
-    .catch(function (response) {
-      utils.writeJson(res, response);
-    });
-};
-
-module.exports.removerAtivo = function removerAtivo (req, res, next, ativoId) {
-  Carteira.removerAtivo(ativoId)
-    .then(function (response) {
-      utils.writeJson(res, response);
-    })
-    .catch(function (response) {
-      utils.writeJson(res, response);
-    });
-};
-
-module.exports.removerCarteira = function removerCarteira (req, res, next, carteiraId) {
-  Carteira.removerCarteira(carteiraId)
-    .then(function (response) {
-      utils.writeJson(res, response);
-    })
-    .catch(function (response) {
-      utils.writeJson(res, response);
+      utils.handleError(res, response);
     });
 };
