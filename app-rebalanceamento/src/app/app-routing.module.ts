@@ -27,6 +27,9 @@ const routes: Routes = [{
 },{
   path: 'patrimonio',
   loadChildren: () => import('./patrimonio/patrimonio.module').then(m => m.PatrimonioModule)
+},{
+  path: 'calendario',
+  loadChildren: () => import('./calendario/calendario.module').then(m => m.CalendarioModule)
 }];
 
 @NgModule({

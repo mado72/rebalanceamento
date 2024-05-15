@@ -1,0 +1,56 @@
+.celula {
+    color: #bbb;
+    background-color: #efefef;
+    min-height: 10vh;
+
+    display: flex;
+    flex-flow: column;
+    height: 100%;
+    
+    .topo {
+      flex: 0 1 auto;
+      border-bottom: 1px dotted #ddd;
+    }
+    .meio {
+      flex: 1 1 auto;
+    }
+    .base {
+      flex: 0 1 auto;
+    }
+}
+.dataSelecionada {
+    background-color: white !important;
+    border: 1px solid #ffc107;
+    box-shadow: #ffc107 0px 0px 0px 0px, rgba(223, 167, 2, 0.3) 4px 4px 8px 0px inset !important
+}
+.diaCorrente {
+    background-color: white !important;
+    .topo {
+        font-weight: bold;
+    }
+}
+.mesCorrente {
+    color: black;
+    background-color: #fafafa;
+}
+.led {
+    width: 14px;
+    height: 14px;
+    display: inline-block;
+    margin-right: 2px;
+    border-radius: 50%;
+    background-color: #BCBCBC;
+    box-shadow: rgba(0, 0, 0, 0.2) 0 -1px 7px 1px, inset #304701 0 -1px 3px;
+}
+
+.led-green {
+    background-color: #ABFF00;
+}
+
+.led-yellow {
+    background-color: #FF0;
+}
+
+.led-red {
+    background-color: #F00;
+}
