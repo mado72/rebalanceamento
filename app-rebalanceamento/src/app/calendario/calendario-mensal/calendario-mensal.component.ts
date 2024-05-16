@@ -1,6 +1,13 @@
 import { Component, EventEmitter, Input, Output } from '@angular/core';
-import { addDays, addMonths, endOfMonth, getDate, getDay, isSameDay, startOfMonth } from 'date-fns';
+import { addDays, addMonths, endOfMonth, getDate, getDay, isSameDay, isSameMonth, isWithinInterval, startOfMonth } from 'date-fns';
 import { Evento } from '../calendario.model';
+
+interface CelConfig {
+  mesCorrente: boolean;
+  fundo: string;
+  eventos: Evento[];
+  data: Date;
+}
 
 @Component({
   selector: 'app-calendario-mensal',
@@ -17,19 +24,7 @@ export class CalendarioMensalComponent {
 
   @Output() dataClicked = new EventEmitter<Date>();
 
-  constructor() {
-    const colors = ['red','black','blue','green','yellow'];
-    const now = new Date();
-
-    for (let i = 0; i < 100; i++) {
-      this.eventos.push({
-        data: addDays(now, Math.random() * 30 - 15),
-        titulo: `Evento ${i+1}`,
-        descricao: `Descrição do evento ${i}`,
-        cor:colors[Math.trunc(Math.random() * colors.length)],
-      })
-    }
-  }
+  constructor() { }
 
   get primeiroDiaMes() {
     return getDay(this.primeiraDataMes);
@@ -43,10 +38,6 @@ export class CalendarioMensalComponent {
     return endOfMonth(this.dataSelecionada);
   }
 
-  get diasNoMes() {
-    return getDate(endOfMonth(this.dataSelecionada));
-  }
-
   mesAnterior() {
     this.dataSelecionada = addMonths(this.dataSelecionada, -1);
   }
@@ -55,14 +46,30 @@ export class CalendarioMensalComponent {
     this.dataSelecionada = addMonths(this.dataSelecionada, 1);
   }
 
-  getData(linha: number, coluna: number): Date {
-    const mes = this.dataSelecionada.getMonth();
-    const ano = this.dataSelecionada.getFullYear();
-    return new Date(ano, mes, (linha * 7) + coluna - this.primeiroDiaMes + 1);
+  get celulas() : CelConfig[][] {
+    console.log(`CelConfig`);
+    const celulas = new Array(6);
+    for (let iLinha = 0; iLinha < 6; iLinha++) {
+      celulas[iLinha] = new Array(7);
+      for (let iColuna = 0; iColuna < 7; iColuna++) {
+        celulas[iLinha][iColuna] = this.obterCelConfig(iLinha, iColuna);
+      }
+    }
+    return celulas;
   }
 
-  getEventos(linha: number, coluna: number) {
-    return this.eventos.filter(e => isSameDay(e.data, this.getData(linha, coluna)));
+  obterCelConfig(linha: number, coluna: number): CelConfig {
+    const mes = this.dataSelecionada.getMonth();
+    const ano = this.dataSelecionada.getFullYear();
+    const dataCelula = new Date(ano, mes, (linha * 7) + coluna - this.primeiroDiaMes + 1);
+    const dataNoMesCorrente = isSameMonth(this.dataSelecionada, dataCelula);
+
+    return {
+      mesCorrente: dataNoMesCorrente,
+      fundo: dataNoMesCorrente ? 'white' : 'lightgray',
+      eventos: this.eventos.filter(e => isSameDay(e.data, dataCelula)),
+      data: dataCelula
+    }
   }
 
   eventoClick(evento:Evento) {

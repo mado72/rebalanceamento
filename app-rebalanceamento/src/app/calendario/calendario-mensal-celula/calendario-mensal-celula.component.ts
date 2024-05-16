@@ -1,5 +1,5 @@
 import { Component, EventEmitter, Input, Output } from '@angular/core';
-import { getDate, isSameDay, isWithinInterval } from 'date-fns';
+import { getDate, getDay, isSameDay, isWithinInterval } from 'date-fns';
 import { Evento } from '../calendario.model';
 
 @Component({
@@ -19,6 +19,8 @@ export class CalendarioMensalCelulaComponent {
 
   @Input() eventos: Evento[] = [];
 
+  @Input() mesCorrente = false;
+
   @Output() eventoClicked = new EventEmitter<Evento>();
 
   constructor() { 
@@ -32,8 +34,8 @@ export class CalendarioMensalCelulaComponent {
     return isSameDay(this.data, new Date());
   }
 
-  get diaNoMesCorrente() {
-    return isWithinInterval(this.data, {start: this.primeiraDataMes, end: this.ultimaDataMes});
+  get diaSemana() {
+    return getDay(this.data)
   }
 
   get dia() {

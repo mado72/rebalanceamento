@@ -3,21 +3,22 @@
 <button class="btn btn-primary" (click)="mesPosterior()">Posterior</button>
 
 <table class="table table-bordered">
-    <thead>
+    <thead class="table-dark">
         <tr>
             <td class="text-center" *ngFor="let dia of ['Dom','Seg','Ter','Qua','Qui','Sex','Sáb']; let i = index">{{dia}}</td>
         </tr>
     </thead>
     <tbody>
-        <tr *ngFor="let linha of [].constructor(6); let iLinha = index">
-            <td *ngFor="let dia of [].constructor(7); let iColuna = index" class="p-0 m-0">
-                <div class="data" (click)="dataClick(getData(iLinha, iColuna))">
+        <tr *ngFor="let linha of celulas; let iLinha = index" class="cell-row">
+            <td *ngFor="let celula of linha; let iColuna = index" class="p-0 m-0" [ngClass]="{'mes-corrente': celula.mesCorrente}">
+                <div class="data" (click)="dataClick(celula.data)">
                     <app-calendario-mensal-celula
                         [dataSelecionada]="dataSelecionada"
-                        [data]="getData(iLinha, iColuna)"
+                        [data]="celula.data"
                         [primeiraDataMes]="primeiraDataMes"
                         [ultimaDataMes]="ultimaDataMes"
-                        [eventos]="getEventos(iLinha, iColuna)"
+                        [eventos]="celula.eventos"
+                        [mesCorrente]="celula.mesCorrente"
                         (eventoClicked)="eventoClick($event)"
                     />
                 </div>
