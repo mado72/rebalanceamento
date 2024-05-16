@@ -1,0 +1,99 @@
+.celula {
+    min-height: 10vh;
+    display: flex;
+    flex-flow: column;
+    height: 100%;
+
+    .topo {
+        flex: 0 1 auto;
+        border-bottom: 1px dotted #ddd;
+    }
+
+    .meio {
+        flex: 1 1 auto;
+    }
+
+    .base {
+        flex: 0 1 auto;
+    }
+
+    &:hover {
+        background-color: #ededed;
+    }
+}
+
+.cell-badge {
+    background-color: #b94a48;
+    color: #fff;
+    padding: 3px 7px;
+    text-align: center;
+    white-space: nowrap;
+    vertical-align: middle;
+    border-radius: 10px;
+    font-size: 10px;
+    float: right;
+}
+
+.dataSelecionada {
+    background-color: white !important;
+    border: 1px solid #ffc107;
+    box-shadow: #ffc107 0px 0px 0px 0px, rgba(223, 167, 2, 0.3) 4px 4px 8px 0px inset !important;
+}
+
+.mes-corrente .tip:hover {
+    .tiptext {
+        visibility: visible;
+    }
+}
+
+.diaCorrente {
+    background-color: rgb(250, 246, 175) !important;
+
+    .topo {
+        font-weight: bold;
+    }
+}
+
+.led {
+    width: 14px;
+    height: 14px;
+    display: inline-block;
+    margin-right: 2px;
+    border-radius: 50%;
+    background-color: #BCBCBC;
+    box-shadow: rgba(0, 0, 0, 0.2) 0 -1px 7px 1px, inset #304701 0 -1px 3px;
+}
+
+.tip {
+    position: relative;
+    display: inline-block;
+    // border-bottom: 1px dotted #000;
+    
+    .tiptext {
+        top:8px;
+        visibility: hidden;
+        min-width: 160px;
+        background-color: black;
+        color: #fff;
+        border-radius: 6px;
+        padding: 5px 0;
+
+        /* Position the tip */
+        position: absolute;
+        z-index: 1;
+    }
+
+    .tiptext-left {
+        left:5px;
+    }
+
+    .tiptext-right {
+        right: 5px;
+    }
+
+    &:hover {
+        .tiptext {
+            visibility: hidden;
+        }
+    }
+}

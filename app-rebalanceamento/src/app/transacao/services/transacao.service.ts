@@ -118,6 +118,7 @@ export class TransacaoService {
         novaTransacao.dataInicial = novoVencimento;
         novaTransacao._id = undefined;
         novaTransacao.dataLiquidacao = undefined;
+        novaTransacao.origem = transacao._id;
         return novaTransacao;
       }
     }

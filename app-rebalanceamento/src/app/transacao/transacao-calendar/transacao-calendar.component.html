@@ -4,102 +4,29 @@
   <div class="row text-center">
       <div class="col-md-4">
         <div class="btn-group">
-          <div
-            class="btn btn-primary"
-            mwlCalendarPreviousView
-            [view]="view"
-            [(viewDate)]="viewDate"
-            (viewDateChange)="closeOpenMonthViewDay()"
-          >
-            Previous
-          </div>
-          <div
-            class="btn btn-outline-secondary"
-            mwlCalendarToday
-            [(viewDate)]="viewDate"
-          >
-            Today
-          </div>
-          <div
-            class="btn btn-primary"
-            mwlCalendarNextView
-            [view]="view"
-            [(viewDate)]="viewDate"
-            (viewDateChange)="closeOpenMonthViewDay()"
-          >
-            Next
-          </div>
+          <div class="btn btn-primary" (click)="mesAnterior()">Anterior</div>
+          <div class="btn btn-outline-secondary" (click)="hoje()">Hoje</div>
+          <div class="btn btn-primary" (click)="mesPosterior()">Posterior</div>
         </div>
       </div>
       <div class="col-md-4">
-        <h3>{{ viewDate | calendarDate:(view + 'ViewTitle'):'pt' }}</h3>
-      </div>
-      <div class="col-md-4">
-        <div class="btn-group">
-          <div
-            class="btn btn-primary"
-            (click)="setView(CalendarView.Month)"
-            [class.active]="view === CalendarView.Month"
-          >
-            Month
-          </div>
-          <div
-            class="btn btn-primary"
-            (click)="setView(CalendarView.Week)"
-            [class.active]="view === CalendarView.Week"
-          >
-            Week
-          </div>
-          <div
-            class="btn btn-primary"
-            (click)="setView(CalendarView.Day)"
-            [class.active]="view === CalendarView.Day"
-          >
-            Day
-          </div>
-        </div>
+        <h3>{{ viewDate | date:'MMMM / yyyy' }}</h3>
       </div>
     </div>
     <br />
-    <div [ngSwitch]="view">
-      <mwl-calendar-month-view
-        *ngSwitchCase="CalendarView.Month"
-        [viewDate]="viewDate"
-        [events]="events"
-        [refresh]="refresh"
-        [activeDayIsOpen]="activeDayIsOpen"
-        (dayClicked)="dayClicked($event.day)"
-        (eventClicked)="handleEvent('Clicked', $event.event)"
-        (eventTimesChanged)="eventTimesChanged($event)"
-      >
-      </mwl-calendar-month-view>
-      <mwl-calendar-week-view
-        *ngSwitchCase="CalendarView.Week"
-        [viewDate]="viewDate"
-        [events]="events"
-        [refresh]="refresh"
-        (eventClicked)="handleEvent('Clicked', $event.event)"
-        (eventTimesChanged)="eventTimesChanged($event)"
-      >
-      </mwl-calendar-week-view>
-      <mwl-calendar-day-view
-        *ngSwitchCase="CalendarView.Day"
-        [viewDate]="viewDate"
-        [events]="events"
-        [refresh]="refresh"
-        (eventClicked)="handleEvent('Clicked', $event.event)"
-        (eventTimesChanged)="eventTimesChanged($event)"
-      >
-      </mwl-calendar-day-view>
-    </div>
+    
+    <app-calendario-mensal
+      [eventos]="eventos"
+      [(dataSelecionada)]="viewDate"
+      (eventoClicked)="handleEvent($event)" />
     
     <!-- Everything you see below is just for the demo, you don't need to include it in your app -->
     
     <br /><br /><br />
     <pre>
       {{viewDate | date:'yyyy-MM-dd'}}
-      {{events.length}}
-      {{events | json}}
+      {{eventos.length}}
+      {{eventos | json}}
     </pre>
     <ng-template #modalContent let-close="close">
       <div class="modal-header">
@@ -110,12 +37,8 @@
       </div>
       <div class="modal-body">
         <div>
-          Action:
-          <pre>{{ modalData.action }}</pre>
-        </div>
-        <div>
           Event:
-          <pre>{{ modalData.event | json }}</pre>
+          <pre>{{ modalData.evento | json }}</pre>
         </div>
       </div>
       <div class="modal-footer">

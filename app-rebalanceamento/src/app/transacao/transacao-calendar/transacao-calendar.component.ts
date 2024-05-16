@@ -5,24 +5,17 @@ import {
   ViewChild
 } from '@angular/core';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
-import {
-  CalendarEvent,
-  CalendarEventAction,
-  CalendarEventTimesChangedEvent,
-  CalendarView,
-} from 'angular-calendar';
 import { EventColor } from 'calendar-utils';
 import {
-  endOfDay,
+  addMonths,
   endOfMonth,
   format,
   getTime,
-  isSameDay,
-  isSameMonth,
   startOfDay
 } from 'date-fns';
 import { DateTime } from 'luxon';
 import { Subject, map, mergeAll } from 'rxjs';
+import { Evento } from 'src/app/calendario/calendario.model';
 import { AlertService } from 'src/app/services/alert.service';
 import { Mes, TipoTransacao, TransacaoImpl } from 'src/app/transacao/models/transacao.model';
 import { TransacaoService } from '../services/transacao.service';
@@ -63,38 +56,13 @@ export class TransacaoCalendarComponent implements OnInit {
 
   @ViewChild('modalContent', { static: true }) modalContent!: TemplateRef<any>;
 
-  view: CalendarView = CalendarView.Month;
-
-  CalendarView = CalendarView;
-
   modalData!: {
-    action: string;
-    event: CalendarEvent;
+    evento: Evento;
   };
 
-  actions: CalendarEventAction[] = [
-    {
-      label: '<i class="fas fa-fw fa-pencil-alt"></i>',
-      a11yLabel: 'Edit',
-      onClick: ({ event }: { event: CalendarEvent }): void => {
-        this.handleEvent('Edited', event);
-      },
-    },
-    {
-      label: '<i class="fas fa-fw fa-trash-alt"></i>',
-      a11yLabel: 'Delete',
-      onClick: ({ event }: { event: CalendarEvent }): void => {
-        this.events = this.events.filter((iEvent) => iEvent !== event);
-        this.handleEvent('Deleted', event);
-      },
-    },
-  ];
+  eventos: Evento[] = [];
 
   refresh = new Subject<void>();
-
-  events: CalendarEvent[] = [];
-
-  activeDayIsOpen: boolean = true;
 
   _viewDate: Date = new Date();
 
@@ -103,6 +71,18 @@ export class TransacaoCalendarComponent implements OnInit {
     private _alertService: AlertService,
     private _transacaoService: TransacaoService,
   ) {}
+
+  mesAnterior() {
+    this.viewDate = addMonths(this.viewDate, -1);
+  }
+
+  mesPosterior() {
+    this.viewDate = addMonths(this.viewDate, 1);
+  }
+
+  hoje() {
+    this.viewDate = new Date();
+  }
 
   get viewDate() {
     return this._viewDate;
@@ -123,7 +103,7 @@ export class TransacaoCalendarComponent implements OnInit {
   obterEventos() {
     console.log(`Obter eventos...`);
     const ateData = endOfMonth(this.viewDate);
-    this.events.splice(0);
+    this.eventos.splice(0);
     this._transacaoService.obterTransacoes()
       .pipe(
         mergeAll(),
@@ -133,7 +113,7 @@ export class TransacaoCalendarComponent implements OnInit {
       )
       .subscribe({
         next: (evento) => {
-          this.events.push(evento);
+          this.eventos.push(evento);
           const transacao = evento.meta;
           console.log(`transacao: ${transacao._id}, ${transacao.descricao}, ${format(transacao.dataInicial, 'yyyy-MM-dd')}, ${transacao.dataLiquidacao && format(transacao.dataLiquidacao, 'yyyy-MM-dd')}`);
         },
@@ -151,89 +131,43 @@ export class TransacaoCalendarComponent implements OnInit {
     return this.meses[DateTime.fromJSDate(this.viewDate).month-1];
   }
 
-  converterParaEvento(transacao: TransacaoImpl) : CalendarEvent {
+  converterParaEvento(transacao: TransacaoImpl) : Evento {
     const color : ColorType = 
         transacao.tipoTransacao == TipoTransacao.DEBITO 
             ? !! transacao.dataLiquidacao ? 'green' : !! transacao._id ? 'red' : 'yellow'
             : !! transacao.dataLiquidacao ? 'blue' : !! transacao._id ? 'purple' : 'yellow' ;
     return {
-      start: transacao.dataLiquidacao || transacao.dataInicial,
-      title: transacao.descricao,
-      color: colors[color],
+      data: transacao.dataLiquidacao || transacao.dataInicial,
+      titulo: transacao.descricao,
+      descricao: transacao.descricao,
+      cor: colors[color].primary,
       meta: transacao
     }
   }
 
-  dayClicked({ date, events }: { date: Date; events: CalendarEvent[] }): void {
-    console.log('dayClicked');
-    if (isSameMonth(date, this.viewDate)) {
-      if (
-        (isSameDay(this.viewDate, date) && this.activeDayIsOpen === true) ||
-        events.length === 0
-      ) {
-        this.activeDayIsOpen = false;
-      } else {
-        this.activeDayIsOpen = true;
-      }
-      this.viewDate = date;
-      console.log(this.viewDate);
-    }
-  }
-
-  eventTimesChanged({
-    event,
-    newStart,
-    newEnd,
-  }: CalendarEventTimesChangedEvent): void {
-    this.events = this.events.map((iEvent) => {
-      if (iEvent === event) {
-        return {
-          ...event,
-          start: newStart,
-          end: newEnd,
-        };
-      }
-      return iEvent;
-    });
-    this.handleEvent('Dropped or resized', event);
-  }
-
-  handleEvent(action: string, event: CalendarEvent): void {
-    this.modalData = { event, action };
+  handleEvent(evento: Evento): void {
+    this.modalData = { evento };
     this._modalService.open(this.modalContent, { size: 'lg' });
   }
 
   addEvent(): void {
-    this.events = [
-      ...this.events,
+    this.eventos = [
+      ...this.eventos,
       {
-        title: 'New event',
-        start: startOfDay(new Date()),
-        end: endOfDay(new Date()),
-        color: colors['red'],
-        draggable: true,
-        resizable: {
-          beforeStart: true,
-          afterEnd: true,
-        },
+        titulo: 'Nova transação',
+        data: startOfDay(new Date()),
+        cor: colors['red'].primary,
+        meta: new TransacaoImpl({})
       },
     ];
   }
 
-  deleteEvent(eventToDelete: CalendarEvent) {
-    this.events = this.events.filter((event) => event !== eventToDelete);
-  }
-
-  setView(view: CalendarView) {
-    this.view = view;
-  }
-
-  closeOpenMonthViewDay() {
-    this.activeDayIsOpen = false;
+  deleteEvent(eventToDelete: Evento) {
+    this.eventos = this.eventos.filter((event) => event !== eventToDelete);
   }
 
   editar() {
-    this._transacaoService.editarTransacao(this.modalData.event.meta, 'Editar despesa').subscribe(()=>{
+    this._transacaoService.editarTransacao(this.modalData.evento.meta, 'Editar despesa').subscribe(()=>{
       this.obterEventos();
     })
   }

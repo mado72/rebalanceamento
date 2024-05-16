@@ -1,0 +1,20 @@
+.cell-row {
+    &:hover td.mes-corrente{
+        background-color: #fafafa;
+    }
+    
+    td {
+        width: calc(100%/7) !important;
+        background-color: #aaa;
+        opacity: 0.5;
+    
+        &.mes-corrente {
+            background-color: white;
+            opacity: 1;
+        }
+    }
+}
+
+:host ::ng-deep child.mesCorrente{
+    color: red;
+}
