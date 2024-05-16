@@ -18,11 +18,11 @@ export class CalendarioMensalComponent {
 
   @Input() dataSelecionada = new Date();
 
+  @Output() dataSelecionadaChange = new EventEmitter<Date>();
+
   @Input() eventos: Evento[] = [];
 
   @Output() eventoClicked = new EventEmitter<Evento>();
-
-  @Output() dataClicked = new EventEmitter<Date>();
 
   constructor() { }
 
@@ -70,7 +70,7 @@ export class CalendarioMensalComponent {
 
   dataClick(data: Date) {
     this.dataSelecionada = data;
-    this.dataClicked.emit(data);
+    this.dataSelecionadaChange.emit(data);
     console.log(data);
   }
 

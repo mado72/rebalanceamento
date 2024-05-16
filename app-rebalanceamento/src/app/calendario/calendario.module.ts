@@ -16,6 +16,9 @@ import { LedComponent } from '../util/led/led.component';
     CommonModule,
     CalendarioRoutingModule,
     LedComponent
+  ],
+  exports: [
+    CalendarioMensalComponent
   ]
 })
 export class CalendarioModule { }
