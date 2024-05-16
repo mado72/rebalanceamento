@@ -38,14 +38,6 @@ export class CalendarioMensalComponent {
     return endOfMonth(this.dataSelecionada);
   }
 
-  mesAnterior() {
-    this.dataSelecionada = addMonths(this.dataSelecionada, -1);
-  }
-
-  mesPosterior() {
-    this.dataSelecionada = addMonths(this.dataSelecionada, 1);
-  }
-
   get celulas() : CelConfig[][] {
     console.log(`CelConfig`);
     const celulas = new Array(6);
