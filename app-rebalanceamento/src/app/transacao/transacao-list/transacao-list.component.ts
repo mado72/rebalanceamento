@@ -60,12 +60,13 @@ export class TransacaoListComponent {
   }
   
   private obterTransacoes() {
-    const ateData = endOfYear(new Date())
+    const ateData = endOfYear(new Date());
+    const iniData = startOfYear(ateData);
     this.lancamentos = {};
 
     this._transacaoService.obterTransacoes().subscribe(transacoes => {
       this.transacoes = transacoes.flatMap(transacao => {
-        const projecao = transacao.programacaoTransacoes(ateData);
+        const projecao = transacao.programacaoTransacoes({inicio: iniData, fim: ateData});
         projecao.push(transacao);
         return projecao;
       });

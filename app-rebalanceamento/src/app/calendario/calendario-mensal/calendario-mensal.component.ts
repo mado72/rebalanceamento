@@ -20,11 +20,30 @@ export class CalendarioMensalComponent {
 
   @Output() dataSelecionadaChange = new EventEmitter<Date>();
 
-  @Input() eventos: Evento[] = [];
+  private _eventos: Evento[] = [];
+
+  private _celulas: CelConfig[][] = [];
 
   @Output() eventoClicked = new EventEmitter<Evento>();
 
   constructor() { }
+
+  get eventos() {
+    return this._eventos;
+  }
+
+  @Input() set eventos(eventos: Evento[]) {
+    this._eventos = eventos;
+    console.log(`CelConfig`);
+    const celulas = new Array(6);
+    for (let iLinha = 0; iLinha < 6; iLinha++) {
+      celulas[iLinha] = new Array(7);
+      for (let iColuna = 0; iColuna < 7; iColuna++) {
+        celulas[iLinha][iColuna] = this.obterCelConfig(iLinha, iColuna);
+      }
+    }
+    this._celulas = celulas;
+  }
 
   get primeiroDiaMes() {
     return getDay(this.primeiraDataMes);
@@ -39,15 +58,7 @@ export class CalendarioMensalComponent {
   }
 
   get celulas() : CelConfig[][] {
-    console.log(`CelConfig`);
-    const celulas = new Array(6);
-    for (let iLinha = 0; iLinha < 6; iLinha++) {
-      celulas[iLinha] = new Array(7);
-      for (let iColuna = 0; iColuna < 7; iColuna++) {
-        celulas[iLinha][iColuna] = this.obterCelConfig(iLinha, iColuna);
-      }
-    }
-    return celulas;
+    return this._celulas;
   }
 
   obterCelConfig(linha: number, coluna: number): CelConfig {

@@ -2,7 +2,7 @@ import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { addDays, addMonths, addYears, getTime } from 'date-fns';
-import { Observable, Observer, catchError, map } from 'rxjs';
+import { Observable, Observer, catchError, map, of } from 'rxjs';
 import { AlertService } from 'src/app/services/alert.service';
 import { ITransacao, Periodicidade, TransacaoImpl } from 'src/app/transacao/models/transacao.model';
 import { formatRequestDate } from 'src/app/util/date-formatter.util';
@@ -95,6 +95,26 @@ export class TransacaoService {
       )
   }
 
+  obterTransacoesIntervalo({ inicio, fim }: { inicio: Date; fim: Date; }): Observable<TransacaoImpl[]> {
+    console.log(inicio);
+    console.log(fim);
+    const ob = new Observable<TransacaoImpl[]>((observer: Observer<TransacaoImpl[]>)=>{
+      this.obterTransacoes()
+        .pipe(
+          map(transacoes => {
+            return transacoes.flatMap(transacao => {
+              return transacao.programacaoTransacoes({inicio, fim});
+            })
+          }),
+          catchError(error => {
+            throw new Error(error);
+          })
+        )
+        .subscribe(observer);
+    });
+    return ob;
+  }
+
   /**
    * Verifica se a próxima transacao deve ser criada com base na data de vencimento e data de pagamento atuais da transacao atual.
    *
@@ -144,32 +164,31 @@ export class TransacaoService {
       };
 
       if (!transacao._id) {
-        this.adicionarTransacao(transacao.entity).subscribe({
+        const entity = transacao.entity;
+        delete entity.dataFinal;
+        entity.origem = transacao._id || transacao.origem;
+        this.adicionarTransacao(entity).subscribe({
           next: entity => {
             observer.next(entity);
             this._alertService.alert({mensagem: 'Transacao cadastrada com sucesso!', titulo: 'Resultado da operação', tipo:'sucesso'});
           },
-          error,
-          complete: observer.complete
+          error: (error)=>observer.error(error),
+          complete: ()=>observer.complete()
         });
       }
       else {
+        if (!! transacao.dataFinal && !! transacao.dataLiquidacao) {// então é ocorrência com pagamento
+          const proxima = transacao.proxima;
+          if (!! proxima) {
+            proxima.dataFinal = undefined;
+            this.salvarTransacao(proxima).subscribe(observer);
+          }
+        }
+
         this.atualizarTransacao(transacao.entity).subscribe({
           next: () => {
             observer.next(transacao);
             this._alertService.alert({mensagem: 'Transacao atualizada com sucesso!', titulo: 'Resultado da operação', tipo:'sucesso'});
-            const proxima = transacao.proxima;
-            if (!!proxima && !! transacao.dataLiquidacao) {
-              this.adicionarTransacao(proxima.entity).subscribe((nova)=>{
-                observer.next(nova);
-                this._alertService.alert({
-                  mensagem: 'Transacao gerada com sucesso!', 
-                  titulo: 'Resultado da operação', 
-                  tipo:'sucesso'});
-                observer.complete();
-              })
-              return;
-            }
             observer.complete();
           },
           error

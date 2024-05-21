@@ -1,6 +1,6 @@
 import { DateTime } from "luxon";
 import { Conta } from "../../conta/model/conta.model";
-import { addDays, addMonths, addYears, format, getMonth, getTime, parse, startOfDay } from "date-fns";
+import { addDays, addMonths, addYears, format, getMonth, getTime, isAfter, isBefore, isSameDay, parse, startOfDay } from "date-fns";
 
 export enum Periodicidade {
     UNICO = "UNICO",
@@ -89,6 +89,14 @@ export class TransacaoImpl implements ITransacao {
         return DateTime.fromISO(d).toJSDate();
     }
 
+    get liquidada() {
+        return !!this.dataLiquidacao;
+    }
+
+    get possuiOcorrencias() {
+        return !this.liquidada && !!this.dataFinal && isAfter(this.dataFinal, this.dataInicial)
+    }
+
     public programacaoDatas(ateData: Date) {
         const datas = new Array<Date>();
         let dataFinalPeriodo = DateTime.fromJSDate(ateData).endOf("day");
@@ -124,22 +132,36 @@ export class TransacaoImpl implements ITransacao {
         return datas;
     }
 
-    public programacaoTransacoes(ateData: Date) {
-        const datas = this.programacaoDatas(ateData);
-        const despesas = datas.filter(data => getTime(data) != getTime(this.dataInicial)).map(data => {
-            let d = new TransacaoImpl(this);
-            d.dataInicial = data;
-            d._id = undefined;
-            d.dataLiquidacao = undefined;
-            d.origem = this._id;
-            return d;
-        });
-        despesas.push(this);
-        despesas.sort((a, b) => a.dataInicial.getTime() - b.dataInicial.getTime());
-        return despesas;
+    public programacaoTransacoes({ inicio, fim }: { inicio: Date, fim: Date }) {
+        let transacoes : TransacaoImpl[] = [];
+
+        if (! this.dataLiquidacao) {
+            let datas = this.programacaoDatas(fim);
+    
+            if (inicio !== undefined) {
+                const dtInicio = addDays(inicio, -1) as Date;
+                datas = datas.filter(data => isSameDay(data, dtInicio) || isSameDay(data, fim) || (isAfter(data, dtInicio) && isBefore(data, fim)));
+            }
+    
+            transacoes = datas.filter(data => !isSameDay(data, this.dataInicial))
+                .map(data => {
+                    let d = new TransacaoImpl(this);
+                    d.dataInicial = data;
+                    delete d._id;
+                    // delete d.dataFinal;
+                    delete d.dataLiquidacao;
+                    d.origem = this._id;
+                    return d;
+                });
+        }
+
+        transacoes.push(this);
+        return transacoes
+            .filter(transacao => isSameDay(transacao.dataInicial, inicio) || isSameDay(transacao.dataInicial, fim) || (isAfter(transacao.dataInicial, inicio) && isBefore(transacao.dataInicial, fim)))
+            .sort((a, b) => a.dataInicial.getTime() - b.dataInicial.getTime());
     }
 
-    get proxima() : TransacaoImpl | undefined {
+    get proxima(): TransacaoImpl | undefined {
         const proxima = new TransacaoImpl(this);
         switch (proxima.periodicidade) {
             case Periodicidade.ANUAL:
@@ -160,8 +182,8 @@ export class TransacaoImpl implements ITransacao {
             case Periodicidade.SEMANAL:
                 proxima.dataInicial = addDays(this.dataInicial, 7);
                 break;
-                case Periodicidade.UNICO:
-                    return undefined;
+            case Periodicidade.UNICO:
+                return undefined;
         }
         proxima.dataLiquidacao = undefined;
         proxima._id = undefined;
@@ -173,10 +195,10 @@ export class TransacaoImpl implements ITransacao {
         if (entity.dataFinal === undefined) entity.dataFinal = null;
         if (entity.dataInicial === undefined) entity.dataInicial = null; else entity.dataVencimento = entity.dataInicial;
         if (entity.dataLiquidacao === undefined) {
-          entity.dataPagamento = null;
+            entity.dataPagamento = null;
         }
         else {
-          entity.dataPagamento = entity.dataLiquidacao;
+            entity.dataPagamento = entity.dataLiquidacao;
         }
         return entity;
     }
@@ -189,7 +211,7 @@ export class TransacaoImpl implements ITransacao {
         this.dataInicial = parse(data, 'yyyy-MM-dd', startOfDay(new Date()))
     }
 
-    get dtFinalStr(): string | undefined{
+    get dtFinalStr(): string | undefined {
         return this.dataFinal ? format(this.dataFinal, 'yyyy-MM-dd') : undefined;
     }
 
@@ -201,8 +223,8 @@ export class TransacaoImpl implements ITransacao {
             this.dataFinal = parse(data, 'yyyy-MM-dd', startOfDay(new Date()))
         }
     }
-    
-    get dtLancamentoStr(): string | undefined{
+
+    get dtLancamentoStr(): string | undefined {
         return this.dataLiquidacao ? format(this.dataLiquidacao, 'yyyy-MM-dd') : undefined;
     }
 

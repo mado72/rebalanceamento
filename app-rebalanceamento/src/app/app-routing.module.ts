@@ -10,14 +10,8 @@ const routes: Routes = [{
   path: 'home',
   component: HomeComponent
 },{
-  path: 'recebimentos',
-  loadChildren: () => import('./recebimento/recebimento.module').then(m => m.RecebimentoModule)
-},{
   path: 'transacoes',
   loadChildren: () => import('./transacao/transacao.module').then(m => m.TransacaoModule)
-},{
-  path: 'despesas',
-  loadChildren: () => import('./despesa/despesa.module').then(m => m.DespesaModule)
 },{
   path: 'ativos',
   loadChildren: () => import('./ativos/ativos.module').then(m => m.AtivosModule)
@@ -27,9 +21,6 @@ const routes: Routes = [{
 },{
   path: 'patrimonio',
   loadChildren: () => import('./patrimonio/patrimonio.module').then(m => m.PatrimonioModule)
-},{
-  path: 'calendario',
-  loadChildren: () => import('./calendario/calendario.module').then(m => m.CalendarioModule)
 }];
 
 @NgModule({

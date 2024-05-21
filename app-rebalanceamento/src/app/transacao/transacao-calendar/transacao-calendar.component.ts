@@ -11,14 +11,18 @@ import {
   endOfMonth,
   format,
   getTime,
-  startOfDay
+  isSameDay,
+  isSameMonth,
+  startOfDay,
+  startOfMonth
 } from 'date-fns';
 import { DateTime } from 'luxon';
-import { Subject, map, mergeAll } from 'rxjs';
+import { Subject, from, map, mergeAll, of, reduce, toArray } from 'rxjs';
 import { Evento } from 'src/app/calendario/calendario.model';
 import { AlertService } from 'src/app/services/alert.service';
 import { Mes, TipoTransacao, TransacaoImpl } from 'src/app/transacao/models/transacao.model';
 import { TransacaoService } from '../services/transacao.service';
+import { CalendarioEventoService } from '../services/calendario-evento.service';
 
 type ColorType = 'red' | 'green' | 'blue' | 'yellow' | 'purple';
 
@@ -69,7 +73,8 @@ export class TransacaoCalendarComponent implements OnInit {
   constructor(
     private _modalService: NgbModal, 
     private _alertService: AlertService,
-    private _transacaoService: TransacaoService,
+    private _calendarioService: CalendarioEventoService,
+    private _transacaoService: TransacaoService
   ) {}
 
   mesAnterior() {
@@ -102,25 +107,9 @@ export class TransacaoCalendarComponent implements OnInit {
 
   obterEventos() {
     console.log(`Obter eventos...`);
-    const ateData = endOfMonth(this.viewDate);
-    this.eventos.splice(0);
-    this._transacaoService.obterTransacoes()
-      .pipe(
-        mergeAll(),
-        map(transacao=>!!transacao.dataLiquidacao ? [transacao] : transacao.programacaoTransacoes(ateData)),
-        mergeAll(),
-        map(transacao => this.converterParaEvento(transacao))
-      )
-      .subscribe({
-        next: (evento) => {
-          this.eventos.push(evento);
-          const transacao = evento.meta;
-          console.log(`transacao: ${transacao._id}, ${transacao.descricao}, ${format(transacao.dataInicial, 'yyyy-MM-dd')}, ${transacao.dataLiquidacao && format(transacao.dataLiquidacao, 'yyyy-MM-dd')}`);
-        },
-        complete: ()=> {
-          console.log(`Concluiu obter eventos.`)
-        }
-      });
+    const inicio = startOfMonth(this.viewDate)
+    const fim = endOfMonth(this.viewDate);
+    this._calendarioService.obterEventos({inicio, fim}).subscribe(eventos=>this.eventos=eventos);
   }
 
   get meses() {
@@ -150,20 +139,7 @@ export class TransacaoCalendarComponent implements OnInit {
     this._modalService.open(this.modalContent, { size: 'lg' });
   }
 
-  addEvent(): void {
-    this.eventos = [
-      ...this.eventos,
-      {
-        titulo: 'Nova transação',
-        data: startOfDay(new Date()),
-        cor: colors['red'].primary,
-        meta: new TransacaoImpl({})
-      },
-    ];
-  }
-
   deleteEvent(eventToDelete: Evento) {
-    this.eventos = this.eventos.filter((event) => event !== eventToDelete);
   }
 
   editar() {
