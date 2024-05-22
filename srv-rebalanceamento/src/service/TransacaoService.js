@@ -32,7 +32,7 @@ exports.transacaoGET = function (mes, pago, categoria) {
 
   return new Promise(async (resolve, reject) => {
     try {
-      var result = await Transacao.find(filter);
+      var result = await Transacao.find(filter).sort({dataInicial:1, descricao: 1});
       result = result.map(item=>Transacao.toObjectInstance(item));
       resolve(result);
     } catch (error) {
