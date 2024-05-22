@@ -8,6 +8,7 @@ import { TransacaoListComponent } from './transacao-list/transacao-list.componen
 import { TransacaoModalComponent } from './transacao-modal/transacao-modal.component';
 import { TransacaoRoutingModule } from './transacao-routing.module';
 import { CalendarioModule } from '../calendario/calendario.module';
+import { PopupMenuComponent } from '../util/popup-menu/popup-menu.component';
 
 
 @NgModule({
@@ -22,6 +23,7 @@ import { CalendarioModule } from '../calendario/calendario.module';
     CalendarioModule,
     FormsModule,
     CommonModule,
+    PopupMenuComponent
   ]
 })
 export class TransacaoModule { }

@@ -1,10 +1,30 @@
-import { Component } from '@angular/core';
-import { Mes, Periodicidade, TransacaoImpl } from '../models/transacao.model';
-import { TransacaoService } from '../services/transacao.service';
-import { AlertService } from 'src/app/services/alert.service';
+import { Component, ViewChild } from '@angular/core';
 import { endOfMonth, endOfYear, getDate, getMonth, set, startOfDay, startOfMonth, startOfYear } from 'date-fns';
+import { AlertService } from 'src/app/services/alert.service';
+import { Mes, Periodicidade, TipoTransacao, TransacaoImpl } from '../models/transacao.model';
+import { TransacaoService } from '../services/transacao.service';
+import { PopupMenuComponent } from 'src/app/util/popup-menu/popup-menu.component';
 
-type Lancamentos = {[classe: string] : {[mes: string] : TransacaoImpl | undefined}};
+class Lancamentos {
+  transacoes: TransacaoImpl[] = [];
+  push(transacoes: TransacaoImpl) {
+    this.transacoes.push(transacoes);
+  }
+  get total() {
+    return this.transacoes
+      .filter(transacao=>[TipoTransacao.DEBITO, TipoTransacao.CREDITO].includes(transacao.tipoTransacao))
+      .reduce((total, transacao) => Lancamentos.somaTransacao({total, transacao}), 0);
+  }
+  get unico() {
+    return this.transacoes.length < 2;
+  }
+  static somaTransacao = ({total, transacao} : {total: number, transacao: TransacaoImpl}) => {
+    return total + (transacao.tipoTransacao == TipoTransacao.DEBITO? 1 : -1) * transacao.valor;
+  }
+}
+
+type LancamentosMatriz = {[classe: string] : {[mes: string] : Lancamentos | undefined}};
+
 
 @Component({
   selector: 'app-transacao-list',
@@ -13,9 +33,13 @@ type Lancamentos = {[classe: string] : {[mes: string] : TransacaoImpl | undefine
 })
 export class TransacaoListComponent {
 
+  @ViewChild(PopupMenuComponent) menu!: PopupMenuComponent;
+
   private transacoes: TransacaoImpl[] = [];
 
-  lancamentos : Lancamentos = {};
+  matriz : LancamentosMatriz = {};
+
+  popupTransacoes : TransacaoImpl[] = [];
 
   private _visao!: Periodicidade;
 
@@ -47,29 +71,49 @@ export class TransacaoListComponent {
         case Periodicidade.SEMESTRAL:
         case Periodicidade.ANUAL:
         default:
-          periodo = Object.keys(Mes)[getMonth(transacao.dataInicial)-1];
+          periodo = Object.keys(Mes)[getMonth(transacao.dataInicial)];
           break;
       }
-      this.lancamentos[descricao] = this.lancamentos[descricao] || {};
-      this.lancamentos[descricao][periodo] = transacao;
+      this.matriz[descricao] = this.matriz[descricao] || {};
+      const lancamento = this.matriz[descricao];
+      if (!lancamento[periodo]) {
+        lancamento[periodo] = new Lancamentos();
+      }
+      lancamento[periodo]?.push(transacao);
     });
   }
 
   get tiposPeriodo() {
     return [Periodicidade.ANUAL, Periodicidade.SEMESTRAL, Periodicidade.TRIMESTRAL, Periodicidade.MENSAL, Periodicidade.QUINZENAL, Periodicidade.SEMANAL];
   }
+
+  classeLancamento(transacao: TransacaoImpl) {
+    return transacao && {
+      liquidado: !!transacao.dataLiquidacao,
+      debito: transacao.tipoTransacao == TipoTransacao.DEBITO,
+      credito: transacao.tipoTransacao == TipoTransacao.CREDITO,
+      projecao: !transacao._id,
+      transferencia: transacao.tipoTransacao == TipoTransacao.TRANSFERENCIA,
+      semorigem: !transacao.origem
+    } || {}
+  }
   
   private obterTransacoes() {
     const ateData = endOfYear(new Date());
     const iniData = startOfYear(ateData);
-    this.lancamentos = {};
+    this.matriz = {};
 
     this._transacaoService.obterTransacoes().subscribe(transacoes => {
-      this.transacoes = transacoes.flatMap(transacao => {
-        const projecao = transacao.programacaoTransacoes({inicio: iniData, fim: ateData});
-        projecao.push(transacao);
-        return projecao;
-      });
+      console.log(`Transacoes matriz:`, transacoes)
+      this.transacoes = transacoes
+        
+        .filter(transacao=>transacao.descricao === "Fundação")
+
+        .sort((a,b)=>1000 * (getDate(a.dataInicial) - getDate(b.dataInicial)) + a.descricao.localeCompare(b.descricao))
+        .flatMap(transacao => {
+          const projecao = transacao.programacaoTransacoes({inicio: iniData, fim: ateData});
+          return projecao;
+        });
       this.visao = Periodicidade.ANUAL;
     });
   }
@@ -92,34 +136,15 @@ export class TransacaoListComponent {
   }
 
   get classesTransacao() {
-    return Object.keys(this.lancamentos)
+    return Object.keys(this.matriz)
   }
 
   diaInicial(classe: string) {
-    return Object.values(this.lancamentos[classe]).map(transacao=>!!transacao ? getDate(transacao.dataInicial):undefined).sort(this.comparePagamentos())[0];
+    return Object.values(this.matriz[classe])
+      .map(lancamentos=>!!lancamentos ? getDate(lancamentos.transacoes[0]?.dataInicial):undefined)
+      .sort((a, b) => !a ? (!b ? 0 : 1) : (!b ? -1 : a - b))[0];
   }
 
-  private comparePagamentos(): (a: number | undefined, b: number | undefined) => number {
-    return (a, b) => !a ? (!b ? 0 : 1) : (!b ? -1 : a - b);
-  }
-
-  get periodosCorrente() {
-    switch (this.visao) {
-      case Periodicidade.SEMANAL:
-      case Periodicidade.QUINZENAL:
-      case Periodicidade.MENSAL:
-        const mes = Object.keys(Periodicidade).indexOf(this.periodoCorrente);
-        const primeiroDia = startOfMonth(set(new Date, {month: mes}));
-        const ultimoDia = endOfMonth(primeiroDia);
-        return [...Array(getDate(ultimoDia))].map(d=>d+1).map(d=>d.toString() as string);
-      case Periodicidade.TRIMESTRAL:
-      case Periodicidade.SEMESTRAL:
-      case Periodicidade.ANUAL:
-        default:
-        return Object.keys(Mes);
-    }
-  }
-  
   get periodoCorrente() {
     switch (this.visao) {
       case Periodicidade.SEMANAL:
@@ -135,40 +160,25 @@ export class TransacaoListComponent {
     }
   }
   
-  tipo(v: any) {
-    return typeof v;
-  }
-  
-  anteriorMesCorrente(periodo: any) {
-    switch (this.visao) {
-      case Periodicidade.SEMANAL:
-      case Periodicidade.QUINZENAL:
-      case Periodicidade.MENSAL:
-        return parseInt(periodo) < getDate(new Date());
-      case Periodicidade.TRIMESTRAL:
-      case Periodicidade.SEMESTRAL:
-      case Periodicidade.ANUAL:
-        default:
-          return parseInt(periodo) < getMonth(new Date())-1;
-    }
-  }
-  
   get totaisClasse() {
     const totais : {[classe: string] : number} = {};
-    Object.keys(this.lancamentos).forEach(classe=>{
-      totais[classe] = Object.values(this.lancamentos[classe])
-          .map(transacao=>transacao?.valor)
-          .reduce((acc, vl) => acc = (acc || 0) + (vl || 0)) || 0;
+    Object.keys(this.matriz).forEach(classe=>{
+      totais[classe] = Object.values(this.matriz[classe])
+          .filter(lancamentos=>lancamentos?.total)
+          .flatMap(lancamentos=>lancamentos?.total || 0)
+          .reduce((acc, vl) => acc += vl);
     });
     return totais;
   }
   
   get totaisMes() {
     const totais : {[mes: string] : number} = {};
-    Object.values(this.lancamentos).forEach(pagamento=>{
-      Object.keys(pagamento).forEach(mes=>{
-        totais[mes] = (totais[mes] || 0) + (pagamento[mes]?.valor || 0);
-      });
+
+    Object.values(this.matriz)
+      .forEach(lancamentosMes=>{
+        Object.entries(lancamentosMes).forEach(entry=>{
+          totais[entry[0]] = (totais[entry[0]] || 0) + (entry[1]?.total || 0);
+        });
     });
     return totais;
   }
@@ -187,6 +197,21 @@ export class TransacaoListComponent {
 
   criarTransacao() {
     this.editarTransacao(new TransacaoImpl({}), "Criar transação");
+  }
+
+  abrirPopupTransacoes(transacoes: any, e: MouseEvent) {
+    console.log(transacoes.map((transacao:TransacaoImpl)=>{
+      return {
+        id: transacao._id,
+        descricao: transacao.descricao,
+        valor: transacao.valor,
+        tipoTransacao: transacao.tipoTransacao,
+        periodicidade: transacao.periodicidade,
+        dataInicial: transacao.dataInicial,
+      }
+    }));
+    this.popupTransacoes = transacoes;
+    this.menu.open(e)
   }
 }
 

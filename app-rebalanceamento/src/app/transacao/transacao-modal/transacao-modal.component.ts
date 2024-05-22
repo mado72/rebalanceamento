@@ -31,6 +31,12 @@ export class TransacaoModalComponent {
   dispensar() {
     this.onCancelar.emit('Dispensar');
   }
+  pagoHoje() {
+    this.transacao.dataLiquidacao = new Date();
+  }
+  pagoNaData() {
+    this.transacao.dataLiquidacao = this.transacao.dataInicial;
+  }
 
 
 }

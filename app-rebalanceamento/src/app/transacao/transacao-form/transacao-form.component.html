@@ -9,6 +9,7 @@
             <select class="form-control col" name="tipoTransacao" id="tipoTransacao" [(ngModel)]="transacao.tipoTransacao">
                 <option [value]="DEBITO">Débito</option>
                 <option [value]="CREDITO">Crédito</option>
+                <option [value]="TRANSFERENCIA">Transferência</option>
             </select>
         </div>
 
@@ -17,7 +18,7 @@
             <input type="date" class="form-control col" id="dataInicial" [(ngModel)]="transacao.dtInicialStr" required name="dataInicial">
             <label for="dataFinal" class="col-1">Data Final</label>
             <input type="date" class="form-control col" id="dataFinal" [(ngModel)]="transacao.dtFinalStr" name="dataFinal">
-            <label for="dataLiquidacao" class="col-2">Data Pagamento</label>
+            <label for="dataLiquidacao" class="col-2">Data Liquidação</label>
             <input type="date" class="form-control col" id="dataLiquidacao" [(ngModel)]="transacao.dtLancamentoStr" name="dataLiquidacao">
         </div>
     

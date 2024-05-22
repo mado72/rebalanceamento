@@ -1,6 +1,6 @@
 import { DateTime } from "luxon";
 import { Conta } from "../../conta/model/conta.model";
-import { addDays, addMonths, addYears, format, getMonth, getTime, isAfter, isBefore, isSameDay, parse, startOfDay } from "date-fns";
+import { add, addDays, addMonths, addYears, endOfDay, format, getMonth, getTime, isAfter, isBefore, isSameDay, isValid, isWithinInterval, parse, startOfDay } from "date-fns";
 
 export enum Periodicidade {
     UNICO = "UNICO",
@@ -34,7 +34,8 @@ export enum TipoLiquidacao {
 
 export enum TipoTransacao {
     DEBITO = 'DEBITO',
-    CREDITO = 'CREDITO'
+    CREDITO = 'CREDITO',
+    TRANSFERENCIA = 'TRANSFERENCIA',
 }
 
 export interface ITransacao {
@@ -86,7 +87,16 @@ export class TransacaoImpl implements ITransacao {
         if (!!d && typeof d.getMonth === 'function') {
             return d;
         }
-        return DateTime.fromISO(d).toJSDate();
+        const data = !!d? parse(d, 'yyyy-MM-dd', new Date()) : undefined;
+
+        if (data !== undefined && !isValid(data)) {
+            throw new Error(`Invalid date ${d}`);
+        }
+        return data;
+    }
+
+    get projecao() {
+        return !this._id;
     }
 
     get liquidada() {
@@ -99,32 +109,35 @@ export class TransacaoImpl implements ITransacao {
 
     public programacaoDatas(ateData: Date) {
         const datas = new Array<Date>();
-        let dataFinalPeriodo = DateTime.fromJSDate(ateData).endOf("day");
-        if (!!this.dataFinal && dataFinalPeriodo > DateTime.fromJSDate(this.dataFinal)) {
-            dataFinalPeriodo = DateTime.fromJSDate(this.dataFinal).endOf("day");
+        let dataFinalPeriodo = endOfDay(ateData);
+        if (!!this.dataFinal && isAfter(dataFinalPeriodo, this.dataFinal)) {
+            dataFinalPeriodo = endOfDay(this.dataFinal);
         }
 
-        let data = DateTime.fromJSDate(this.dataInicial).startOf("day");
+        let data = startOfDay(this.dataInicial);
 
-        while (data < dataFinalPeriodo) {
-            datas.push(data.toJSDate());
+        while (isBefore(data, dataFinalPeriodo)) {
+            datas.push(data);
             switch (this.periodicidade) {
                 case Periodicidade.UNICO:
                     return datas;
                 case Periodicidade.SEMANAL:
-                    data = data.plus({ weeks: 1 });
+                    data = add(data, { weeks: 1 });
                     break;
                 case Periodicidade.QUINZENAL:
-                    data = data.plus({ weeks: 2 });
+                    data = add(data, { weeks: 2 });
                     break;
                 case Periodicidade.MENSAL:
-                    data = data.plus({ months: 1 });
+                    data = add(data, { months: 1 });
                     break;
                 case Periodicidade.TRIMESTRAL:
-                    data = data.plus({ months: 3 });
+                    data = add(data, { months: 3 });
+                    break;
+                case Periodicidade.SEMESTRAL:
+                    data = add(data, { months: 6 });
                     break;
                 case Periodicidade.ANUAL:
-                    data = data.plus({ years: 1 });
+                    data = add(data, { years: 1 });
                     break;
             }
         }
@@ -157,7 +170,13 @@ export class TransacaoImpl implements ITransacao {
 
         transacoes.push(this);
         return transacoes
-            .filter(transacao => isSameDay(transacao.dataInicial, inicio) || isSameDay(transacao.dataInicial, fim) || (isAfter(transacao.dataInicial, inicio) && isBefore(transacao.dataInicial, fim)))
+            .filter(transacao =>{
+            //     isSameDay(transacao.dataInicial, inicio) || isSameDay(transacao.dataInicial, fim) || (isAfter(transacao.dataInicial, inicio) && isBefore(transacao.dataInicial, fim))
+                const igualDataInicial = isSameDay(transacao.dataInicial, inicio);
+                const igualDataFinal = isSameDay(transacao.dataInicial, fim);
+                const entreDatas = isWithinInterval(transacao.dataInicial, {start: inicio, end: fim});
+                return igualDataInicial || igualDataFinal || entreDatas;
+            })
             .sort((a, b) => a.dataInicial.getTime() - b.dataInicial.getTime());
     }
 
@@ -195,7 +214,7 @@ export class TransacaoImpl implements ITransacao {
         if (entity.dataFinal === undefined) entity.dataFinal = null;
         if (entity.dataInicial === undefined) entity.dataInicial = null; else entity.dataVencimento = entity.dataInicial;
         if (entity.dataLiquidacao === undefined) {
-            entity.dataPagamento = null;
+            entity.dataLiquidacao = null;
         }
         else {
             entity.dataPagamento = entity.dataLiquidacao;
@@ -225,7 +244,7 @@ export class TransacaoImpl implements ITransacao {
     }
 
     get dtLancamentoStr(): string | undefined {
-        return this.dataLiquidacao ? format(this.dataLiquidacao, 'yyyy-MM-dd') : undefined;
+        return isValid(this.dataLiquidacao) ? format(this.dataLiquidacao as Date, 'yyyy-MM-dd') : undefined;
     }
 
     set dtLancamentoStr(data: string | undefined) {

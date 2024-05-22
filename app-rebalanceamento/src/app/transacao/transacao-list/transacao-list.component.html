@@ -2,7 +2,7 @@
     <option [value]="tipo" *ngFor="let tipo of tiposPeriodo">{{tipo}}</option>
 </select>
 
-<table *ngIf="!!lancamentos" class="table">
+<table *ngIf="!!matriz" class="table">
     <thead>
         <tr>
             <td>Transação</td>
@@ -21,13 +21,23 @@
             <td>{{diaInicial(classe)}}</td>
             <td *ngFor="let periodo of periodos">
 
-                <div *ngIf="!! lancamentos[classe][periodo]; else TransacaoUndefined" class=" text-end">
-                    <ng-container
-                        [ngTemplateOutlet]="lancamentos[classe][periodo]?._id ? textPagto : criarPagto" 
-                        [ngTemplateOutletContext]="{periodo,lancamento:lancamentos[classe][periodo],name:'pagto_'+periodo+'_'+(lancamentos[classe][periodo]?._id || 0)}">
+                <div *ngIf="!! matriz[classe][periodo]; else TransacaoUndefined" class=" text-end">
+                    <ng-container *ngIf="matriz[classe][periodo]?.unico">
+                        U
+                        <ng-container
+                            [ngTemplateOutlet]="lancamentoUnico" 
+                            [ngTemplateOutletContext]="{periodo,classe,lancamento:matriz[classe][periodo]}">
+                        </ng-container>
+                    </ng-container>
+                    <ng-container *ngIf="! matriz[classe][periodo]?.unico">
+                        M
+                        <ng-container
+                            [ngTemplateOutlet]="lancamentosMultiplos" 
+                            [ngTemplateOutletContext]="{periodo,classe,lancamentos:matriz[classe][periodo]}">
+                        </ng-container>
                     </ng-container>
                     <!-- <ng-container 
-                        [ngTemplateOutlet]="anteriorMesCorrente(mes) ?  textPagto : inputPagto" 
+                        [ngTemplateOutlet]="lancamentos[classe][periodo]?._id ? textPagto : criarPagto" 
                         [ngTemplateOutletContext]="{mes,despesa:lancamentos[classe][mes],name:'pagto_'+mes+'_'+(lancamentos[classe][mes]?._id || 0)}">
                     </ng-container> -->
                 </div>
@@ -46,18 +56,41 @@
     </tfoot>
 </table>
 
-<pre class="debug">{{ lancamentos | json }}</pre>
+<pre>{{ matriz | json }}</pre>
 <a (click)="criarTransacao()" href="javascript:void(0)">Criar Transação</a>
 |
 <a routerLink="/despesas/lancamentos">Pagamentos</a>
 
-<ng-template #textPagto let-periodo="periodo" let-lancamento="lancamento" let-classe>
+<ng-template #textPagto let-periodo="periodo" let-lancamentos="lancamentos" let-classe>
     <!-- <a [routerLink]="['/despesas/edit/', lancamento._id]" class="lancamento-valor pago"> -->
-    <a href="javascript:void(0)" (click)="editarTransacao(lancamento, 'Edição Transação')" class="transacao-valor" 
-        [ngClass]="{'pago': !!lancamento.dataLiquidacao, 'salvo': !lancamento.dataLiquidacao}">
-        {{ lancamento.valor | number : '1.2-2' }}
+    <a href="javascript:void(0)" (click)="editarTransacao(lancamentos, 'Edição Transação')" class="transacao-valor" 
+        [ngClass]="classeLancamento(lancamentos.transacoes[0])">
+        {{ lancamentos.total | number : '1.2-2' }}
     </a>
 </ng-template>
+
+<ng-template #lancamentoUnico let-periodo="periodo" let-lancamento="lancamento" let-classe="classe">
+    <a href="javascript:void(0)" (click)="editarTransacao(lancamento.transacoes[0], 'Edição Transação')" class="transacao-valor" 
+    [ngClass]="classeLancamento(lancamento?.transacoes[0])">
+    {{ lancamento.total | number : '1.2-2' }}
+</a>
+</ng-template>
+
+<ng-template #lancamentosMultiplos let-periodo="periodo" let-total let-lancamentos="lancamentos" let-classe>
+    <a href="javascript:void(0)" (click)="abrirPopupTransacoes(lancamentos.transacoes, $event)" class="multiplos-lancamentos">
+        {{ lancamentos.total | number : '1.2-2' }}
+    </a>
+    
+</ng-template>
+
+<app-popup-menu [width]="'300px'">
+    <h6 class="title border-bottom">Escolha uma opção</h6>
+    <div class="items">
+      <a class="popup-item nowrap" *ngFor="let transacao of popupTransacoes" (click)="editarTransacao(transacao, 'Editar transação')">
+        {{transacao.descricao}} - {{transacao.tipoTransacao}} - {{transacao.valor}}
+      </a>
+    </div>
+</app-popup-menu>
 
 <ng-template #criarPagto let-periodo="periodo" let-lancamento="lancamento">
     <a href="javascript:void(0)" (click)="editarTransacao(lancamento, 'Cadastro transação')" class="transacao-valor">
