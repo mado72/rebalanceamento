@@ -1,6 +1,6 @@
-import { Component, EventEmitter, Input, Output } from '@angular/core';
-import { addDays, addMonths, endOfMonth, getDate, getDay, isSameDay, isSameMonth, isWithinInterval, startOfMonth } from 'date-fns';
-import { Evento } from '../calendario.model';
+import { Component, EventEmitter, Input, Output, TemplateRef } from '@angular/core';
+import { endOfMonth, getDay, isSameDay, isSameMonth, startOfMonth } from 'date-fns';
+import { DataClicked, Evento } from '../calendario.model';
 
 interface CelConfig {
   mesCorrente: boolean;
@@ -26,6 +26,10 @@ export class CalendarioMensalComponent {
 
   @Output() eventoClicked = new EventEmitter<Evento>();
 
+  @Output() dataClicked = new EventEmitter<DataClicked>();
+
+  @Input() eventoDetalheTemplate: TemplateRef<any> | undefined;
+
   constructor() { }
 
   get eventos() {
@@ -34,7 +38,6 @@ export class CalendarioMensalComponent {
 
   @Input() set eventos(eventos: Evento[]) {
     this._eventos = eventos;
-    console.log(`CelConfig`);
     const celulas = new Array(6);
     for (let iLinha = 0; iLinha < 6; iLinha++) {
       celulas[iLinha] = new Array(7);
@@ -82,7 +85,12 @@ export class CalendarioMensalComponent {
   dataClick(data: Date) {
     this.dataSelecionada = data;
     this.dataSelecionadaChange.emit(data);
-    console.log(data);
+  }
+  
+  menuContexto(data: Date, e: MouseEvent) {
+    this.dataClicked.emit({data, event: e});
+    e.preventDefault();
+    e.stopPropagation();
   }
 
 }

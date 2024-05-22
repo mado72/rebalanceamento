@@ -54,16 +54,6 @@
     }
 }
 
-.led {
-    width: 14px;
-    height: 14px;
-    display: inline-block;
-    margin-right: 2px;
-    border-radius: 50%;
-    background-color: #BCBCBC;
-    box-shadow: rgba(0, 0, 0, 0.2) 0 -1px 7px 1px, inset #304701 0 -1px 3px;
-}
-
 .tip {
     position: relative;
     display: inline-block;
@@ -72,21 +62,19 @@
     .tiptext {
         top:8px;
         visibility: hidden;
-        min-width: 160px;
         background-color: black;
         color: #fff;
         border-radius: 6px;
-        padding: 5px 0;
-
+        
         /* Position the tip */
         position: absolute;
         z-index: 1;
     }
-
+    
     .tiptext-left {
         left:5px;
     }
-
+    
     .tiptext-right {
         right: 5px;
     }
@@ -96,4 +84,8 @@
             visibility: hidden;
         }
     }
+}
+
+.detalhes {
+    padding: 5px 0;
 }
