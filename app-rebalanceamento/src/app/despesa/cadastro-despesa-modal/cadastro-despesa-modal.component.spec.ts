@@ -1,6 +1,9 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 
 import { CadastroDespesaModalComponent } from './cadastro-despesa-modal.component';
+import { DespesaFormComponent } from '../despesa-form/despesa-form.component';
+import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
 
 describe('CadastroDespesaModalComponent', () => {
   let component: CadastroDespesaModalComponent;
@@ -8,7 +11,14 @@ describe('CadastroDespesaModalComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      declarations: [ CadastroDespesaModalComponent ]
+      declarations: [ 
+        CadastroDespesaModalComponent,
+        DespesaFormComponent
+      ],
+      imports: [
+        CommonModule,
+        FormsModule
+      ]
     })
     .compileComponents();
 

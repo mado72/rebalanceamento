@@ -4,6 +4,8 @@ import { PagamentoMensalComponent } from './pagamento-mensal.component';
 import { FormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
 import { BrowserModule } from '@angular/platform-browser';
+import { HttpClientTestingModule } from '@angular/common/http/testing';
+import { ToastrModule } from 'ngx-toastr';
 
 describe('PagamentoMensalComponent', () => {
   let component: PagamentoMensalComponent;
@@ -16,6 +18,10 @@ describe('PagamentoMensalComponent', () => {
         FormsModule,
         CommonModule,
         BrowserModule,
+        HttpClientTestingModule,
+        ToastrModule.forRoot({
+          positionClass: 'toast-bottom-right'
+        })
       ]
     })
     .compileComponents();

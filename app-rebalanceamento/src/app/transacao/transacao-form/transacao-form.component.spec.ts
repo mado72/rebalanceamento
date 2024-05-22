@@ -1,6 +1,8 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 
 import { TransacaoFormComponent } from './transacao-form.component';
+import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
 
 describe('TransacaoFormComponent', () => {
   let component: TransacaoFormComponent;
@@ -8,7 +10,11 @@ describe('TransacaoFormComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      declarations: [ TransacaoFormComponent ]
+      declarations: [ TransacaoFormComponent ],
+      imports: [
+        CommonModule,
+        FormsModule
+      ]
     })
     .compileComponents();
 

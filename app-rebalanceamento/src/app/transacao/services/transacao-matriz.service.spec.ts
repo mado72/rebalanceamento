@@ -1,20 +1,20 @@
 import { TestBed } from '@angular/core/testing';
 
-import { CalendarioEventoService } from './calendario-evento.service';
+import { TransacaoMatrizService } from './transacao-matriz.service';
 import { HttpClientTestingModule } from '@angular/common/http/testing';
 import { ToastrModule } from 'ngx-toastr';
 
-describe('CalendarioEventoService', () => {
-  let service: CalendarioEventoService;
+describe('TransacaoMatrizService', () => {
+  let service: TransacaoMatrizService;
 
   beforeEach(() => {
     TestBed.configureTestingModule({
       imports: [
         HttpClientTestingModule,
-        ToastrModule.forRoot({})
+        ToastrModule.forRoot()
       ]
     });
-    service = TestBed.inject(CalendarioEventoService);
+    service = TestBed.inject(TransacaoMatrizService);
   });
 
   it('should be created', () => {
