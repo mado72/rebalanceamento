@@ -111,8 +111,8 @@ export class TransacaoMatrizService {
     }
   }
 
-  totalAnual(matriz: MatrizTransacoes, descricao?: string): number {
-    const linhasMatriz = new Array(...matriz.keys()).filter(item=> !descricao || descricao === item);
+  totalAnual(matriz: MatrizTransacoes, nomeTransacao?: string): number {
+    const linhasMatriz = new Array(...matriz.keys()).filter(item=> !nomeTransacao || nomeTransacao === item);
     
     return linhasMatriz.reduce((acc: number, chaveMatriz: string)=>{
       const linhaTransacao = matriz.get(chaveMatriz);
@@ -136,6 +136,16 @@ export class TransacaoMatrizService {
       return acc + somaMatrizTransacao
 
     }, 0);
+  }
+
+  obterTransacoesMatriz({ matriz, nomeTransacao, mes }: { matriz: MatrizTransacoes; nomeTransacao: string; mes: number; }): TransacaoImpl[] {
+    return new Array(...matriz.keys())
+      .filter(key=> nomeTransacao === key)
+      .flatMap(linha => {
+        const meses = matriz.get(linha);
+        if (!meses) throw `Linha não encontrada ${linha}`
+        return meses[mes];
+      })
   }
 
 }

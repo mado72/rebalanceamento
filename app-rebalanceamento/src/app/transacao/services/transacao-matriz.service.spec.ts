@@ -23,7 +23,7 @@ describe('TransacaoMatrizService', () => {
   });
 
   it('montar matriz não deve sobrepor ocorrencias de uma mesma descricao ', () => {
-    const transacoes : TransacaoImpl[] = [
+    const transacoes: TransacaoImpl[] = [
       {
         descricao: 'Transacao 1',
         valor: 100,
@@ -43,9 +43,9 @@ describe('TransacaoMatrizService', () => {
         dataFinal: new Date(2020, 11, 1),
         dataLiquidacao: new Date(2020, 2, 1),
         liquidacao: TipoLiquidacao.CONTA
-      }    
-    ].map(i=>new TransacaoImpl(i));
-    
+      }
+    ].map(i => new TransacaoImpl(i));
+
     const matriz = service.montarMatriz(transacoes);
     const t1 = matriz.get('Transacao 1');
     expect(t1).toBeDefined();
@@ -54,12 +54,12 @@ describe('TransacaoMatrizService', () => {
 
     for (var mes = 0; mes < 12; mes++) {
       expect(t1[mes]).toBeDefined();
-      expect(t1[mes].length * (mes+1)).toBe(mes+1);
+      expect(t1[mes].length * (mes + 1)).toBe(mes + 1);
     }
   })
 
   it('montar matriz deve distribuir transacoes nos meses', () => {
-    const transacoes : TransacaoImpl[] = [
+    const transacoes: TransacaoImpl[] = [
       {
         descricao: 'Transacao 1',
         valor: 100,
@@ -88,7 +88,7 @@ describe('TransacaoMatrizService', () => {
         dataFinal: new Date(2020, 10, 1),
         liquidacao: TipoLiquidacao.CONTA
       }
-    ].map(i=>new TransacaoImpl(i));
+    ].map(i => new TransacaoImpl(i));
 
     const matriz = service.montarMatriz(transacoes);
 
@@ -120,36 +120,36 @@ describe('TransacaoMatrizService', () => {
   })
 
   it('deve calcular total mensal considerando débitos e créditos', () => {
-    const transacoes : TransacaoImpl[] = [
+    const transacoes: TransacaoImpl[] = [
       {
         descricao: 'Transacao 1',
         valor: 100,
         tipoTransacao: TipoTransacao.DEBITO,
-        dataInicio: new Date(2020,0,1),
-        dataFinal: new Date(2020,0,1)
+        dataInicial: new Date(2020, 0, 1),
+        dataFinal: new Date(2020, 0, 1)
       },
       {
         descricao: 'Transacao 1',
         valor: 100,
         tipoTransacao: TipoTransacao.DEBITO,
-        dataInicio: new Date(2020,0,1),
-        dataFinal: new Date(2020,0,1)
+        dataInicial: new Date(2020, 0, 1),
+        dataFinal: new Date(2020, 0, 1)
       },
       {
         descricao: 'Transacao 1',
         valor: 100,
         tipoTransacao: TipoTransacao.TRANSFERENCIA,
-        dataInicio: new Date(2020,0,1),
-        dataFinal: new Date(2020,0,1)
+        dataInicial: new Date(2020, 0, 1),
+        dataFinal: new Date(2020, 0, 1)
       },
       {
         descricao: 'Transacao 1',
         valor: 100,
         tipoTransacao: TipoTransacao.CREDITO,
-        dataInicio: new Date(2020,0,1),
-        dataFinal: new Date(2020,0,1)
+        dataInicial: new Date(2020, 0, 1),
+        dataFinal: new Date(2020, 0, 1)
       },
-    ].map(i=>new TransacaoImpl(i));
+    ].map(i => new TransacaoImpl(i));
 
     const matriz = service.montarMatriz(transacoes);
 
@@ -161,47 +161,87 @@ describe('TransacaoMatrizService', () => {
   });
 
   it('deve calcular total por transacao considerando débitos e créditos', () => {
-    const transacoes : TransacaoImpl[] = [
+    const transacoes: TransacaoImpl[] = [
       {
         descricao: 'Transacao 1',
         valor: 100,
         tipoTransacao: TipoTransacao.DEBITO,
-        dataInicio: new Date(2020,0,1),
-        dataFinal: new Date(2020,0,1)
+        dataInicial: new Date(2020, 0, 1),
+        dataFinal: new Date(2020, 0, 1)
       },
       {
         descricao: 'Transacao 1',
         valor: 100,
         tipoTransacao: TipoTransacao.DEBITO,
-        dataInicio: new Date(2020,0,1),
-        dataFinal: new Date(2020,0,1)
+        dataInicial: new Date(2020, 0, 1),
+        dataFinal: new Date(2020, 0, 1)
       },
       {
         descricao: 'Transacao 1',
         valor: 100,
         tipoTransacao: TipoTransacao.TRANSFERENCIA,
-        dataInicio: new Date(2020,0,1),
-        dataFinal: new Date(2020,0,1)
+        dataInicial: new Date(2020, 1, 1),
+        dataFinal: new Date(2020, 1, 1)
       },
       {
         descricao: 'Transacao 2',
         valor: 100,
         tipoTransacao: TipoTransacao.CREDITO,
-        dataInicio: new Date(2020,0,1),
-        dataFinal: new Date(2020,0,1)
+        dataInicial: new Date(2020, 0, 1),
+        dataFinal: new Date(2020, 0, 1)
       },
-    ].map(i=>new TransacaoImpl(i));
+    ].map(i => new TransacaoImpl(i));
 
     const matriz = service.montarMatriz(transacoes);
 
-    debugger;
-    const totalAno = service.totalAnual(matriz);
-    const totalT1 = service.totalAnual(matriz, 'Transacao 1');
-    const totalT2 = service.totalAnual(matriz, 'Transacao 2');
+    const t1Mes0 = service.obterTransacoesMatriz({
+      matriz, mes: 0, nomeTransacao: 'Transacao 1'
+    });
+    expect(t1Mes0.length).toEqual(2);
+  });
 
-    expect(totalAno).toBe(-100);
-    expect(totalT1).toBe(-200);
-    expect(totalT2).toBe(100);
+  it('deve obter as transacoes de uma celula da matriz', () => {
+    const transacoes: TransacaoImpl[] = [
+      {
+        descricao: 'Transacao 1',
+        valor: 100,
+        tipoTransacao: TipoTransacao.DEBITO,
+        dataInicial: new Date(2020, 0, 1),
+        dataFinal: new Date(2020, 0, 1)
+      },
+      {
+        descricao: 'Transacao 1',
+        valor: 100,
+        tipoTransacao: TipoTransacao.DEBITO,
+        dataInicial: new Date(2020, 0, 1),
+        dataFinal: new Date(2020, 0, 1)
+      },
+      {
+        descricao: 'Transacao 1',
+        valor: 100,
+        tipoTransacao: TipoTransacao.TRANSFERENCIA,
+        dataInicial: new Date(2020, 1, 1),
+        dataFinal: new Date(2020, 1, 1)
+      },
+      {
+        descricao: 'Transacao 2',
+        valor: 100,
+        tipoTransacao: TipoTransacao.CREDITO,
+        dataInicial: new Date(2020, 0, 1),
+        dataFinal: new Date(2020, 0, 1)
+      },
+    ].map(i => new TransacaoImpl(i));
+
+    const matriz = service.montarMatriz(transacoes);
+
+    const t1Mes0 = service.obterTransacoesMatriz({ matriz, mes: 0, nomeTransacao: 'Transacao 1' });
+    const t1Mes1 = service.obterTransacoesMatriz({ matriz, mes: 1, nomeTransacao: 'Transacao 1' });
+    const t2Mes0 = service.obterTransacoesMatriz({ matriz, mes: 0, nomeTransacao: 'Transacao 2' });
+    const t2Mes1 = service.obterTransacoesMatriz({ matriz, mes: 1, nomeTransacao: 'Transacao 2' });
+    expect(t1Mes0.length).toEqual(2);
+    expect(t1Mes1.length).toEqual(1);
+    expect(t2Mes0.length).toEqual(1);
+    expect(t2Mes1.length).toEqual(0);
   });
 
 });
