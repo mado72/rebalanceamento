@@ -1,14 +1,26 @@
-import { Injectable, OnInit } from '@angular/core';
-import { TransacaoService } from './transacao.service';
-import { TipoTransacao, TransacaoImpl } from '../models/transacao.model';
+import { Injectable } from '@angular/core';
+import { getDate, getMonth, getTime, isAfter, isSameDay, setMonth } from 'date-fns';
 import { map } from 'rxjs';
-import { getMonth, isAfter, isBefore, set, setMonth, startOfDay } from 'date-fns';
+import { ITransacao, TipoTransacao, TransacaoImpl } from '../models/transacao.model';
+import { TransacaoService } from './transacao.service';
 
-export type MatrizTransacoes = Map<string, MatrizLinha>;
-
-export type MatrizLinha = {
-  [mes: number]: TransacaoImpl[];
+export type ItemDataInicial = { 
+  dataInicial: Date 
 };
+
+export type ItemDescricaoType = {
+  descricao: string
+}
+
+export type MatrizLinhaType<ItemDateInicial> = {
+  [mes: number]: ItemDateInicial[]
+}
+
+export type MatrizType<T> = Map<string, MatrizLinhaType<T>>;
+
+export type MatrizTransacoes = MatrizType<TransacaoImpl>;
+
+export type MatrizLinhaTransacoes = MatrizLinhaType<TransacaoImpl>;
 
 @Injectable({
   providedIn: 'root'
@@ -35,10 +47,10 @@ export class TransacaoMatrizService {
     return matriz;
   }
   private preencherMatrizComProjecaoOcorrencias(matriz: MatrizTransacoes) {
-    new Array(...matriz.values()).forEach((matrizLinha: MatrizLinha) => {
+    new Array(...matriz.values()).forEach((matrizLinha: MatrizLinhaTransacoes) => {
       for (var mes = 1; mes < 12; mes++) {
-        const transacoesMes = matrizLinha[mes];
-        if (!transacoesMes.length && matrizLinha[mes - 1].length) {
+        const itensMes = matrizLinha[mes];
+        if (!itensMes.length && matrizLinha[mes - 1].length) {
           const novasTransacoes = this.copiarTransacoesParaMes(matrizLinha, mes);
 
           if (novasTransacoes.length) {
@@ -49,7 +61,7 @@ export class TransacaoMatrizService {
     });
   }
 
-  private copiarTransacoesParaMes(matrizLinha: MatrizLinha, mes: number) {
+  private copiarTransacoesParaMes(matrizLinha: MatrizLinhaTransacoes, mes: number) {
     return matrizLinha[mes - 1]
       .filter(item => !item.dataFinal || !isAfter(setMonth(item.dataInicial, mes), item.dataFinal))
       .map(original => {
@@ -65,7 +77,7 @@ export class TransacaoMatrizService {
   private preencherMatrizComTransacoesInformadas(transacoes: TransacaoImpl[], matriz: MatrizTransacoes) {
     transacoes.forEach(transacao => {
       if (!matriz.has(transacao.descricao)) {
-        const item: MatrizLinha = {};
+        const item: MatrizLinhaTransacoes = {};
         for (let i = 0; i < 12; i++) { item[i] = []; }
         matriz.set(transacao.descricao, item);
       }
@@ -76,6 +88,10 @@ export class TransacaoMatrizService {
         linha[mes].push(transacao);
       }
     });
+  }
+
+  rotulos(matriz: MatrizTransacoes) {
+    return new Array(...matriz.keys());
   }
 
   totalMes(matriz: MatrizTransacoes, mes?: number) {
@@ -96,7 +112,7 @@ export class TransacaoMatrizService {
         
       }, 0);
       
-      function obterTransacoes(linhaTransacao: MatrizLinha) {
+      function obterTransacoes(linhaTransacao: MatrizLinhaTransacoes) {
         let transacoes: TransacaoImpl[];
       if (!!mes) {
         transacoes = linhaTransacao[mes];
@@ -138,7 +154,7 @@ export class TransacaoMatrizService {
     }, 0);
   }
 
-  obterTransacoesMatriz({ matriz, nomeTransacao, mes }: { matriz: MatrizTransacoes; nomeTransacao: string; mes: number; }): TransacaoImpl[] {
+  obterItensMatriz<ItemDataInicial>({ matriz, nomeTransacao, mes }: { matriz: MatrizType<ItemDataInicial>; nomeTransacao: string; mes: number; }): ItemDataInicial[] {
     return new Array(...matriz.keys())
       .filter(key=> nomeTransacao === key)
       .flatMap(linha => {
@@ -146,6 +162,32 @@ export class TransacaoMatrizService {
         if (!meses) throw `Linha não encontrada ${linha}`
         return meses[mes];
       })
+  }
+
+  obterItensMatrizData<T extends ItemDataInicial>({ matriz, data }: { matriz: MatrizType<T>; data: Date }): T[] {
+    return new Array(...matriz.keys())
+      .flatMap(linha => {
+        const meses = matriz.get(linha);
+        if (!meses) throw `Linha não encontrada ${linha}`
+        return new Array(...Object.values(meses)).flatMap(_itens=>_itens.filter(item=>isSameDay(item.dataInicial, data)))
+      })
+  }
+
+  obterDiaInicial<T extends ItemDataInicial>({matriz, nomeTransacao}: {matriz: MatrizType<T>; nomeTransacao: string}): number {
+    const key = new Array(...matriz.keys()).find(key=> nomeTransacao === key);
+    if (!key) return 0;
+
+    const linha = matriz.get(key);
+    if (!linha) return 0;
+
+    const datas = Object.values(linha)
+        .filter(meses=>meses.length) // meses preenchidos
+        .flatMap(transacoes=>transacoes.filter(item=> !! item.dataInicial)) // possui data
+        .map(transacao=>transacao.dataInicial) // recupera as datas
+        .filter(data=>!!data) // garante datas definidas
+        .sort((d1,d2)=>getTime(d1)-getTime(d2)); // ordena para pegar o primeiro registro
+    
+    return datas?.length && getDate(datas[0]) || 0; // primeira data ou zero
   }
 
 }

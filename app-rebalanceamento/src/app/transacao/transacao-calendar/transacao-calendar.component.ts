@@ -8,17 +8,19 @@ import {
   addMonths,
   endOfMonth,
   format,
+  getMonth,
   isSameDay,
   isSameMonth,
   parse,
   startOfMonth
 } from 'date-fns';
 import { DateTime } from 'luxon';
-import { Subject } from 'rxjs';
+import { Subject, map } from 'rxjs';
 import { CalendarColors, DataClicked, Evento } from 'src/app/calendario/calendario.model';
 import { Mes, TransacaoImpl } from 'src/app/transacao/models/transacao.model';
 import { PopupMenuComponent } from 'src/app/util/popup-menu/popup-menu.component';
-import { CalendarioEventoService } from '../services/calendario-evento.service';
+import { CalendarioEventoService, MatrizEventos } from '../services/calendario-evento.service';
+import { MatrizLinhaType, MatrizType, TransacaoMatrizService } from '../services/transacao-matriz.service';
 import { TransacaoService } from '../services/transacao.service';
 
 @Component({
@@ -39,7 +41,7 @@ export class TransacaoCalendarComponent implements OnInit {
     evento: Evento;
   };
 
-  eventos: Evento[] = [];
+  eventos: MatrizEventos = new Map<string, MatrizLinhaType<Evento>>();
 
   eventosContexto: Evento[] = [];
 
@@ -49,7 +51,8 @@ export class TransacaoCalendarComponent implements OnInit {
 
   constructor(
     private _calendarioService: CalendarioEventoService,
-    private _transacaoService: TransacaoService
+    private _transacaoService: TransacaoService,
+    private _matrizService: TransacaoMatrizService
   ) {}
 
   mesAnterior() {
@@ -91,7 +94,8 @@ export class TransacaoCalendarComponent implements OnInit {
   obterEventos() {
     const inicio = startOfMonth(this.viewDate)
     const fim = endOfMonth(this.viewDate);
-    this._calendarioService.obterEventos({inicio, fim}).subscribe(eventos=>this.eventos=eventos);
+
+    this._calendarioService.obterEventos({inicio, fim}).subscribe(matriz=>this.eventos = matriz);
   }
 
   get meses() {
@@ -120,7 +124,8 @@ export class TransacaoCalendarComponent implements OnInit {
   }
 
   abrirPopup(e: DataClicked) {
-    this.eventosContexto = this.eventos.filter(evento=>isSameDay(e.data, evento.data))
+    this.eventosContexto = this._matrizService.obterItensMatrizData({matriz: this.eventos, data: this.viewDate})
+
     this.menu.open(e.event);
     this.viewDate = e.data;
   }

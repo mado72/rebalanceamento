@@ -1,18 +1,27 @@
 import { TestBed } from '@angular/core/testing';
 
-import { TransacaoMatrizService } from './transacao-matriz.service';
+import { HttpClient } from '@angular/common/http';
 import { HttpClientTestingModule } from '@angular/common/http/testing';
+import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { ToastrModule } from 'ngx-toastr';
-import { ITransacao, Periodicidade, TipoLiquidacao, TipoTransacao, TransacaoImpl } from '../models/transacao.model';
+import { of } from 'rxjs';
+import { AlertService } from 'src/app/services/alert.service';
+import { Periodicidade, TipoLiquidacao, TipoTransacao, TransacaoImpl } from '../models/transacao.model';
+import { MatrizTransacoes, TransacaoMatrizService } from './transacao-matriz.service';
+import { TransacaoService } from './transacao.service';
 
 describe('TransacaoMatrizService', () => {
   let service: TransacaoMatrizService;
+  let transacaoService = new TransacaoService({} as HttpClient, {} as AlertService, {} as NgbModal);
 
   beforeEach(() => {
     TestBed.configureTestingModule({
       imports: [
         HttpClientTestingModule,
         ToastrModule.forRoot()
+      ],
+      providers: [
+        { provide: TransacaoService, useValue: transacaoService}
       ]
     });
     service = TestBed.inject(TransacaoMatrizService);
@@ -194,7 +203,7 @@ describe('TransacaoMatrizService', () => {
 
     const matriz = service.montarMatriz(transacoes);
 
-    const t1Mes0 = service.obterTransacoesMatriz({
+    const t1Mes0 = service.obterItensMatriz({
       matriz, mes: 0, nomeTransacao: 'Transacao 1'
     });
     expect(t1Mes0.length).toEqual(2);
@@ -234,14 +243,92 @@ describe('TransacaoMatrizService', () => {
 
     const matriz = service.montarMatriz(transacoes);
 
-    const t1Mes0 = service.obterTransacoesMatriz({ matriz, mes: 0, nomeTransacao: 'Transacao 1' });
-    const t1Mes1 = service.obterTransacoesMatriz({ matriz, mes: 1, nomeTransacao: 'Transacao 1' });
-    const t2Mes0 = service.obterTransacoesMatriz({ matriz, mes: 0, nomeTransacao: 'Transacao 2' });
-    const t2Mes1 = service.obterTransacoesMatriz({ matriz, mes: 1, nomeTransacao: 'Transacao 2' });
+    const t1Mes0 = service.obterItensMatriz({ matriz, mes: 0, nomeTransacao: 'Transacao 1' });
+    const t1Mes1 = service.obterItensMatriz({ matriz, mes: 1, nomeTransacao: 'Transacao 1' });
+    const t2Mes0 = service.obterItensMatriz({ matriz, mes: 0, nomeTransacao: 'Transacao 2' });
+    const t2Mes1 = service.obterItensMatriz({ matriz, mes: 1, nomeTransacao: 'Transacao 2' });
     expect(t1Mes0.length).toEqual(2);
     expect(t1Mes1.length).toEqual(1);
     expect(t2Mes0.length).toEqual(1);
     expect(t2Mes1.length).toEqual(0);
   });
+
+  it('Deve obter a data inicial de transação', ()=>{
+    const transacoes: TransacaoImpl[] = [
+      {
+        descricao: 'Transacao 1',
+        valor: 100,
+        tipoTransacao: TipoTransacao.DEBITO,
+        dataInicial: new Date(2020, 3, 11)
+      },
+      {
+        descricao: 'Transacao 1',
+        valor: 100,
+        tipoTransacao: TipoTransacao.DEBITO,
+        dataInicial: new Date(2020, 1, 18)
+      },
+      {
+        descricao: 'Transacao 1',
+        valor: 100,
+        tipoTransacao: TipoTransacao.TRANSFERENCIA,
+        dataInicial: new Date(2020, 5, 31)
+      },
+      {
+        descricao: 'Transacao 2',
+        valor: 100,
+        tipoTransacao: TipoTransacao.TRANSFERENCIA,
+        dataInicial: new Date(2020, 0, 2)
+      }].map(i => new TransacaoImpl(i));
+
+    const matriz = service.montarMatriz(transacoes);
+    const dia1 = service.obterDiaInicial({matriz, nomeTransacao: 'Transacao 1'});
+    const dia2 = service.obterDiaInicial({matriz, nomeTransacao: 'Transacao 2'});
+    expect(dia1).toBe(18)
+    expect(dia2).toBe(2)
+  })
+
+  it('Deve obter os rótulos da matriz', ()=>{
+    const transacoes: TransacaoImpl[] = [
+      {
+        descricao: 'Transacao 1',
+        valor: 100,
+        tipoTransacao: TipoTransacao.DEBITO,
+        dataInicial: new Date(2020, 3, 11)
+      },
+      {
+        descricao: 'Transacao 1',
+        valor: 100,
+        tipoTransacao: TipoTransacao.DEBITO,
+        dataInicial: new Date(2020, 1, 18)
+      },
+      {
+        descricao: 'Transacao 1',
+        valor: 100,
+        tipoTransacao: TipoTransacao.TRANSFERENCIA,
+        dataInicial: new Date(2020, 5, 31)
+      },
+      {
+        descricao: 'Transacao 1',
+        valor: 100,
+        tipoTransacao: TipoTransacao.TRANSFERENCIA,
+        dataInicial: new Date(2020, 5, 19)
+      },
+      {
+        descricao: 'Transacao 2',
+        valor: 100,
+        tipoTransacao: TipoTransacao.TRANSFERENCIA,
+        dataInicial: new Date(2020, 0, 2)
+      }].map(i => new TransacaoImpl(i));
+
+    spyOn(transacaoService, 'obterTransacoes').and.returnValue(of(transacoes))
+  
+    let matriz = service.montarMatriz(transacoes);
+    let rotulos = service.rotulos(matriz);
+    debugger;
+    expect(rotulos).toBeTruthy();
+    expect(rotulos.length).toBe(2);
+    expect(rotulos[0]).toBe('Transacao 1');
+    expect(rotulos[1]).toBe('Transacao 2');
+  })
 
 });

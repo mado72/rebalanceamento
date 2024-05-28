@@ -1,6 +1,5 @@
-import { DateTime } from "luxon";
+import { add, addDays, addMonths, addYears, endOfDay, format, getMonth, isAfter, isBefore, isSameDay, isValid, isWithinInterval, parse, startOfDay } from "date-fns";
 import { Conta } from "../../conta/model/conta.model";
-import { add, addDays, addMonths, addYears, endOfDay, format, getMonth, getTime, isAfter, isBefore, isSameDay, isValid, isWithinInterval, parse, startOfDay } from "date-fns";
 
 export enum Periodicidade {
     UNICO = "UNICO",
@@ -259,6 +258,5 @@ export class TransacaoImpl implements ITransacao {
     get mesInicial() {
         return Object.values(Mes)[getMonth(this.dataInicial)]
     }
-
 
 }

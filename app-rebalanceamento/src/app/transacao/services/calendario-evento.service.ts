@@ -4,56 +4,49 @@ import { TipoTransacao, TransacaoImpl } from '../models/transacao.model';
 import { CalendarColorType, CalendarColors, Evento } from 'src/app/calendario/calendario.model';
 import { Observable, Observer, from, map, mergeAll, tap, toArray } from 'rxjs';
 import { getTime, startOfDay } from 'date-fns';
+import { MatrizLinhaTransacoes, MatrizTransacoes, MatrizType, TransacaoMatrizService } from './transacao-matriz.service';
+
+export type MatrizEventos = MatrizType<Evento>;
+
+export type MatrizEventoLinha = {
+  [mes: number]: Evento[];
+};
+
 
 @Injectable({
   providedIn: 'root'
 })
 export class CalendarioEventoService {
 
-  constructor(private _transacaoService: TransacaoService) { }
+  constructor(
+    private _transacaoService: TransacaoService, 
+    private _matrizService: TransacaoMatrizService) { }
 
-  obterEventos({inicio, fim}:{inicio: Date, fim: Date}) {
-    return new Observable<Evento[]>((observer: Observer<Evento[]>)=>{
-      this._transacaoService.obterTransacoesIntervalo({inicio, fim}).subscribe({
-        next: transacoes=>{
-          // mapeia transações com liquidação
-          const mapTransacoesByOrigem = new Map(transacoes.filter(transacao=>!!transacao.dataLiquidacao && !!transacao.origem).map(transacao=> [transacao.origem as string, transacao]));
-          const mapTransacoes = new Map<number, TransacaoImpl[]>();
-          transacoes.filter(transacao=>!!transacao.dataLiquidacao).forEach(transacao=>{
-            const time = getTime(startOfDay(transacao.dataInicial));
-            if (!mapTransacoes.has(time)) {
-              mapTransacoes.set(time, []);
-            }
-            mapTransacoes.get(time)?.push(transacao);
-          });
+  obterEventos({inicio, fim}:{inicio: Date, fim: Date}) : Observable<MatrizEventos>{
+    return this._transacaoService.obterTransacoesIntervalo({inicio, fim}).pipe(
+      map(transacoes=>this._matrizService.montarMatriz(transacoes)),
+      map(matrizTransacoes=>this.converterMatrizEventos(matrizTransacoes)),
+    )
+  }
 
-          // transações recorrentes
-          transacoes.filter(transacao=>!transacao.dataLiquidacao && ! mapTransacoesByOrigem.get(transacao.origem as string)).forEach(transacao=>{
-            const time = getTime(startOfDay(transacao.dataInicial));
-            if (!mapTransacoes.has(time)) {
-              mapTransacoes.set(time, []);
-            }
-            mapTransacoes.get(time)?.push(transacao);
-          })
-          
-          from(mapTransacoes.values())
-            .pipe(
-              mergeAll(),
-              toArray()
-            )
-            .subscribe(transacoes=>{
-              observer.next(transacoes.map(transacao=>this.converterParaEvento(transacao)));
-            });
-        },
-        error: (error)=>observer.error(error),
-        complete: ()=> observer.complete()
-      })
+  converterMatrizEventos(original: MatrizTransacoes): MatrizEventos {
+    const matrizEventos = new Map<string, MatrizEventoLinha>();
+    new Array(...original.keys()).map(nomeTransacao=>{
+      const matrizLinha = original.get(nomeTransacao);
+      if (!matrizLinha) {
+        throw `Matriz inválida ${nomeTransacao}`
+      }
+      const linha : MatrizEventoLinha = this.converterMatrizLinha(matrizLinha);
+      matrizEventos.set(nomeTransacao, linha);
     });
-/*
-    console.log(inicio);
-    console.log(fim);
-*/
+    return matrizEventos;
+  }
 
+  private converterMatrizLinha(matrizLinha: MatrizLinhaTransacoes): MatrizEventoLinha {
+    const mes = Object.keys(matrizLinha).map(s=>Number(s))[0];
+    const linha : MatrizEventoLinha = {};
+    linha[mes] = matrizLinha[mes].map(transacao=>this.converterParaEvento(transacao));
+    return linha;
   }
 
   converterParaEvento(transacao: TransacaoImpl) : Evento {
@@ -62,7 +55,7 @@ export class CalendarioEventoService {
             ? (!! transacao.dataLiquidacao ? 'purple' : 'red')
             : (!! transacao.dataLiquidacao ? 'blue' : 'cyan');
     return {
-      data: transacao.dataLiquidacao || transacao.dataInicial,
+      dataInicial: transacao.dataLiquidacao || transacao.dataInicial,
       titulo: transacao.descricao,
       descricao: transacao.descricao,
       cor: CalendarColors[color].primary,
@@ -71,3 +64,4 @@ export class CalendarioEventoService {
   }
 
 }
+

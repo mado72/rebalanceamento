@@ -1,6 +1,8 @@
 import { Component, EventEmitter, Input, Output, TemplateRef } from '@angular/core';
 import { endOfMonth, getDay, isSameDay, isSameMonth, startOfMonth } from 'date-fns';
 import { DataClicked, Evento } from '../calendario.model';
+import { MatrizEventos } from 'src/app/transacao/services/calendario-evento.service';
+import { TransacaoMatrizService } from 'src/app/transacao/services/transacao-matriz.service';
 
 interface CelConfig {
   mesCorrente: boolean;
@@ -20,7 +22,7 @@ export class CalendarioMensalComponent {
 
   @Output() dataSelecionadaChange = new EventEmitter<Date>();
 
-  private _eventos: Evento[] = [];
+  private _eventos!: MatrizEventos;
 
   private _celulas: CelConfig[][] = [];
 
@@ -30,13 +32,13 @@ export class CalendarioMensalComponent {
 
   @Input() eventoDetalheTemplate: TemplateRef<any> | undefined;
 
-  constructor() { }
+  constructor(private matrizService: TransacaoMatrizService) { }
 
   get eventos() {
     return this._eventos;
   }
 
-  @Input() set eventos(eventos: Evento[]) {
+  @Input() set eventos(eventos: MatrizEventos) {
     this._eventos = eventos;
     const celulas = new Array(6);
     for (let iLinha = 0; iLinha < 6; iLinha++) {
@@ -73,7 +75,7 @@ export class CalendarioMensalComponent {
     return {
       mesCorrente: dataNoMesCorrente,
       fundo: dataNoMesCorrente ? 'white' : 'lightgray',
-      eventos: this.eventos.filter(e => isSameDay(e.data, dataCelula)),
+      eventos: this.matrizService.obterItensMatrizData({matriz: this.eventos, data: dataCelula}),
       data: dataCelula
     }
   }

@@ -1,5 +1,5 @@
 export interface Evento {
-    data: Date, // data do evento
+    dataInicial: Date, // data do evento
     titulo: string, // titulo do evento
     descricao?: string // descrição do evento
     cor?: string, // cor do evento

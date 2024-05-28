@@ -5,14 +5,11 @@ input {
 a.transacao-valor {
     text-decoration: none;
 }
+.active {
+    font-weight: bold;
+}
 .debito {
     color: red;
-    &::before {
-        content: "(";
-    }
-    &::after {
-        content: ")";
-    }
 }
 .credito {
     color: green;
