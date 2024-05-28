@@ -11,7 +11,7 @@ export type DataClicked = {
     event: MouseEvent // evento do mouse
 }
 
-export type CalendarColorType = 'red' | 'green' | 'blue' | 'yellow' | 'purple' | 'cyan';
+export type CalendarColorType = 'red' | 'green' | 'lightgreen' | 'blue' | 'orange' | 'purple' | 'cyan';
 
 export const CalendarColors: Record<CalendarColorType, {primary: string, secondary: string}> = {
   red: {
@@ -22,12 +22,16 @@ export const CalendarColors: Record<CalendarColorType, {primary: string, seconda
     primary: '#0000ff',
     secondary: '#D1E8FF',
   },
-  yellow: {
-    primary: '#e3bc08',
+  orange: {
+    primary: '#ffa500',
     secondary: '#9999ff',
   },
+  lightgreen: {
+    primary: '#90ee90', 
+    secondary: '#bcfdba'
+  },
   green: {
-    primary: '#0fe308',
+    primary: '#008000',
     secondary: '#bcfdba',
   },
   cyan: {

@@ -43,17 +43,20 @@ export class CalendarioEventoService {
   }
 
   private converterMatrizLinha(matrizLinha: MatrizLinhaTransacoes): MatrizEventoLinha {
-    const mes = Object.keys(matrizLinha).map(s=>Number(s))[0];
     const linha : MatrizEventoLinha = {};
-    linha[mes] = matrizLinha[mes].map(transacao=>this.converterParaEvento(transacao));
+    const meses = Object.keys(matrizLinha).map(mes=>Number(mes));
+    meses.forEach(mes=>{
+      let eventos = matrizLinha[mes].map(transacao=>this.converterParaEvento(transacao));
+      linha[mes] = eventos;
+    })
     return linha;
   }
 
   converterParaEvento(transacao: TransacaoImpl) : Evento {
     const color : CalendarColorType = 
         transacao.tipoTransacao == TipoTransacao.DEBITO 
-            ? (!! transacao.dataLiquidacao ? 'purple' : 'red')
-            : (!! transacao.dataLiquidacao ? 'blue' : 'cyan');
+            ? (!! transacao.dataLiquidacao ? 'red' : 'orange')
+            : (!! transacao.dataLiquidacao ? 'green' : 'lightgreen');
     return {
       dataInicial: transacao.dataLiquidacao || transacao.dataInicial,
       titulo: transacao.descricao,
