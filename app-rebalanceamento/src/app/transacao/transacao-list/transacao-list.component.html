@@ -49,16 +49,16 @@
 </ng-template>
 
 <ng-template #lancamentosMultiplos let-celula="celula">
-    <a href="javascript:void(0)" (click)="abrirPopupTransacoes(celula.transacoes, $event)" class="multiplos-lancamentos">
-        {{ celula.total | number : '1.2-2' }}
+    <a href="javascript:void(0)" (click)="abrirPopupTransacoes(celula.transacoes, $event)" class="multiplos-lancamentos" [ngClass]="celula.classe">
+        {{ celula.total | number : '1.2-2': 'pt' }}
     </a>
 </ng-template>
 
-<app-popup-menu [width]="'300px'">
-    <h6 class="title border-bottom">Escolha uma opção</h6>
+<app-popup-menu [width]="'350px'">
+    <h6 class="title border-bottom">Escolha uma transação</h6>
     <div class="items">
-      <a class="popup-item nowrap" *ngFor="let transacao of popupTransacoes" (click)="editarTransacao(transacao, 'Editar transação')">
-        {{transacao.descricao}} - {{transacao.tipoTransacao}} - {{transacao.valor}}
+      <a class="popup-item nowrap" *ngFor="let transacao of popupTransacoes" (click)="editarTransacao(transacao, 'Editar transação')" [ngClass]="transacao.tipoTransacao.toLocaleLowerCase()">
+        {{transacao.descricao}} - {{transacao.tipoTransacao}} - {{transacao.valor | number: '1.2-2' : 'pt'}}
       </a>
     </div>
 </app-popup-menu>

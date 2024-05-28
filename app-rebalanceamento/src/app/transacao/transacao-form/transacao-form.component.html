@@ -30,19 +30,26 @@
             </select>
             
             <label for="liquidacao" class="col-1">Liquida em</label>
-            <select class="form-control col" name="liquidacao" id="liquidacao" [(ngModel)]="transacao.liquidacao">
+            <select class="form-select col" name="liquidacao" id="liquidacao" [(ngModel)]="liquidacao">
                 <option [value]="undefined">Selecione...</option>
-                <option [value]="liquidacao" *ngFor="let liquidacao of liquidacoes">{{liquidacao}}</option>
+                <optgroup label="Conta">
+                    <option [ngValue]="opcaoLiquidacaoTipoConta" class="tipo">Conta Corrente</option>
+                    <option [ngValue]="item" *ngFor="let item of opcoesLiquidacaoConta" class="conta">{{item.asString}}</option>
+                </optgroup>
+                <optgroup label="Cartões">
+                    <option [ngValue]="opcaoLiquidacaoTipoCartao" class="tipo">Cartão de Crédito</option>
+                    <option [ngValue]="item" *ngFor="let item of opcoesLiquidacaoCartao" class="conta">{{item.asString}}</option>
+                </optgroup>
             </select>
 
             <label for="periodicidade" class="col-2">Periodicidade</label>
-            <select name="periodicidade" class="form-control col" id="periodicidade" [(ngModel)]="transacao.periodicidade">
+            <select name="periodicidade" class="form-select col" id="periodicidade" [(ngModel)]="transacao.periodicidade">
               <option [value]="undefined">Selecione...</option>
               <option [value]="periodicidade" *ngFor="let periodicidade of periodicidades">{{periodicidade}}</option>
             </select>
         </div>
     </form>
 </div>
-<pre class="debug">
+<pre>
 {{transacao | json}}
 </pre>

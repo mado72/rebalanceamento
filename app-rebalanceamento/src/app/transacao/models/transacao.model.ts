@@ -27,7 +27,7 @@ export enum Mes {
 }
 
 export enum TipoLiquidacao {
-    CONTA = 'CONTA',
+    CORRENTE = 'CONTA',
     CARTAO = 'CARTAO'
 }
 
@@ -46,7 +46,7 @@ export interface ITransacao {
     dataInicial: Date; // Data de vencimento da transação
     dataLiquidacao?: Date; // Data de lançamento da transação
     dataFinal?: Date // Data final da recorrência (opcional)
-    contaLiquidacao?: Conta // Conta de Liquidação
+    contaLiquidacao?: string // Conta de Liquidação
     origem?: string; // Origem da transação
     categoria?: string | undefined;
     liquidacao: TipoLiquidacao;
@@ -61,7 +61,7 @@ export class TransacaoImpl implements ITransacao {
     dataInicial!: Date; // Data de vencimento da transação
     dataLiquidacao?: Date; // Data de vencimento da transação
     dataFinal?: Date // Data final da recorrência (opcional)
-    contaLiquidacao?: Conta // Conta de Liquidação
+    contaLiquidacao?: string // Conta de Liquidação
     origem?: string; // Origem da transação
     categoria?: string | undefined; // Categoria
     liquidacao!: TipoLiquidacao; // Tipo de liquidação
@@ -78,7 +78,7 @@ export class TransacaoImpl implements ITransacao {
         this.contaLiquidacao = valorInicial.contaLiquidacao;
         this.origem = valorInicial.origem;
         this.categoria = valorInicial.categoria;
-        this.liquidacao = valorInicial.liquidacao || TipoLiquidacao.CONTA;
+        this.liquidacao = valorInicial.liquidacao || TipoLiquidacao.CORRENTE;
     }
 
     private toDate(d: any) {

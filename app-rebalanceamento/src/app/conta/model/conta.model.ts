@@ -2,10 +2,11 @@ import { Moeda } from "src/app/ativos/model/ativos.model";
 
 export enum TipoConta {
     CORRENTE = "CORRENTE",
-    INVESITMENTO = "INVESITMENTO"
+    CARTAO = "CARTAO",
+    INVESTIMENTO = "INVESTIMENTO"
 }
 export interface Conta {
-    id?: number,
+    _id?: string,
     nome: string,
     saldo: number,
     tipo: TipoConta,

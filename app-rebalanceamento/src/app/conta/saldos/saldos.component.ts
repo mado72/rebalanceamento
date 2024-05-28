@@ -1,7 +1,10 @@
 import { Component, OnInit } from '@angular/core';
+import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
+import { Moeda, MoedaSigla } from 'src/app/ativos/model/ativos.model';
+import { ContaFormComponent } from '../conta-form/conta-form.component';
 import { Conta, TipoConta } from '../model/conta.model';
 import { ContaService } from '../services/conta.service';
-import { Moeda, MoedaSigla } from 'src/app/ativos/model/ativos.model';
+import { AlertService } from 'src/app/services/alert.service';
 
 @Component({
   selector: 'app-saldos',
@@ -11,9 +14,38 @@ import { Moeda, MoedaSigla } from 'src/app/ativos/model/ativos.model';
 export class SaldosComponent implements OnInit {
   contas = new Array<Conta>();
 
-  contaSelecionada?: Conta;
+  private _contaSelecionada?: Conta | undefined;
 
-  constructor (private _contaService: ContaService) {}
+  constructor (
+    private _contaService: ContaService,
+    private _alertService: AlertService,
+    private _modalService: NgbModal
+  ) {}
+
+  public get contaSelecionada(): Conta | undefined {
+    return this._contaSelecionada;
+  }
+
+  public set contaSelecionada(value: Conta | undefined) {
+    this._contaSelecionada = value;
+    if (this._contaSelecionada) {
+      const modalRef = this._modalService.open(ContaFormComponent, { size: 'lg' });
+      const component = modalRef.componentInstance as ContaFormComponent;
+      component.conta = this._contaSelecionada;
+      component.onCancelar.subscribe((ev: any) => {
+        modalRef.dismiss(ev);
+        delete this._contaSelecionada;
+      });
+      component.onSalvarConta.subscribe(conta => {
+        this.salvarConta(conta);
+        modalRef.close('Salvar');
+      });
+      component.onExcluirConta.subscribe(conta=>{
+        this.excluirConta(conta);
+        modalRef.close('Excluir');
+      })
+    }
+  }
 
   ngOnInit(): void {
     this._contaService.listarContas().subscribe(contas => this.contas = contas);
@@ -49,6 +81,11 @@ export class SaldosComponent implements OnInit {
 
   excluirConta(conta: Conta) {
     this._contaService.excluirConta(conta).subscribe(()=>{
+      this._alertService.alert({
+        tipo: 'sucesso',
+        mensagem: 'Conta excluída com sucesso!',
+        titulo: 'Resultado da operação'
+      })
       this._contaService.listarContas().subscribe(contas => this.contas = contas);
     });
     delete this.contaSelecionada;
@@ -57,6 +94,11 @@ export class SaldosComponent implements OnInit {
   salvarConta(conta: Conta) { 
     this._contaService.salvarConta(conta).subscribe(()=>{
       delete this.contaSelecionada;
+      this._alertService.alert({
+        tipo: 'sucesso',
+        mensagem: 'Conta salva com sucesso!',
+        titulo: 'Resultado da operação'
+      })
       this._contaService.listarContas().subscribe(contas => this.contas = contas);
     });
   }

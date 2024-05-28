@@ -40,7 +40,7 @@ describe('TransacaoMatrizService', () => {
         periodicidade: Periodicidade.MENSAL,
         dataInicial: new Date(2020, 0, 1),
         dataFinal: new Date(2020, 10, 1),
-        liquidacao: TipoLiquidacao.CONTA
+        liquidacao: TipoLiquidacao.CORRENTE
       },
       {
         _id: '123',
@@ -51,7 +51,7 @@ describe('TransacaoMatrizService', () => {
         dataInicial: new Date(2020, 2, 1),
         dataFinal: new Date(2020, 11, 1),
         dataLiquidacao: new Date(2020, 2, 1),
-        liquidacao: TipoLiquidacao.CONTA
+        liquidacao: TipoLiquidacao.CORRENTE
       }
     ].map(i => new TransacaoImpl(i));
 
@@ -76,7 +76,7 @@ describe('TransacaoMatrizService', () => {
         periodicidade: Periodicidade.MENSAL,
         dataInicial: new Date(2020, 0, 1),
         dataFinal: new Date(2020, 2, 1),
-        liquidacao: TipoLiquidacao.CONTA
+        liquidacao: TipoLiquidacao.CORRENTE
       },
       {
         descricao: 'Transacao 2',
@@ -86,7 +86,7 @@ describe('TransacaoMatrizService', () => {
         dataInicial: new Date(2020, 2, 1),
         dataFinal: new Date(2020, 2, 1),
         dataLiquidacao: new Date(2020, 2, 1),
-        liquidacao: TipoLiquidacao.CONTA
+        liquidacao: TipoLiquidacao.CORRENTE
       },
       {
         descricao: 'Transacao 3',
@@ -95,7 +95,7 @@ describe('TransacaoMatrizService', () => {
         periodicidade: Periodicidade.MENSAL,
         dataInicial: new Date(2020, 4, 1),
         dataFinal: new Date(2020, 10, 1),
-        liquidacao: TipoLiquidacao.CONTA
+        liquidacao: TipoLiquidacao.CORRENTE
       }
     ].map(i => new TransacaoImpl(i));
 

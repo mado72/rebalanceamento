@@ -1,39 +1,50 @@
 <p>saldos works!</p>
 
 <button (click)="adicionarConta()">Adicionar Conta</button>
-<table>
+<table class="table table-stripped">
     <thead>
         <tr>
             <td>Conta</td>
-            <td>Saldo Atual</td>
-            <td>Vl. Real</td>
+            <td class="text-center">Saldo Atual</td>
+            <td class="text-center">Vl. Real</td>
         </tr>
     </thead>
     <tbody>
         <tr *ngFor="let conta of contas">
             <td>
-                <a [routerLink]="['/contas/edit/', conta.id]" (click)="editarConta(conta)">
+                <a href="javascript:void()" (click)="editarConta(conta)">
                     {{conta.nome}}
                 </a>
             </td>
-            <td>{{sigla(conta.moeda)}} {{conta.saldo | number:'1.2-2'}}</td>
-            <td>R$ {{conta.saldo | number:'1.2-2'}}</td>
+            <td class="text-end">{{sigla(conta.moeda)}} {{conta.saldo | number:'1.2-2'}}</td>
+            <td class="text-end">R$ {{conta.saldo | number:'1.2-2'}}</td>
         </tr>
     </tbody>
     <tfoot>
         <tr>
             <td></td>
             <td></td>
-            <td>{{totais.total | number:'1.2-2'}}</td>
+            <td class="text-end">R$ {{totais.total | number:'1.2-2'}}</td>
         </tr>
     </tfoot>
 </table>
 
-<ng-container *ngIf="!!contaSelecionada">
-    <app-conta-form 
-        [conta]="contaSelecionada"
-        (onCancelar)="cancelar()"
-        (onSalvarConta)="salvarConta($event)"
-        (onExcluirConta)="excluirConta($event)"
-    />
-</ng-container>
+<ng-template #ContaFormTemplate let-contaSelecionada>
+    <pre>Conta Selecionada: {{contaSelecionada | json}}</pre>
+    <div class="modal-header">Edição da conta</div>
+    <!-- <ng-container *ngIf="!!contaSelecionada">
+        <div class="modal-body">
+            <app-conta-form #ContaForm
+                [conta]="contaSelecionada"
+                (onCancelar)="cancelar()"
+                (onSalvarConta)="salvarConta($event)"
+                (onExcluirConta)="excluirConta($event)"
+            />
+        </div>
+        <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" (click)="cancelar()">Cancelar</button>
+            <button type="button" class="btn btn-primary" (click)="salvarConta(contaSelecionada)">Salvar</button>
+            <button type="button" class="btn btn-danger" (click)="excluirConta(contaSelecionada)">Excluir</button>
+        </div>
+    </ng-container> -->
+</ng-template>
