@@ -7,7 +7,7 @@
     <tbody>
         <tr *ngFor="let linha of celulas; let iLinha = index" class="cell-row">
             <td *ngFor="let celula of linha; let iColuna = index" class="p-0 m-0" [ngClass]="{'mes-corrente': celula.mesCorrente}">
-                <div class="data" (click)="dataClick(celula.data)">
+                <div class="data" (click)="dataClick(celula.data)" (contextmenu)="menuContexto(celula.data, $event)">
                     <app-calendario-mensal-celula
                         [dataSelecionada]="dataSelecionada"
                         [data]="celula.data"
@@ -16,6 +16,7 @@
                         [eventos]="celula.eventos"
                         [mesCorrente]="celula.mesCorrente"
                         (eventoClicked)="eventoClick($event)"
+                        [templateDetalhes]="eventoDetalheTemplate"
                     />
                 </div>
             </td>

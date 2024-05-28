@@ -7,9 +7,7 @@ describe('LedComponent', () => {
   let fixture: ComponentFixture<LedComponent>;
 
   beforeEach(async () => {
-    await TestBed.configureTestingModule({
-      declarations: [ LedComponent ]
-    })
+    await TestBed.configureTestingModule({})
     .compileComponents();
   });
 

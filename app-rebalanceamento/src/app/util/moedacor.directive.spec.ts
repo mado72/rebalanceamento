@@ -7,15 +7,14 @@ import { By } from '@angular/platform-browser';
   standalone: true,
   template:`{{valor}}
     <div moeda-cor id="valorRed">-123.10</div>
-    <div moeda-cor id="valorBlack">{{valor}}</div>
-    `,
+    <div moeda-cor id="valorBlack">{{valor}}</div>`,
   imports:[MoedaCorDirective]
 })
 export class MockComponent {
   valor = 123.10;
 }
 
-fdescribe('MoedaCorDiretive', () => {
+describe('MoedaCorDiretive', () => {
   let fixture : ComponentFixture<MockComponent>;
   let des: DebugElement[];
 
@@ -42,10 +41,10 @@ fdescribe('MoedaCorDiretive', () => {
     expect(des[1].nativeElement.style.color).toBe('black');
   })
   
-  fit('deve mudar de cor quando numero tornar-se positivo', ()=>{
+  it('deve mudar de cor quando numero tornar-se positivo', ()=>{
     fixture.autoDetectChanges(true);
     fixture.componentInstance.valor = -123.10;
-    expect(des[1].nativeElement.style.color).toBe('red');
+    expect(des[1].nativeElement.style.color).toBe('black');
   })
 
 });

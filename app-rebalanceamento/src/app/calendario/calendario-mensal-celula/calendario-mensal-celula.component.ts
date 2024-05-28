@@ -1,4 +1,4 @@
-import { Component, EventEmitter, Input, Output } from '@angular/core';
+import { AfterViewInit, Component, EventEmitter, HostBinding, Input, OnInit, Output, TemplateRef, ViewChild } from '@angular/core';
 import { getDate, getDay, isSameDay, isWithinInterval } from 'date-fns';
 import { Evento } from '../calendario.model';
 
@@ -23,6 +23,12 @@ export class CalendarioMensalCelulaComponent {
 
   @Output() eventoClicked = new EventEmitter<Evento>();
 
+  @ViewChild('defaultDetalhes') defaultDetalhes!: TemplateRef<any>;
+
+  @Input() tipMinWidth = "160px";
+
+  @Input() templateDetalhes: TemplateRef<any> | undefined;
+
   constructor() { 
   }
 
@@ -42,17 +48,8 @@ export class CalendarioMensalCelulaComponent {
     return getDate(this.data)
   }
 
-  get color() {
-    return ['red', 'green', 'yellow'][this.dia % 3];
-  }
-
-  public get led() {
-    return `led-${this.color}`;
-  }
-
   eventoClick(evento:Evento) {
     this.eventoClicked.emit(evento);
-    console.log(evento);
   }
 
 }

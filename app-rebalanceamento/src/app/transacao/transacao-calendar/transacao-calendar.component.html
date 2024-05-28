@@ -1,52 +1,60 @@
-<button (click)="obterEventos()">
-    Atualizar
-  </button>
-  <div class="row text-center">
-      <div class="col-md-4">
-        <div class="btn-group">
-          <div class="btn btn-primary" (click)="mesAnterior()">Anterior</div>
-          <div class="btn btn-outline-secondary" (click)="hoje()">Hoje</div>
-          <div class="btn btn-primary" (click)="mesPosterior()">Posterior</div>
-        </div>
-      </div>
-      <div class="col-md-4">
-        <h3>{{ viewDate | date:'MMMM / yyyy' }}</h3>
-      </div>
+<div class="row text-center">
+  <div class="col-md-4 text-start">
+    <div class="btn-group">
+      <div class="btn btn-primary" (click)="mesAnterior()">Anterior</div>
+      <div class="btn btn-outline-secondary" (click)="hoje()">Hoje</div>
+      <div class="btn btn-primary" (click)="mesPosterior()">Posterior</div>
     </div>
-    <br />
-    
-    <app-calendario-mensal
-      [eventos]="eventos"
-      [(dataSelecionada)]="viewDate"
-      (eventoClicked)="handleEvent($event)" />
-    
-    <!-- Everything you see below is just for the demo, you don't need to include it in your app -->
-    
-    <br /><br /><br />
-    <pre>
-      {{viewDate | date:'yyyy-MM-dd'}}
-      {{eventos.length}}
-      {{eventos | json}}
-    </pre>
-    <ng-template #modalContent let-close="close">
-      <div class="modal-header">
-        <h5 class="modal-title">Event action occurred</h5>
-        <button type="button" class="close" (click)="close()">
-          <span aria-hidden="true">&times;</span>
-        </button>
-      </div>
-      <div class="modal-body">
-        <div>
-          Event:
-          <pre>{{ modalData.evento | json }}</pre>
-        </div>
-      </div>
-      <div class="modal-footer">
-        <button type="button" class="btn btn-outline-secondary" (click)="close()">
-          OK
-        </button>
-        <button type="button" class="btn btn-outline-secondary" (click)="editar()">
-          Editar
-        </button>
-      </div>
-    </ng-template>
+  </div>
+  <div class="col-md-4 text-center">
+    <input type="month" name="selectorMes" class="form-control" [(ngModel)]="viewDateStr" onfocus="showPicker()" onclick="showPicker()"/>
+  </div>
+  <div class="col-md-4 text-end">
+    <button (click)="obterEventos()" class="btn btn-success">
+      Atualizar
+      <span class="fs-4 lh-1 m-0 p-0">&#10227;</span>
+    </button>
+  </div>
+</div>
+<br />
+
+<app-calendario-mensal 
+  [eventos]="eventos" 
+  [(dataSelecionada)]="viewDate" 
+  (dataClicked)="abrirPopup($event)"
+  (eventoClicked)="handleEvent($event)"
+  [eventoDetalheTemplate]="detalhesEvento"
+   />
+
+<app-popup-menu>
+  <h6 class="title border-bottom">Escolha uma opção</h6>
+  <div class="items">
+    <a class="popup-item" *ngFor="let evento of eventosContexto" (click)="handleEvent(evento)">
+      <span class="led" [style.backgroundColor]="evento.cor"></span>
+      {{evento.titulo}}
+    </a>
+    <a class="popup-item text-primary border-top" (click)="criarEvento()">
+      <span class="led"></span>
+      Nova transação
+    </a>
+  </div>
+</app-popup-menu>
+
+<ng-template #detalhesEvento let-evento="evento">
+  <div class="card">
+    <div class="card-body">
+      <h5 class="card-title">{{evento.titulo}}</h5>
+      <p class="card-text text-nowrap">
+        <small class="text-muted">{{evento.data | date:'dd/MM/yyyy'}}</small>
+        <small class="text-muted" *ngIf="evento.meta.dataFinal"> - {{evento.meta.dataFinal | date:'dd/MM/yyyy'}}</small>
+      </p>
+      <p class="card-text">{{evento.meta?.categoria}}</p>
+      <p class="card-text">{{evento.meta?.valor | currency:'BRL'}}</p>
+    </div>
+  </div>
+</ng-template>
+
+<pre class="debug">
+  {{viewDate | date:'yyyy-MM-dd'}}
+  {{eventos | json}}
+</pre>

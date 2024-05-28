@@ -1,5 +1,6 @@
 const { DateTime } = require('luxon');
 var mongoose = require('mongoose');
+const { format } = require('date-fns');
 const mongoosePaginate = require('mongoose-paginate-v2');
 
 var Schema = mongoose.Schema;
@@ -64,17 +65,17 @@ var Transacao = new Schema({
     statics: {
         toObjectInstance: (dbInstance)=> {
             var obj = dbInstance.toObject();
-            if (!! obj.dataInicial) obj.dataVencimento = DateTime.fromFormat(obj.dataInicial, 'yyyy-MM-dd');
-            if (!! obj.dataFinal) obj.dataFinal = DateTime.fromFormat(obj.dataFinal, 'yyyy-MM-dd');
-            if (!! obj.dataLiquidacao) obj.dataLiquidacao = DateTime.fromFormat(obj.dataLiquidacao, 'yyyy-MM-dd');
+            // if (!! obj.dataInicial) obj.dataVencimento = DateTime.fromFormat(obj.dataInicial, 'yyyy-MM-dd');
+            // if (!! obj.dataFinal) obj.dataFinal = DateTime.fromFormat(obj.dataFinal, 'yyyy-MM-dd');
+            // if (!! obj.dataLiquidacao) obj.dataLiquidacao = DateTime.fromFormat(obj.dataLiquidacao, 'yyyy-MM-dd');
             if (!! obj.periodicidade) obj.periodicidade = TipoPeriodicidade[obj.periodicidade];
             if (!! obj.liquidacao) obj.liquidacao = TipoLiquidacao[obj.liquidacao];
             return obj;
         },
         toDBInstance: () => {
-            if (!! this.dataInicial) this.dataInicial = DateTime.fromJSDate(this.dataInicial).format('yyyy-MM-dd');
-            if (typeof this.dataFinal === "object" && this.dataFinal.getMonth && typeof this.dataFinal.getMonth === 'function') this.dataFinal = DateTime.fromJSDate(this.dataFinal).format('yyyy-MM-dd');
-            if (typeof this.dataLiquidacao === "object" && this.dataLiquidacao.getMonth && typeof this.dataLiquidacao.getMonth === 'function') this.dataLiquidacao = DateTime.fromJSDate(this.dataLiquidacao).format('yyyy-MM-dd');
+            if (typeof this.dataInicial === "object" && this.dataInicial.getMonth && typeof this.dataFinal.getMonth === 'function') this.dataInicial = format(this.dataInicial, 'yyyy-MM-dd');
+            if (typeof this.dataFinal === "object" && this.dataFinal.getMonth && typeof this.dataFinal.getMonth === 'function') this.dataFinal = format(this.dataFinal, 'yyyy-MM-dd');
+            if (typeof this.dataLiquidacao === "object" && this.dataLiquidacao.getMonth && typeof this.dataLiquidacao.getMonth === 'function') this.dataLiquidacao = format(this.dataLiquidacao, 'yyyy-MM-dd');
             if (typeof this.periodicidade === "object" && this.periodicidade.getMonth && typeof this.periodicidade.getMonth === 'function') this.periodicidade = TipoPeriodicidade[this.periodicidade];
             if (!! this.liquidacao) this.liquidacao = TipoLiquidacao[this.liquidacao];
         }

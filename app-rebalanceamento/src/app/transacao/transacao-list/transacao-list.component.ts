@@ -1,10 +1,68 @@
-import { Component } from '@angular/core';
-import { Mes, Periodicidade, TransacaoImpl } from '../models/transacao.model';
+import { Component, ViewChild } from '@angular/core';
+import { endOfMonth, getDate, getMonth, set, startOfDay } from 'date-fns';
+import { PopupMenuComponent } from 'src/app/util/popup-menu/popup-menu.component';
+import { Mes, Periodicidade, TipoTransacao, TransacaoImpl } from '../models/transacao.model';
+import { MatrizType, TransacaoMatrizService } from '../services/transacao-matriz.service';
 import { TransacaoService } from '../services/transacao.service';
-import { AlertService } from 'src/app/services/alert.service';
-import { endOfMonth, endOfYear, getDate, getMonth, set, startOfDay, startOfMonth, startOfYear } from 'date-fns';
 
-type Lancamentos = {[classe: string] : {[mes: string] : TransacaoImpl | undefined}};
+class Linha {
+
+  matriz!: MatrizType<TransacaoImpl>;
+
+  celulas: Celula[] = new Array(12);
+
+  diaInicial?: number;
+
+  constructor(matriz: MatrizType<TransacaoImpl>) {
+    this.matriz = matriz;
+  }
+
+  get total() {
+    return this.celulas.reduce((total, celula) => total + celula.total, 0);
+  }
+
+  get nomeTransacao() {
+    return this.celulas[0].nomeTransacao
+  }
+
+}
+
+class Celula {
+  
+  linha!: Linha;
+
+  nomeTransacao!: string;
+
+  mes!: number;
+
+  transacoes!: TransacaoImpl[];
+
+  constructor(linha: Linha, nomeTransacao: string, mes: number, transacoes: TransacaoImpl[]) {
+    this.linha = linha;
+    this.nomeTransacao = nomeTransacao;
+    this.mes = mes;
+    this.transacoes = transacoes;
+  }
+
+  get total() {
+    return this.transacoes.reduce((total, transacao) => total + (transacao.tipoTransacao == TipoTransacao.DEBITO ? - transacao.valor : transacao.valor), 0);
+  }
+
+  get ehUnico() {
+    return this.transacoes.length < 2;
+  }
+
+  get classe() {
+    return {
+      liquidado: ! this.transacoes.find(transacao=>! transacao.dataLiquidacao),
+      debito: !! this.transacoes.length && this.transacoes[0].tipoTransacao == TipoTransacao.DEBITO,
+      credito: !! this.transacoes.length && this.transacoes[0].tipoTransacao == TipoTransacao.CREDITO,
+      transferencia: !! this.transacoes.length && this.transacoes[0].tipoTransacao == TipoTransacao.TRANSFERENCIA,
+      projecao: ! this.transacoes.find(transacao=> transacao._id)
+    } || {}
+  }
+
+}
 
 @Component({
   selector: 'app-transacao-list',
@@ -13,15 +71,18 @@ type Lancamentos = {[classe: string] : {[mes: string] : TransacaoImpl | undefine
 })
 export class TransacaoListComponent {
 
-  private transacoes: TransacaoImpl[] = [];
+  @ViewChild(PopupMenuComponent) menu!: PopupMenuComponent;
 
-  lancamentos : Lancamentos = {};
+  rotulos: string[] = [];
+  linhas: Linha[] = [];
+
+  popupTransacoes : TransacaoImpl[] = [];
 
   private _visao!: Periodicidade;
 
   constructor(
     private _transacaoService: TransacaoService,
-    private _alertService: AlertService
+    private _matrizService: TransacaoMatrizService,
   ) {}
 
   ngOnInit(): void {
@@ -34,44 +95,62 @@ export class TransacaoListComponent {
   public set visao(value: Periodicidade) {
     this._visao = value;
 
-    this.transacoes.forEach(transacao => {
-      const descricao = transacao.descricao || 'Não classificado';
-      let periodo;
-      switch (this.visao) {
-        case Periodicidade.SEMANAL:
-        case Periodicidade.QUINZENAL:
-        case Periodicidade.MENSAL:
-          periodo = getDate(transacao.dataInicial);
-          break;
-        case Periodicidade.TRIMESTRAL:
-        case Periodicidade.SEMESTRAL:
-        case Periodicidade.ANUAL:
-        default:
-          periodo = Object.keys(Mes)[getMonth(transacao.dataInicial)-1];
-          break;
-      }
-      this.lancamentos[descricao] = this.lancamentos[descricao] || {};
-      this.lancamentos[descricao][periodo] = transacao;
-    });
+    // this.transacoes.forEach(transacao => {
+    //   const descricao = transacao.descricao || 'Não classificado';
+    //   let periodo;
+    //   switch (this.visao) {
+    //     case Periodicidade.SEMANAL:
+    //     case Periodicidade.QUINZENAL:
+    //     case Periodicidade.MENSAL:
+    //       periodo = getDate(transacao.dataInicial);
+    //       break;
+    //     case Periodicidade.TRIMESTRAL:
+    //     case Periodicidade.SEMESTRAL:
+    //     case Periodicidade.ANUAL:
+    //     default:
+    //       periodo = Object.keys(Mes)[getMonth(transacao.dataInicial)];
+    //       break;
+    //   }
+    // });
   }
 
   get tiposPeriodo() {
     return [Periodicidade.ANUAL, Periodicidade.SEMESTRAL, Periodicidade.TRIMESTRAL, Periodicidade.MENSAL, Periodicidade.QUINZENAL, Periodicidade.SEMANAL];
   }
-  
-  private obterTransacoes() {
-    const ateData = endOfYear(new Date());
-    const iniData = startOfYear(ateData);
-    this.lancamentos = {};
 
-    this._transacaoService.obterTransacoes().subscribe(transacoes => {
-      this.transacoes = transacoes.flatMap(transacao => {
-        const projecao = transacao.programacaoTransacoes({inicio: iniData, fim: ateData});
-        projecao.push(transacao);
-        return projecao;
-      });
-      this.visao = Periodicidade.ANUAL;
+  classeLancamento(transacao: TransacaoImpl | undefined) {
+    return transacao && {
+      liquidado: !!transacao.dataLiquidacao,
+      debito: transacao.tipoTransacao == TipoTransacao.DEBITO,
+      credito: transacao.tipoTransacao == TipoTransacao.CREDITO,
+      projecao: !transacao._id,
+      transferencia: transacao.tipoTransacao == TipoTransacao.TRANSFERENCIA,
+      semorigem: !transacao.origem
+    } || {}
+  }
+  
+  obterTransacoes() {
+    this._matrizService.obterTransacoes().subscribe(matriz=>{
+      this.rotulos = this._matrizService.rotulos(matriz);
+
+      this.linhas = this.rotulos.map(nomeTransacao => {
+        const linhaTransacoes = matriz.get(nomeTransacao);
+
+        if (!linhaTransacoes) throw `${nomeTransacao} não encontrado`;
+
+        const linha = new Linha(matriz);
+        linha.celulas = Object.values(linhaTransacoes).map((transacoes, mes) => {
+          if (!linha.diaInicial) {
+            const transacao = transacoes.find(transacao => !!transacao.dataInicial);
+            transacao && (linha.diaInicial = getDate(transacao?.dataInicial));
+          }
+          return new Celula(linha, nomeTransacao, mes, transacoes);
+        });
+
+        return linha;
+      }).sort((l1,l2)=>((l1.diaInicial || 0) - (l2.diaInicial || 0))*1000 + l1.nomeTransacao.localeCompare(l2.nomeTransacao));
     });
+
   }
 
   get periodos() {
@@ -90,36 +169,21 @@ export class TransacaoListComponent {
         return Object.keys(Mes);
     }
   }
-
-  get classesTransacao() {
-    return Object.keys(this.lancamentos)
-  }
-
-  diaInicial(classe: string) {
-    return Object.values(this.lancamentos[classe]).map(transacao=>!!transacao ? getDate(transacao.dataInicial):undefined).sort(this.comparePagamentos())[0];
-  }
-
-  private comparePagamentos(): (a: number | undefined, b: number | undefined) => number {
-    return (a, b) => !a ? (!b ? 0 : 1) : (!b ? -1 : a - b);
-  }
-
-  get periodosCorrente() {
-    switch (this.visao) {
-      case Periodicidade.SEMANAL:
-      case Periodicidade.QUINZENAL:
-      case Periodicidade.MENSAL:
-        const mes = Object.keys(Periodicidade).indexOf(this.periodoCorrente);
-        const primeiroDia = startOfMonth(set(new Date, {month: mes}));
-        const ultimoDia = endOfMonth(primeiroDia);
-        return [...Array(getDate(ultimoDia))].map(d=>d+1).map(d=>d.toString() as string);
-      case Periodicidade.TRIMESTRAL:
-      case Periodicidade.SEMESTRAL:
-      case Periodicidade.ANUAL:
-        default:
-        return Object.keys(Mes);
-    }
-  }
   
+  obterCelula(mes: number, linha: number) {
+    return this.linhas[linha].celulas[mes];
+  }
+
+  obterTransacaoCelula(mes: number, linha: number, indice: number) {
+    const celula = this.obterCelula(mes, linha);
+    return celula.transacoes[indice]
+  }
+
+  diaInicial(linha: number) {
+    const transacoes = this.obterCelula(0, linha).transacoes;
+    return transacoes
+  }
+
   get periodoCorrente() {
     switch (this.visao) {
       case Periodicidade.SEMANAL:
@@ -130,63 +194,49 @@ export class TransacaoListComponent {
       case Periodicidade.SEMESTRAL:
       case Periodicidade.ANUAL:
         default:
-          const mesCorrente = getMonth(new Date())-1;
+          const mesCorrente = getMonth(new Date());
           return Object.values(Mes)[mesCorrente];
     }
   }
   
-  tipo(v: any) {
-    return typeof v;
-  }
-  
-  anteriorMesCorrente(periodo: any) {
-    switch (this.visao) {
-      case Periodicidade.SEMANAL:
-      case Periodicidade.QUINZENAL:
-      case Periodicidade.MENSAL:
-        return parseInt(periodo) < getDate(new Date());
-      case Periodicidade.TRIMESTRAL:
-      case Periodicidade.SEMESTRAL:
-      case Periodicidade.ANUAL:
-        default:
-          return parseInt(periodo) < getMonth(new Date())-1;
-    }
-  }
-  
-  get totaisClasse() {
-    const totais : {[classe: string] : number} = {};
-    Object.keys(this.lancamentos).forEach(classe=>{
-      totais[classe] = Object.values(this.lancamentos[classe])
-          .map(transacao=>transacao?.valor)
-          .reduce((acc, vl) => acc = (acc || 0) + (vl || 0)) || 0;
-    });
-    return totais;
-  }
-  
-  get totaisMes() {
-    const totais : {[mes: string] : number} = {};
-    Object.values(this.lancamentos).forEach(pagamento=>{
-      Object.keys(pagamento).forEach(mes=>{
-        totais[mes] = (totais[mes] || 0) + (pagamento[mes]?.valor || 0);
-      });
-    });
-    return totais;
+  totalMes(mes: number) {
+    if (!this.linhas.length) return 0;
+    return this.linhas.reduce((acc, vl, indice)=>{
+      return acc + this.obterCelula(mes, indice).total;
+    },0);
   }
 
-  get totais() {
-    return Object.values(this.totaisMes).reduce((acc,vl)=>acc+=vl, 0);
+  get totalGeral() {
+    return this.linhas.reduce((acc, linha)=>acc += linha.total, 0)
   }
 
-  editarTransacao(transacao: TransacaoImpl, titulo: string) {
+  editarTransacao(transacao: TransacaoImpl | undefined, titulo: string) {
     console.log(`Abrir Formulário Transação`)
-    this._transacaoService.editarTransacao(transacao, titulo).subscribe(()=>{
-      console.log(`Atualizando transações`)
-      this.obterTransacoes();
-    })
+    if (!!transacao) {
+      this._transacaoService.editarTransacao(transacao, titulo).subscribe(()=>{
+        console.log(`Atualizando transações`)
+        this.obterTransacoes();
+      })
+    }
   }
 
   criarTransacao() {
     this.editarTransacao(new TransacaoImpl({}), "Criar transação");
+  }
+
+  abrirPopupTransacoes(transacoes: any, e: MouseEvent) {
+    console.log(transacoes.map((transacao:TransacaoImpl)=>{
+      return {
+        id: transacao._id,
+        descricao: transacao.descricao,
+        valor: transacao.valor,
+        tipoTransacao: transacao.tipoTransacao,
+        periodicidade: transacao.periodicidade,
+        dataInicial: transacao.dataInicial,
+      }
+    }));
+    this.popupTransacoes = transacoes;
+    this.menu.open(e)
   }
 }
 

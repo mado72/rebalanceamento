@@ -5,12 +5,24 @@ input {
 a.transacao-valor {
     text-decoration: none;
 }
-.pago {
-    color: green;
+.active {
+    font-weight: bold;
 }
-.salvo {
+.debito {
     color: red;
 }
-.novo {
-    color: rgba(var(--bs-link-color-rgb), var(--bs-link-opacity, 1));
+.credito {
+    color: green;
+}
+.liquidado {
+    font-weight: bold;
+}
+.credito.projecao {
+    color: lightgreen;
+}
+.debito.projecao {
+    color: orange;
+}
+.semorigem {
+    text-decoration: underline;
 }

@@ -7,13 +7,13 @@
     <div class="base">
         <div [style.backgroundColor]="evento.cor" class="led tip"
             *ngFor="let evento of eventos" (click)="eventoClick(evento)">
-            <span class="tiptext" [ngClass]="{'tiptext-right': diaSemana == 6, 'tiptext-left': diaSemana !== 6}">
-                <ng-container [ngTemplateOutlet]="eventoDetalhes" [ngTemplateOutletContext]="{evento: evento}"/>
+            <span class="tiptext" [ngClass]="{'tiptext-right': diaSemana == 6, 'tiptext-left': diaSemana !== 6}"  [style.minWidth]="tipMinWidth">
+                <ng-container [ngTemplateOutlet]="templateDetalhes || defaultDetalhes" [ngTemplateOutletContext]="{evento: evento}"/>
             </span>
         </div>
     </div>
 </div>
 
-<ng-template #eventoDetalhes let-evento="evento">
-    <p>{{evento.descricao}}</p>
+<ng-template #defaultDetalhes let-evento="evento">
+    <p class="detalhes">{{evento.descricao}}</p>
 </ng-template>

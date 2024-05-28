@@ -11,9 +11,11 @@ export class TransacaoFormComponent {
 
   readonly DEBITO = TipoTransacao.DEBITO;
   readonly CREDITO = TipoTransacao.CREDITO;
+  readonly TRANSFERENCIA = TipoTransacao.TRANSFERENCIA;
   readonly categorias = {
-    DEBITO: ["Custos fixos", "Conforto", "Metas", "Prazeres", "Liberdade Financeira", "Conhecimento","Imposto","Taxa"] ,
-    CREDITO: ['Salário', 'Venda', 'Dividendos', 'Juros']
+    DEBITO: ["Custos fixos", "Conforto", "Metas", "Prazeres", "Liberdade Financeira", "Conhecimento","Imposto","Taxa","Empréstimo"] ,
+    CREDITO: ['Salário', 'Venda', 'Dividendos', 'Juros','Empréstimo'],
+    TRANSFERENCIA: ['Transferência']
   }
 
   constructor() {}

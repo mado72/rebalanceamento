@@ -96,8 +96,6 @@ export class TransacaoService {
   }
 
   obterTransacoesIntervalo({ inicio, fim }: { inicio: Date; fim: Date; }): Observable<TransacaoImpl[]> {
-    console.log(inicio);
-    console.log(fim);
     const ob = new Observable<TransacaoImpl[]>((observer: Observer<TransacaoImpl[]>)=>{
       this.obterTransacoes()
         .pipe(
@@ -218,14 +216,12 @@ export class TransacaoService {
       modalRef.result.then((result) => {
         this.salvarTransacao(transacao).subscribe({
           next: () => {
-            console.log(`Result ${result}`);
             observer.next(transacao);
           },
           error: (error) => observer.error(error),
           complete: () => observer.complete()
         });
       }, (reason) => {
-        console.log(`Dismissed ${reason}`);
         if (reason === 'Excluir') {
           if (!transacao._id) return;
           if (confirm(`Excluir transação ${transacao.descricao}`)) {

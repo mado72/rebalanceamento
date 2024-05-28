@@ -95,15 +95,24 @@ export class PagamentoMensalComponent implements OnInit {
   }
 
   get total() : Total {
-    return this.pagamentos.map(pagamento=>{
+    const total = this.pagamentos.map(pagamento => {
       return {
         pagamentos: pagamento.valor,
-        pagamentosAntecipados: !pagamento.dtPagamento &&  pagamento.antecipado? pagamento.valor : 0,
-        pagamentosRestantes: !pagamento.dtPagamento ? pagamento.antecipado? 0 : pagamento.valor : 0,
-        pagos: !! pagamento.dtPagamento ? pagamento.valor : 0
-      } as Total
-    })
-    .reduce((acc, item)=>{
+        pagamentosAntecipados: !pagamento.dtPagamento && pagamento.antecipado ? pagamento.valor : 0,
+        pagamentosRestantes: !pagamento.dtPagamento ? pagamento.antecipado ? 0 : pagamento.valor : 0,
+        pagos: !!pagamento.dtPagamento ? pagamento.valor : 0
+      } as Total;
+    });
+    
+    if (! total.length) 
+      return {
+        pagamentos: 0,
+        pagamentosAntecipados: 0,
+        pagamentosRestantes: 0,
+        pagos: 0
+      };
+
+    return total.reduce((acc, item)=>{
        return {
          pagamentos: acc.pagamentos + item.pagamentos,
          pagamentosAntecipados: acc.pagamentosAntecipados + item.pagamentosAntecipados,

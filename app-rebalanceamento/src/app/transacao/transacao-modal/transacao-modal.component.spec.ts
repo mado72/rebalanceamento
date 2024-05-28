@@ -1,6 +1,9 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 
 import { TransacaoModalComponent } from './transacao-modal.component';
+import { TransacaoFormComponent } from '../transacao-form/transacao-form.component';
+import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
 
 describe('TransacaoModalComponent', () => {
   let component: TransacaoModalComponent;
@@ -8,7 +11,14 @@ describe('TransacaoModalComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      declarations: [ TransacaoModalComponent ]
+      declarations: [ 
+        TransacaoModalComponent,
+        TransacaoFormComponent
+      ],
+      imports: [
+        CommonModule,
+        FormsModule,
+      ]
     })
     .compileComponents();
 
