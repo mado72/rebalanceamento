@@ -20,6 +20,8 @@ import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { CalendarModule, DateAdapter } from 'angular-calendar';
 import { adapterFactory } from 'angular-calendar/date-adapters/date-fns';
 import { MenuComponent } from './menu/menu.component';
+import { CapitalizePipe } from './util/capitalize.pipe';
+import { UtilModule } from './util/util.module';
 
 registerLocaleData(localePt);
 
@@ -41,6 +43,7 @@ registerLocaleData(localePt);
     ContasModule,
     AtivosModule,
     NgbModule,
+    UtilModule,
     CalendarModule.forRoot({ 
       provide: DateAdapter, 
       useFactory: adapterFactory 
