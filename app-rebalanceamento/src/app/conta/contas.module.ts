@@ -1,10 +1,11 @@
-import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { NgModule } from '@angular/core';
 
-import { ContasRoutingModule } from './contas-routing.module';
-import { SaldosComponent } from './saldos/saldos.component';
 import { FormsModule } from '@angular/forms';
 import { ContaFormComponent } from './conta-form/conta-form.component';
+import { ContasRoutingModule } from './contas-routing.module';
+import { SaldosComponent } from './saldos/saldos.component';
+import { UtilModule } from '../util/util.module';
 
 
 @NgModule({
@@ -15,7 +16,8 @@ import { ContaFormComponent } from './conta-form/conta-form.component';
   imports: [
     CommonModule,
     FormsModule,
-    ContasRoutingModule
+    ContasRoutingModule,
+    UtilModule
   ],
   exports: [
     SaldosComponent

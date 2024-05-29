@@ -5,10 +5,26 @@ export enum TipoConta {
     CARTAO = "CARTAO",
     INVESTIMENTO = "INVESTIMENTO"
 }
-export interface Conta {
+export interface IConta {
     _id?: string,
-    nome: string,
+    conta: string,
     saldo: number,
     tipo: TipoConta,
     moeda: Moeda
+}
+
+export class Conta implements IConta {
+    _id?: string;
+    conta!: string;
+    saldo!: number;
+    tipo!: TipoConta;
+    moeda!: Moeda;
+    constructor(valor: IConta) {
+        this._id = valor._id;
+        this.conta = valor.conta;
+        this.saldo = valor.saldo;
+        this.tipo = valor.tipo;
+        this.moeda = valor.moeda;
+    }
+    
 }

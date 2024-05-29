@@ -1,29 +1,28 @@
-<p>saldos works!</p>
-
-<button (click)="adicionarConta()">Adicionar Conta</button>
-<table class="table table-stripped">
+<button class="btn btn-primary" (click)="adicionarConta()">Adicionar Conta</button>
+<table class="table table-striped">
     <thead>
         <tr>
             <td>Conta</td>
+            <td class="text-center">Tipo</td>
             <td class="text-center">Saldo Atual</td>
             <td class="text-center">Vl. Real</td>
         </tr>
     </thead>
     <tbody>
-        <tr *ngFor="let conta of contas">
+        <tr *ngFor="let item of contas">
             <td>
-                <a href="javascript:void()" (click)="editarConta(conta)">
-                    {{conta.nome}}
+                <a href="javascript:void(0)" (click)="editarConta(item)">
+                    {{item.conta}}
                 </a>
             </td>
-            <td class="text-end">{{sigla(conta.moeda)}} {{conta.saldo | number:'1.2-2'}}</td>
-            <td class="text-end">R$ {{conta.saldo | number:'1.2-2'}}</td>
+            <td class="text-center">{{item.tipo | capitalize }}</td>
+            <td class="text-end">{{sigla(item.moeda)}} {{item.saldo | number:'1.2-2'}}</td>
+            <td class="text-end">R$ {{item.saldo | number:'1.2-2'}}</td>
         </tr>
     </tbody>
     <tfoot>
         <tr>
-            <td></td>
-            <td></td>
+            <td colspan="3"></td>
             <td class="text-end">R$ {{totais.total | number:'1.2-2'}}</td>
         </tr>
     </tfoot>

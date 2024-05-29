@@ -56,7 +56,7 @@ export class SaldosComponent implements OnInit {
   }
 
   get totais() {
-    const total = this.contas.map(conta=>conta.saldo).reduce((acc,vl)=>acc+=vl);
+    const total = this.contas.map(conta=>conta.saldo).reduce((acc,vl)=>acc+=vl, 0);
     return {
       total
     }
@@ -68,7 +68,7 @@ export class SaldosComponent implements OnInit {
 
   adicionarConta() {
     this.contaSelecionada = {
-      nome: '',
+      conta: '',
       saldo: 0,
       tipo: TipoConta.CORRENTE,
       moeda: Moeda.REAL
