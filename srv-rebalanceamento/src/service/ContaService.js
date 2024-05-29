@@ -85,11 +85,11 @@ exports.contaIdGET = function(contaId) {
  *
  * body Conta Dados da conta
  * returns Conta
- **/
+**/
 exports.contaPOST = function(body) {
   return new Promise(async (resolve, reject) => {
     try {
-      var conta = new Conta(body);
+      var conta = new Conta(Conta.toDBInstance(body));
       var result = await conta.save();
       resolve(result);
     } catch (error) {
@@ -102,14 +102,15 @@ exports.contaPOST = function(body) {
 /**
  * Atualiza uma conta
  * Atualiza uma conta identificada pelo seu id
- *
+*
+ * body Conta Dados da conta
  * returns Conta
  **/
-exports.contaPUT = function() {
+exports.contaPUT = function(body) {
   return new Promise(async (resolve, reject) => {
     try {
       var id = new mongoose.Types.ObjectId(body._id);
-      var result = await Conta.findByIdAndUpdate(id, body);
+      var result = await Conta.findByIdAndUpdate(id, Conta.toDBInstance(body));
       if (!result) {
         resolve(respondWithCode(404, `Não encontrado ${result}`));
         return;

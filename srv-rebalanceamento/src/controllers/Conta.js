@@ -43,8 +43,8 @@ module.exports.contaPOST = function contaPOST (req, res, next, body) {
     });
 };
 
-module.exports.contaPUT = function contaPUT (req, res, next) {
-  Conta.contaPUT()
+module.exports.contaPUT = function contaPUT (req, res, next, body) {
+  Conta.contaPUT(body)
     .then(function (response) {
       utils.writeJson(res, response);
     })

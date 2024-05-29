@@ -101,7 +101,8 @@ exports.transacaoIdGET = function (transacaoId) {
 exports.transacaoPOST = function (body) {
   return new Promise(async (resolve, reject) => {
     try {
-      var transacao = new Transacao(body);
+      const dbInstance = Transacao.toDBInstance(body);
+      var transacao = new Transacao(dbInstance);
       transacao = await transacao.save();
       resolve(Transacao.toObjectInstance(transacao));
     } catch (error) {
@@ -122,7 +123,8 @@ exports.transacaoPUT = function (body) {
   return new Promise(async (resolve, reject) => {
     try {
       var id = new mongoose.Types.ObjectId(body._id);
-      var transacao = await Transacao.findByIdAndUpdate(id, body);
+      const dbInstance = Transacao.toDBInstance(body);
+      var transacao = await Transacao.findByIdAndUpdate(id, dbInstance);
 
       if (!transacao) {
         resolve(respondWithCode(404, `Transação não encontrada`));

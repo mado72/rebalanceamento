@@ -800,6 +800,13 @@ paths:
       - Conta
       summary: Atualiza uma conta
       description: Atualiza uma conta identificada pelo seu id
+      requestBody:
+        description: Dados da conta
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Conta'
+        required: true
       responses:
         "200":
           description: Successful operation
@@ -990,7 +997,6 @@ components:
             - JCP
             - DIVIDENDO
             - BONUS
-            - TAXA
             - EXTRA
         dataInicial:
           type: string
@@ -1001,7 +1007,7 @@ components:
           format: date
           nullable: true
           example: 2020-01-01
-        dataLiquidacao:
+        dataLancamento:
           type: string
           format: date
           nullable: true
