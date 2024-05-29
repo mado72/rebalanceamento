@@ -11,7 +11,7 @@ import { NumFormatPipe } from './num-format.pipe';
     NumFormatPipe
   ],
   imports: [
-    CommonModule,
+    CommonModule
   ],
   exports: [
     CapitalizePipe,
