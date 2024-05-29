@@ -1,6 +1,6 @@
-<table *ngIf="!!linhas" class="tableFixHead table">
+<table *ngIf="!!linhas" class="table table-sm tableFixHead">
     <thead>
-        <tr>
+        <tr class="table-dark">
             <th>Transação</th>
             <th>Dia Venc.</th>
             <th *ngFor="let periodo of periodos" [class.active]="periodo === periodoCorrente" >
@@ -24,7 +24,7 @@
         </tr>
     </tbody>
     <tfoot>
-        <tr>
+        <tr class="table-secondary">
             <th colspan="2">Totais:</th>
             <th class="text-end num-color" [ngClass]="{'negative': totalMes(mes) < 0}" *ngFor="let _ of periodos; let mes = index">{{totalMes(mes) | number:'1.2-2'}}</th>
             <th class="text-end">{{totalGeral | number:'1.2-2'}}</th>
