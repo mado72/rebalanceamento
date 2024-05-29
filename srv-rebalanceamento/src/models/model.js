@@ -31,6 +31,13 @@ const TipoLiquidacao = Object.freeze({
     OUTROS: "OUTROS"
 })
 
+const TipoConta = Object.freeze({
+    CORRENTE : "CORRENTE",
+    POUPANCA : "POUPANCA",
+    CARTAO : "CARTAO",
+    INVESTIMENTO : "INVESTIMENTO"
+})
+
 const TipoMoeda = Object.freeze({
     REAL : "REAL",
     DOLAR : "DOLAR",
@@ -72,12 +79,14 @@ var Transacao = new Schema({
             if (!! obj.liquidacao) obj.liquidacao = TipoLiquidacao[obj.liquidacao];
             return obj;
         },
-        toDBInstance: () => {
-            if (typeof this.dataInicial === "object" && this.dataInicial.getMonth && typeof this.dataFinal.getMonth === 'function') this.dataInicial = format(this.dataInicial, 'yyyy-MM-dd');
-            if (typeof this.dataFinal === "object" && this.dataFinal.getMonth && typeof this.dataFinal.getMonth === 'function') this.dataFinal = format(this.dataFinal, 'yyyy-MM-dd');
-            if (typeof this.dataLiquidacao === "object" && this.dataLiquidacao.getMonth && typeof this.dataLiquidacao.getMonth === 'function') this.dataLiquidacao = format(this.dataLiquidacao, 'yyyy-MM-dd');
-            if (typeof this.periodicidade === "object" && this.periodicidade.getMonth && typeof this.periodicidade.getMonth === 'function') this.periodicidade = TipoPeriodicidade[this.periodicidade];
-            if (!! this.liquidacao) this.liquidacao = TipoLiquidacao[this.liquidacao];
+        toDBInstance: (obj) => {
+            if (typeof obj.dataInicial === "object" && obj.dataInicial.getMonth && typeof obj.dataFinal.getMonth === 'function') obj.dataInicial = format(obj.dataInicial, 'yyyy-MM-dd');
+            if (typeof obj.dataFinal === "object" && obj.dataFinal.getMonth && typeof obj.dataFinal.getMonth === 'function') obj.dataFinal = format(obj.dataFinal, 'yyyy-MM-dd');
+            if (typeof obj.dataLiquidacao === "object" && obj.dataLiquidacao.getMonth && typeof obj.dataLiquidacao.getMonth === 'function') obj.dataLiquidacao = format(obj.dataLiquidacao, 'yyyy-MM-dd');
+            if (typeof obj.periodicidade === "object" && obj.periodicidade.getMonth && typeof obj.periodicidade.getMonth === 'function') obj.periodicidade = TipoPeriodicidade[obj.periodicidade];
+            if (! obj.contaLiquidacao) obj.contaLiquidacao = null;
+            if (!! obj.liquidacao) obj.liquidacao = TipoLiquidacao[obj.liquidacao];
+            return obj;
         }
     }
 });
@@ -109,6 +118,7 @@ var Conta = new Schema({
     conta: {type: String, required: true}, // Conta 
     saldo: {type: Number, required: true}, // Saldo da Conta
     moeda: {type: String, required: true, enum: Object.values(TipoMoeda)}, // Moeda da Conta
+    tipo: {type: String, required: true, enum: Object.values(TipoConta)}, // Tipo da Conta}
 },
 /* {
     methods: {
