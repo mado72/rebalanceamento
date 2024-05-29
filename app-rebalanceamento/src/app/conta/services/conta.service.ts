@@ -2,7 +2,7 @@ import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { Observable, map, tap } from 'rxjs';
 import { environment } from 'src/environments/environment.development';
-import { Conta } from '../model/conta.model';
+import { Conta, IConta } from '../model/conta.model';
 
 @Injectable({
   providedIn: 'root'
@@ -15,10 +15,8 @@ export class ContaService {
   ) { }
 
   listarContas(): Observable<Conta[]> {
-    return this._http.get<Conta[]>(`${environment.apiUrl}/conta`).pipe(
-      tap(item=>{
-        console.log(item);
-      })
+    return this._http.get<IConta[]>(`${environment.apiUrl}/conta`).pipe(
+      map(contas=>contas.map(item=>new Conta(item)).sort((a,b)=>a.conta.localeCompare(b.conta)))
     );
   }
 
@@ -36,7 +34,10 @@ export class ContaService {
   }
 
   excluirConta(conta: Conta) {
-    return this._http.delete<Conta>(`${environment.apiUrl}/conta/${conta._id}`);
+    return this._http.delete<IConta>(`${environment.apiUrl}/conta/${conta._id}`)
+     .pipe(
+        map(item => new Conta(item))
+      );
   }
 
 }
