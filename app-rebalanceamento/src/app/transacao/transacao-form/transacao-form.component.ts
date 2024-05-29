@@ -10,9 +10,10 @@ class LiquidacaoItem {
     this.item = item;
     this.tipo = tipo;
   }
-  get asString() {
+  get asString() : string {
     if (this.tipo === 'conta') {
-      return '    ' + (this.item as Conta).nome;
+      const conta = (this.item as Conta);
+      return `${conta.conta}`;
     } else {
       return this.item.toString();
     }
@@ -52,7 +53,7 @@ export class TransacaoFormComponent implements OnInit {
 
     this._contaService.listarContas().subscribe(contas => {
       this.contas = contas.sort((a, b) => {
-        return 1000 * a.tipo.localeCompare(b.tipo) + a.nome.localeCompare(b.nome);
+        return 1000 * a.tipo.localeCompare(b.tipo) + a.conta.localeCompare(b.conta);
       });
 
       this.opcoesLiquidacaoConta = (this.contas.filter(c => c.tipo == TipoConta.CORRENTE).map(c => new LiquidacaoItem({ item: c, tipo: 'conta' })));
@@ -88,6 +89,14 @@ export class TransacaoFormComponent implements OnInit {
         this.transacao.liquidacao = valor.item as TipoLiquidacao;
       }
     }
+  }
+ 
+  equals<T extends LiquidacaoItem>(a: T | undefined, b: T | undefined): boolean {
+    if (a === b) return true;
+    if (!a || !b) return false;
+    if (a.tipo!== b.tipo) return false;
+    if (a.tipo === 'conta') return (a.item as Conta)._id === (b.item as Conta)._id;
+    return a.item === b.item;
   }
 
 }

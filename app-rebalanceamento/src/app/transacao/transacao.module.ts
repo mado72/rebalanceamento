@@ -9,6 +9,7 @@ import { TransacaoModalComponent } from './transacao-modal/transacao-modal.compo
 import { TransacaoRoutingModule } from './transacao-routing.module';
 import { CalendarioModule } from '../calendario/calendario.module';
 import { PopupMenuComponent } from '../util/popup-menu/popup-menu.component';
+import { UtilModule } from '../util/util.module';
 
 
 @NgModule({
@@ -23,6 +24,7 @@ import { PopupMenuComponent } from '../util/popup-menu/popup-menu.component';
     CalendarioModule,
     FormsModule,
     CommonModule,
+    UtilModule,
     PopupMenuComponent
   ]
 })
