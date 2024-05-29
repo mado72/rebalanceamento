@@ -1,4 +1,4 @@
-import { DateTime } from "luxon";
+import { format } from "date-fns";
 
 export function formatRequestDate(body: any): any {
     if (body === null || body === undefined || typeof body !== 'object') {
@@ -8,7 +8,7 @@ export function formatRequestDate(body: any): any {
     Object.keys(body).forEach(k => {
         let val = (body as any)[k];
         if (!!val && val.getMonth !== undefined && typeof val.getMonth === 'function') {
-            (body as any)[k] = DateTime.fromJSDate(val).toFormat('yyyy-MM-dd');
+            (body as any)[k] = format(val, 'yyyy-MM-dd');
         }
     });
     return body;

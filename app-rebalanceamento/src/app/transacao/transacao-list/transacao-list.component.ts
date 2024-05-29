@@ -161,7 +161,7 @@ export class TransacaoListComponent {
         const mes = Object.keys(Periodicidade).indexOf(this.periodoCorrente);
         const primeiroDia = startOfDay(set(new Date(), {month: mes, date: 1}));
         const ultimoDia = endOfMonth(primeiroDia);
-        return [...Array(getDate(ultimoDia))].map((_d,index)=>index+1).map(d=>d.toString() as string);
+        return [...Array(getDate(ultimoDia))].map((_,index)=>index+1).map(d=>d.toString() as string);
       case Periodicidade.TRIMESTRAL:
       case Periodicidade.SEMESTRAL:
       case Periodicidade.ANUAL:

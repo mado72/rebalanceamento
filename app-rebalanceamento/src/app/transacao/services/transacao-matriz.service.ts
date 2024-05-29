@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { getDate, getMonth, getTime, isAfter, isSameDay, setMonth } from 'date-fns';
+import { endOfMonth, getDate, getMonth, getTime, isAfter, isSameDay, setMonth, startOfMonth } from 'date-fns';
 import { map } from 'rxjs';
 import { ITransacao, TipoTransacao, TransacaoImpl } from '../models/transacao.model';
 import { TransacaoService } from './transacao.service';
@@ -36,6 +36,18 @@ export class TransacaoMatrizService {
       })
     )
   }
+
+  obterTransacoesIntervalo({inicio, fim}: {inicio?: Date, fim?: Date}) {
+    inicio = inicio || startOfMonth(new Date(2000, 0, 1));
+    fim = fim || endOfMonth(new Date(2100, 11, 12));
+
+    return this._transacaoService.obterTransacoesIntervalo({inicio, fim}).pipe(
+      map((transacoes: TransacaoImpl[]) => {
+        return this.montarMatriz(transacoes);
+      })
+    )
+  }
+
   montarMatriz(transacoes: TransacaoImpl[]): MatrizTransacoes {
 
     const matriz: MatrizTransacoes = new Map<string, { [mes: number]: TransacaoImpl[] }>();
