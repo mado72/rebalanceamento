@@ -211,10 +211,8 @@ export class TransacaoListComponent {
   }
 
   editarTransacao(transacao: TransacaoImpl | undefined, titulo: string) {
-    console.log(`Abrir Formulário Transação`)
     if (!!transacao) {
       this._transacaoService.editarTransacao(transacao, titulo).subscribe(()=>{
-        console.log(`Atualizando transações`)
         this.obterTransacoes();
       })
     }
@@ -225,16 +223,6 @@ export class TransacaoListComponent {
   }
 
   abrirPopupTransacoes(transacoes: any, e: MouseEvent) {
-    console.log(transacoes.map((transacao:TransacaoImpl)=>{
-      return {
-        id: transacao._id,
-        descricao: transacao.descricao,
-        valor: transacao.valor,
-        tipoTransacao: transacao.tipoTransacao,
-        periodicidade: transacao.periodicidade,
-        dataInicial: transacao.dataInicial,
-      }
-    }));
     this.popupTransacoes = transacoes;
     this.menu.open(e)
   }

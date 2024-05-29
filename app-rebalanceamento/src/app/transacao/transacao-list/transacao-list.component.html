@@ -1,15 +1,12 @@
-<select name="tipoPeriodo" [(ngModel)]="visao">
-    <option [value]="tipo" *ngFor="let tipo of tiposPeriodo">{{tipo}}</option>
-</select>
-<table *ngIf="!!linhas" class="table">
+<table *ngIf="!!linhas" class="tableFixHead table">
     <thead>
         <tr>
-            <td>Transação</td>
-            <td>Dia Venc.</td>
-            <td *ngFor="let periodo of periodos" [class.active]="periodo === periodoCorrente" >
+            <th>Transação</th>
+            <th>Dia Venc.</th>
+            <th *ngFor="let periodo of periodos" [class.active]="periodo === periodoCorrente" >
                 {{periodo}}
-            </td>
-            <td>Total</td>
+            </th>
+            <th>Total</th>
         </tr>
     </thead>
     <tbody>
@@ -21,16 +18,16 @@
             <td *ngFor="let celula of linha.celulas" class="text-end">
                 <ng-container [ngTemplateOutlet]="!celula.transacoes.length ? semLancamento : celula.ehUnico ? lancamentoUnico: lancamentosMultiplos" [ngTemplateOutletContext]="{celula}"/>
             </td>
-            <td class="text-end">
+            <td class="text-end num-color fw-bold" [ngClass]="{'negative': linha.total < 0}">
                 {{linha.total | number:'1.2-2'}}
             </td>
         </tr>
     </tbody>
     <tfoot>
         <tr>
-            <td colspan="2">Totais:</td>
-            <td class="text-end" *ngFor="let _ of periodos; let mes = index">{{totalMes(mes) | number:'1.2-2'}}</td>
-            <td class="text-end">{{totalGeral | number:'1.2-2'}}</td>
+            <th colspan="2">Totais:</th>
+            <th class="text-end num-color" [ngClass]="{'negative': totalMes(mes) < 0}" *ngFor="let _ of periodos; let mes = index">{{totalMes(mes) | number:'1.2-2'}}</th>
+            <th class="text-end">{{totalGeral | number:'1.2-2'}}</th>
         </tr>
     </tfoot>
 </table>
