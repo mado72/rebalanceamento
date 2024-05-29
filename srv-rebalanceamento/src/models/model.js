@@ -55,6 +55,20 @@ const TipoClasse = Object.freeze({
     ALTCOINS : "ALTCOINS"
 })
 
+const TipoConsolidado = Object.freeze({
+    CONTA : "CONTA",
+    ACAO : "ACAO",
+    FII : "FII",
+    RF : "RF",
+    INTL : "INTL",
+    TRADE : "TRADE",
+    RESERVA : "RESERVA",
+    CRIPTO : "CRIPTO",
+    SWING : "SWING",
+    PROVENTO : "PROVENTO",
+    RETIRADA : "RETIRADA"
+})
+
 var Transacao = new Schema({
     descricao: { type: String, required: true}, // Descrição da transação
     valor: {type: Number, required: true}, // Valor da transação
@@ -134,10 +148,30 @@ var Conta = new Schema({
     }
 }*/)
 
+
+var Consolidado = new Schema(
+    {
+        idRef: {type: String, required: true, index: true}, // Conta 
+        tipo: {type: String, required: true, enum: Object.values(TipoConsolidado)}, // Tipo da Consolidado
+        valor: {type: Number, required: true}, // Valor da Consolidado
+        anoMes: {type: Number, required: true, index: true}, // Ano e Mês da Consolidado
+    },
+    {
+        methods: {
+            ehValido() {
+                var ano = this.anoMes / 100;
+                var mes = this.anoMes % 100;
+                return ! (ano < 1900 || ano > 2100 || mes < 1 || mes > 12);
+            }
+        }
+    }
+)
+
 module.exports = {
     'ativo': mongoose.model('ativo', Ativo, 'ativo'),
     'transacao': mongoose.model('transacao', Transacao, 'transacao'),
     'carteira': mongoose.model('carteira', Carteira, 'carteira'),
     'carteira-ativo': mongoose.model('carteira-ativo', CarteiraAtivo),
-    'contato': mongoose.model('conta', Conta, 'conta'),
+    'conta': mongoose.model('conta', Conta, 'conta'),
+    'consolidado': mongoose.model('consolidado', Consolidado, 'consolidado'),
 }
