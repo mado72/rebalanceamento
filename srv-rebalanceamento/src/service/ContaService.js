@@ -89,7 +89,7 @@ exports.contaIdGET = function(contaId) {
 exports.contaPOST = function(body) {
   return new Promise(async (resolve, reject) => {
     try {
-      var conta = new Conta(Conta.toDBInstance(body));
+      var conta = new Conta(body);
       var result = await conta.save();
       resolve(result);
     } catch (error) {
@@ -110,7 +110,7 @@ exports.contaPUT = function(body) {
   return new Promise(async (resolve, reject) => {
     try {
       var id = new mongoose.Types.ObjectId(body._id);
-      var result = await Conta.findByIdAndUpdate(id, Conta.toDBInstance(body));
+      var result = await Conta.findByIdAndUpdate(id, body);
       if (!result) {
         resolve(respondWithCode(404, `Não encontrado ${result}`));
         return;

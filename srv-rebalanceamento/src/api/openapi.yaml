@@ -3,7 +3,7 @@ info:
   title: API Rebalanceamento
   description: "API para manter portifólio de ativos, carteiras, transações e contas\
     \ no mongodb"
-  version: 1.0.0
+  version: 1.0.1
 servers:
 - url: http://localhost:4201/api/v1
 tags:
@@ -17,6 +17,8 @@ tags:
   description: CRUD para definição de carteiras
 - name: Conta
   description: CRUD para definição de contas
+- name: Consolidado
+  description: Mantém o histórico consolidado mensal
 paths:
   /health-check:
     get:
@@ -836,6 +838,7 @@ paths:
       - bearerAuth:
         - write:domain
         - read:domain
+  
   /conta/id/{contaId}:
     parameters:
     - name: contaId
@@ -933,7 +936,197 @@ paths:
                 properties:
                   total:
                     type: number
-              
+  
+  /consolidado:
+    get:
+      x-swagger-router-controller: Consolidado
+      operationId: consolidadoGET
+      tags:
+      - Consolidado
+      summary: Obtém o consolidado de um período
+      description: Retorna o consolidado dentro de um período ou o conteúdo total da base
+      parameters: 
+      - name: inicio
+        in: query
+        required: false
+        explode: false
+        description: Início do período da consulta no formato yyyyMM
+        example: 202105
+        schema:
+          type: number
+          minimum: 190101
+          maximum: 210012
+      - name: fim
+        in: query
+        required: false
+        explode: false
+        description: Final do período da consulta no formato yyyyMM
+        example: 202105
+        schema:
+          type: number
+          minimum: 190101
+          maximum: 210012
+      responses:
+        "200":
+          description: A lista de consolidados
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Consolidado'
+                x-content-type: application/json
+        "422":
+          description: The specified resource is not valid
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      security:
+      - bearerAuth:
+        - write:domain
+        - read:domain
+    post:
+      x-swagger-router-controller: Consolidado
+      operationId: consolidadoPOST
+      tags:
+      - Consolidado
+      summary: Atualiza consolidado enviando conjunto para um mês-ano
+      description: Controla para manter apenas um consolidado por mês-ano
+      requestBody:
+        description: Conjunto de consolidados
+        content:
+          application/json:
+            schema:
+              type: array
+              items:
+                $ref: '#/components/schemas/Consolidado'
+      responses:
+        "200":
+          description: A lista de consolidados
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Consolidado'
+                x-content-type: application/json
+        "422":
+          description: The specified resource is not valid
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      security:
+      - bearerAuth:
+        - write:domain
+        - read:domain
+        
+  /consolidado/tipo/{tipo}:
+    get:
+      x-swagger-router-controller: Consolidado
+      operationId: consolidadoTipoGET
+      tags:
+      - Consolidado
+      summary: Obtém o consolidado de um período
+      description: Retorna o consolidado dentro de um período ou o conteúdo total da base
+      parameters: 
+      - name: tipo
+        in: path
+        description: Tipo do consolidado
+        required: true
+        schema:
+          type: string
+          enum:
+          - CONTA
+          - ACAO
+          - FII
+          - RF
+          - INTL
+          - TRADE
+          - RESERVA
+          - CRIPTO
+          - SWING
+          - PROVENTO
+          - RETIRADA
+      - name: inicio
+        in: query
+        required: true
+        explode: false
+        description: Início do período da consulta no formato yyyyMM
+        example: 202105
+        schema:
+          type: number
+          minimum: 190101
+          maximum: 210012
+      - name: fim
+        in: query
+        required: true
+        explode: false
+        description: Final do período da consulta no formato yyyyMM
+        example: 202105
+        schema:
+          type: number
+          minimum: 190101
+          maximum: 210012
+      responses:
+        "200":
+          description: A lista de consolidados
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Consolidado'
+                x-content-type: application/json
+        "422":
+          description: The specified resource is not valid
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      security:
+      - bearerAuth:
+        - write:domain
+        - read:domain
+  
+  /consolidado/gerar:
+    post:
+      x-swagger-router-controller: Consolidado
+      operationId: consolidadoGerarPOST
+      tags:
+      - Consolidado
+      summary: Gera o consolidado no servidor
+      description: Recupera todos os tipos de ativos e contas e consolida pela posição atual no mês corrente
+      parameters:
+      - name: anoMes
+        in: query
+        description: anoMes a ser consolidado no formato yyyyMM
+        example: 202105
+        required: false
+        schema:
+          type: number
+          minimum: 190101
+          maximum: 210012
+      responses:
+        "200":
+          description: Geração realizada
+          content:
+            application/json:
+              schema:
+                type: object
+                x-content-type: application/json
+        "422":
+          description: The specified resource is not valid
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      security:
+      - bearerAuth:
+        - write:domain
+        - read:domain
+      
 components:
   schemas:
     Moeda:
@@ -1159,6 +1352,7 @@ components:
       - conta
       - moeda
       - saldo
+      - tipo
       type: object
       properties:
         _id:
@@ -1178,13 +1372,54 @@ components:
           - REAL
           - DOLAR
           - USDT
+        tipo:
+          type: string
+          example: "CORRENTE"
+          enum:
+          - CORRENTE
+          - POUPANCA
+          - INVESTIMENTO
+          - CARTAO
       example:
         moeda: REAL
         conta: Itaú
         id: 15
         saldo: 150.23
+    Consolidado:
+      required:
+      - idRef
+      - tipo
+      - valor
+      - anoMes
+      type: object
+      properties:
+        _id:
+          type: string
+        idRef:
+          type: string
+        tipo:
+          type: string
+          enum:
+          - CONTA
+          - ACAO
+          - FII
+          - RF
+          - INTL
+          - TRADE
+          - RESERVA
+          - CRIPTO
+          - SWING
+          - PROVENTO
+          - RETIRADA
+        valor:
+          type: number
+        anoMes:
+          type: number
+          minimum: 190101
+          maximum: 210012
     Error:
       type: object
+      
   responses:
     ValidationError:
       description: The specified resource is not valid
