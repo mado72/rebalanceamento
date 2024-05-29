@@ -2,7 +2,9 @@
 var Model = require('../models/model');
 var mongoose = require('mongoose');
 const { respondWithCode } = require('../utils/writer');
+const { format } = require('date-fns');
 const Consolidado = mongoose.model('consolidado');
+const Conta = mongoose.model('conta');
 
 /**
  * Obtém lista de consolidados do portifólio
@@ -110,6 +112,44 @@ exports.consolidadoPOST = function(body) {
       }
 
       var result = await Consolidado.bulkWrite(consolidados);
+      resolve(result);
+    } catch (error) {
+      reject(error);
+    }
+  });
+}
+
+exports.consolidadoGerarPOST = function(anoMes) {
+  return new Promise(async (resolve, reject) => {
+    try {
+      var contas = await Conta.find();
+      anoMes = anoMes || parseInt(format(new Date(), 'yyyyMM'));
+
+      if (!anoMesValido(anoMes)) {
+        throw new Error(`anoMes gerado é inválido: ${anoMes}`)
+      }
+
+      var bulk = contas.map(conta=>conta.toObject()).map(conta=>{
+        var consolidado = new Consolidado({
+          idRef: conta._id.toString(),
+          tipo: conta.tipo === "CARTAO" ? "CARTAO" : "CONTA",
+          valor: conta.saldo,
+          anoMes: anoMes
+        });
+        return {
+          insertOne: {
+            document: consolidado.toObject()
+          }
+        };
+      });
+
+      bulk.splice(0, 0, {
+        deleteMany: {
+          filter: { anoMes: anoMes }
+        }
+      });
+
+      var result = await Consolidado.bulkWrite(bulk);
       resolve(result);
     } catch (error) {
       reject(error);

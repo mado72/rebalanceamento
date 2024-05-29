@@ -948,18 +948,20 @@ paths:
       parameters: 
       - name: inicio
         in: query
-        description: Id da conta
         required: false
         explode: false
+        description: Início do período da consulta no formato yyyyMM
+        example: 202105
         schema:
           type: number
           minimum: 190101
           maximum: 210012
       - name: fim
         in: query
-        description: Id da conta
         required: false
         explode: false
+        description: Final do período da consulta no formato yyyyMM
+        example: 202105
         schema:
           type: number
           minimum: 190101
@@ -1049,18 +1051,20 @@ paths:
           - RETIRADA
       - name: inicio
         in: query
-        description: Id da conta
         required: true
         explode: false
+        description: Início do período da consulta no formato yyyyMM
+        example: 202105
         schema:
           type: number
           minimum: 190101
           maximum: 210012
       - name: fim
         in: query
-        description: Id da conta
         required: true
         explode: false
+        description: Final do período da consulta no formato yyyyMM
+        example: 202105
         schema:
           type: number
           minimum: 190101
@@ -1085,7 +1089,43 @@ paths:
       - bearerAuth:
         - write:domain
         - read:domain
-            
+  
+  /consolidado/gerar:
+    post:
+      x-swagger-router-controller: Consolidado
+      operationId: consolidadoGerarPOST
+      tags:
+      - Consolidado
+      summary: Gera o consolidado no servidor
+      description: Recupera todos os tipos de ativos e contas e consolida pela posição atual no mês corrente
+      parameters:
+      - name: anoMes
+        in: query
+        description: anoMes a ser consolidado no formato yyyyMM
+        example: 202105
+        required: false
+        schema:
+          type: number
+          minimum: 190101
+          maximum: 210012
+      responses:
+        "200":
+          description: Geração realizada
+          content:
+            application/json:
+              schema:
+                type: object
+                x-content-type: application/json
+        "422":
+          description: The specified resource is not valid
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      security:
+      - bearerAuth:
+        - write:domain
+        - read:domain
       
 components:
   schemas:
@@ -1312,6 +1352,7 @@ components:
       - conta
       - moeda
       - saldo
+      - tipo
       type: object
       properties:
         _id:
@@ -1331,6 +1372,14 @@ components:
           - REAL
           - DOLAR
           - USDT
+        tipo:
+          type: string
+          example: "CORRENTE"
+          enum:
+          - CORRENTE
+          - POUPANCA
+          - INVESTIMENTO
+          - CARTAO
       example:
         moeda: REAL
         conta: Itaú
