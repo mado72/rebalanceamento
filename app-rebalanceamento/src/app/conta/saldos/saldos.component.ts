@@ -59,9 +59,13 @@ export class SaldosComponent implements OnInit {
     else {
       const inicio = startOfMonth(this._mesCorrente);
       this._patrimonioService.obterConsolidados({inicio, fim: endOfMonth(inicio)}).subscribe(consolidados=>{
-        this.contas.forEach(c=>c.saldo = 0);
+        const contaMap = new Map<string, Conta>();
+        this.contas.forEach(c=>{
+          c.saldo = 0;
+          contaMap.set(c._id as string, c);
+        });
         consolidados.forEach(consolidado=>{
-          const conta = this.contas.find(c => c._id === consolidado.idRef);
+          const conta = contaMap.get(consolidado.idRef);
           if (conta) {
             conta.saldo = consolidado.valor;
           }
