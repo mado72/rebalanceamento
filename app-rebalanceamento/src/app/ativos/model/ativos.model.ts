@@ -32,27 +32,39 @@ export interface ObjetoReferenciado {
     tipoRef: TipoObjetoReferenciado
 }
 
-export interface Ativo {
+export interface IAtivo {
+    _id?: string
+    nome: string,
     sigla: string,
+    quantidade: number
     tipoAtivo?: TipoAtivo,
     moeda?: Moeda,
+    vlInicial?: number
 }
 
-export class AtivoImpl implements Ativo {
+export class AtivoImpl implements IAtivo {
+    _id?: string;
+    nome: string;
     sigla: string;
+    quantidade: number;
     tipoAtivo?: TipoAtivo | undefined;
-    moeda?: Moeda | undefined;
+    moeda: Moeda;
+    vlInicial: number;
     
-    constructor(sigla: string, tipoAtivo?: TipoAtivo | undefined, moeda?: Moeda | undefined) {
-        this.sigla = sigla;
-        this.tipoAtivo = tipoAtivo;
-        this.moeda = moeda;
+    constructor(ativo: IAtivo) {
+        this._id = ativo._id;
+        this.nome = ativo.nome;
+        this.sigla = ativo.sigla;
+        this.quantidade = ativo.quantidade;
+        this.vlInicial = ativo.vlInicial || 0;
+        this.moeda = ativo.moeda || Moeda.REAL;
+        this.tipoAtivo = ativo.tipoAtivo;
     }
 }
 
 export interface ICarteiraAtivo {
     qtd: number,
-    ativo: Ativo,
+    ativo: IAtivo,
     vlUnitario: number,
     vlInicial?: number,
     valor: number,
