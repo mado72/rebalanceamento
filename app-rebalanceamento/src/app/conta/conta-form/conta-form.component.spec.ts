@@ -24,7 +24,7 @@ describe('ContaFormComponent', () => {
     component = fixture.componentInstance;
     component.conta = {
       id: 1,
-      nome: 'teste',
+      conta: 'teste',
       saldo: 100,
       tipo: TipoConta.CORRENTE,
       moeda: Moeda.REAL

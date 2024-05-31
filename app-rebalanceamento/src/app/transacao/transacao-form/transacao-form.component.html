@@ -7,9 +7,9 @@
             <input type="number" step=".01" class="form-control col text-end" id="valor" [(ngModel)]="transacao.valor" required name="valor" step=".01">
             <label for="tipoTransacao" class="col-2">Tipo</label>
             <select class="form-control col" name="tipoTransacao" id="tipoTransacao" [(ngModel)]="transacao.tipoTransacao">
-                <option [value]="DEBITO">Débito</option>
-                <option [value]="CREDITO">Crédito</option>
-                <option [value]="TRANSFERENCIA">Transferência</option>
+                <option [ngValue]="DEBITO">Débito</option>
+                <option [ngValue]="CREDITO">Crédito</option>
+                <option [ngValue]="TRANSFERENCIA">Transferência</option>
             </select>
         </div>
 
@@ -25,24 +25,32 @@
         <div class="form-group row p-2">
             <label for="categoria" class="col-2">Categoria</label>
             <select class="form-control col" name="categoria" id="categoria" [(ngModel)]="transacao.categoria">
-                <option [value]="undefined">Selecione...</option>
-                <option [value]="categoria" *ngFor="let categoria of categorias[transacao.tipoTransacao]">{{categoria}}</option>
+                <option [ngValue]="undefined">Selecione...</option>
+                <option [ngValue]="categoria" *ngFor="let categoria of categorias[transacao.tipoTransacao]">{{categoria}}</option>
             </select>
             
             <label for="liquidacao" class="col-1">Liquida em</label>
-            <select class="form-control col" name="liquidacao" id="liquidacao" [(ngModel)]="transacao.liquidacao">
-                <option [value]="undefined">Selecione...</option>
-                <option [value]="liquidacao" *ngFor="let liquidacao of liquidacoes">{{liquidacao}}</option>
+            <select class="form-select col" name="liquidacao" id="liquidacao" [(ngModel)]="liquidacao" [compareWith]="equals">
+                <option [ngValue]="undefined">Selecione...</option>
+                <option [ngValue]="opcaoLiquidacaoTipoConta" class="tipo">Conta Corrente</option>
+                <optgroup>
+                    <option [ngValue]="item" *ngFor="let item of opcoesLiquidacaoConta" class="conta">{{item.asString}}</option>
+                </optgroup>
+                <option [ngValue]="opcaoLiquidacaoTipoCartao" class="tipo">Cartão de Crédito</option>
+                <optgroup>
+                    <option [ngValue]="item" *ngFor="let item of opcoesLiquidacaoCartao" class="conta">{{item.asString}}</option>
+                </optgroup>
             </select>
 
             <label for="periodicidade" class="col-2">Periodicidade</label>
-            <select name="periodicidade" class="form-control col" id="periodicidade" [(ngModel)]="transacao.periodicidade">
-              <option [value]="undefined">Selecione...</option>
-              <option [value]="periodicidade" *ngFor="let periodicidade of periodicidades">{{periodicidade}}</option>
+            <select name="periodicidade" class="form-select col" id="periodicidade" [(ngModel)]="transacao.periodicidade">
+              <option [ngValue]="undefined">Selecione...</option>
+              <option [ngValue]="periodicidade" *ngFor="let periodicidade of periodicidades">{{periodicidade}}</option>
             </select>
         </div>
     </form>
 </div>
 <pre class="debug">
+{{liquidacao| json}}
 {{transacao | json}}
 </pre>

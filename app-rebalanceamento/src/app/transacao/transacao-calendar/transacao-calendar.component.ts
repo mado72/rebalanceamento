@@ -9,18 +9,16 @@ import {
   endOfMonth,
   format,
   getMonth,
-  isSameDay,
   isSameMonth,
   parse,
   startOfMonth
 } from 'date-fns';
-import { DateTime } from 'luxon';
-import { Subject, map } from 'rxjs';
+import { Subject } from 'rxjs';
 import { CalendarColors, DataClicked, Evento } from 'src/app/calendario/calendario.model';
 import { Mes, TransacaoImpl } from 'src/app/transacao/models/transacao.model';
 import { PopupMenuComponent } from 'src/app/util/popup-menu/popup-menu.component';
 import { CalendarioEventoService, MatrizEventos } from '../services/calendario-evento.service';
-import { MatrizLinhaType, MatrizType, TransacaoMatrizService } from '../services/transacao-matriz.service';
+import { MatrizLinhaType, TransacaoMatrizService } from '../services/transacao-matriz.service';
 import { TransacaoService } from '../services/transacao.service';
 
 @Component({
@@ -92,7 +90,7 @@ export class TransacaoCalendarComponent implements OnInit {
   }
 
   obterEventos() {
-    const inicio = startOfMonth(this.viewDate)
+    const inicio = startOfMonth(addMonths(this.viewDate, -1))
     const fim = endOfMonth(this.viewDate);
 
     this._calendarioService.obterEventos({inicio, fim}).subscribe(matriz=>this.eventos = matriz);
@@ -103,7 +101,7 @@ export class TransacaoCalendarComponent implements OnInit {
   }
 
   get mes() {
-    return this.meses[DateTime.fromJSDate(this.viewDate).month-1];
+    return this.meses[getMonth(this.viewDate)-1];
   }
 
   handleEvent(evento: Evento): void {

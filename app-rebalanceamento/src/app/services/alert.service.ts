@@ -1,5 +1,4 @@
 import { Injectable, OnDestroy } from '@angular/core';
-import { DateTime } from 'luxon';
 import { ToastrService } from 'ngx-toastr';
 import { Subscription, interval, map, skipWhile } from 'rxjs';
 
@@ -7,7 +6,7 @@ export interface Alert {
   tipo: 'http' | 'common' | 'sucesso' | 'erro' | undefined;
   titulo: string;
   mensagem: string;
-  wait?: DateTime;
+  wait?: Date;
 }
 @Injectable({
   providedIn: 'root'
@@ -35,7 +34,7 @@ export class AlertService implements OnDestroy {
         if (alerta !== undefined) {
           const config = {
             positionClass: 'toast-bottom-right',
-            timeOut: alerta.wait ? alerta.wait.toMillis() : 5000,
+            timeOut: alerta.wait ? alerta.wait.getTime() : 5000,
             closeButton: true,
             progressBar: true,
             tapToDismiss: true,

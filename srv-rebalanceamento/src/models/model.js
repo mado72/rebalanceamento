@@ -1,4 +1,3 @@
-const { DateTime } = require('luxon');
 var mongoose = require('mongoose');
 const { format } = require('date-fns');
 const mongoosePaginate = require('mongoose-paginate-v2');
@@ -31,6 +30,13 @@ const TipoLiquidacao = Object.freeze({
     OUTROS: "OUTROS"
 })
 
+const TipoConta = Object.freeze({
+    CORRENTE : "CORRENTE",
+    POUPANCA : "POUPANCA",
+    CARTAO : "CARTAO",
+    INVESTIMENTO : "INVESTIMENTO"
+})
+
 const TipoMoeda = Object.freeze({
     REAL : "REAL",
     DOLAR : "DOLAR",
@@ -49,6 +55,20 @@ const TipoClasse = Object.freeze({
     ALTCOINS : "ALTCOINS"
 })
 
+const TipoConsolidado = Object.freeze({
+    CONTA : "CONTA",
+    ACAO : "ACAO",
+    FII : "FII",
+    RF : "RF",
+    INTL : "INTL",
+    TRADE : "TRADE",
+    RESERVA : "RESERVA",
+    CRIPTO : "CRIPTO",
+    SWING : "SWING",
+    PROVENTO : "PROVENTO",
+    RETIRADA : "RETIRADA"
+})
+
 var Transacao = new Schema({
     descricao: { type: String, required: true}, // Descrição da transação
     valor: {type: Number, required: true}, // Valor da transação
@@ -65,19 +85,18 @@ var Transacao = new Schema({
     statics: {
         toObjectInstance: (dbInstance)=> {
             var obj = dbInstance.toObject();
-            // if (!! obj.dataInicial) obj.dataVencimento = DateTime.fromFormat(obj.dataInicial, 'yyyy-MM-dd');
-            // if (!! obj.dataFinal) obj.dataFinal = DateTime.fromFormat(obj.dataFinal, 'yyyy-MM-dd');
-            // if (!! obj.dataLiquidacao) obj.dataLiquidacao = DateTime.fromFormat(obj.dataLiquidacao, 'yyyy-MM-dd');
             if (!! obj.periodicidade) obj.periodicidade = TipoPeriodicidade[obj.periodicidade];
             if (!! obj.liquidacao) obj.liquidacao = TipoLiquidacao[obj.liquidacao];
             return obj;
         },
-        toDBInstance: () => {
-            if (typeof this.dataInicial === "object" && this.dataInicial.getMonth && typeof this.dataFinal.getMonth === 'function') this.dataInicial = format(this.dataInicial, 'yyyy-MM-dd');
-            if (typeof this.dataFinal === "object" && this.dataFinal.getMonth && typeof this.dataFinal.getMonth === 'function') this.dataFinal = format(this.dataFinal, 'yyyy-MM-dd');
-            if (typeof this.dataLiquidacao === "object" && this.dataLiquidacao.getMonth && typeof this.dataLiquidacao.getMonth === 'function') this.dataLiquidacao = format(this.dataLiquidacao, 'yyyy-MM-dd');
-            if (typeof this.periodicidade === "object" && this.periodicidade.getMonth && typeof this.periodicidade.getMonth === 'function') this.periodicidade = TipoPeriodicidade[this.periodicidade];
-            if (!! this.liquidacao) this.liquidacao = TipoLiquidacao[this.liquidacao];
+        toDBInstance: (obj) => {
+            if (typeof obj.dataInicial === "object" && obj.dataInicial.getMonth && typeof obj.dataFinal.getMonth === 'function') obj.dataInicial = format(obj.dataInicial, 'yyyy-MM-dd');
+            if (typeof obj.dataFinal === "object" && !! obj.dataFinal && obj.dataFinal.getMonth && typeof obj.dataFinal.getMonth === 'function') obj.dataFinal = format(obj.dataFinal, 'yyyy-MM-dd');
+            if (typeof obj.dataLiquidacao === "object" && !! obj.dataLiquidacao && obj.dataLiquidacao.getMonth && typeof obj.dataLiquidacao.getMonth === 'function') obj.dataLiquidacao = format(obj.dataLiquidacao, 'yyyy-MM-dd');
+            if (typeof obj.periodicidade === "object") obj.periodicidade = TipoPeriodicidade[obj.periodicidade];
+            if (! obj.contaLiquidacao) obj.contaLiquidacao = null;
+            if (!! obj.liquidacao) obj.liquidacao = TipoLiquidacao[obj.liquidacao];
+            return obj;
         }
     }
 });
@@ -109,6 +128,7 @@ var Conta = new Schema({
     conta: {type: String, required: true}, // Conta 
     saldo: {type: Number, required: true}, // Saldo da Conta
     moeda: {type: String, required: true, enum: Object.values(TipoMoeda)}, // Moeda da Conta
+    tipo: {type: String, required: true, enum: Object.values(TipoConta)}, // Tipo da Conta}
 },
 /* {
     methods: {
@@ -128,10 +148,30 @@ var Conta = new Schema({
     }
 }*/)
 
+
+var Consolidado = new Schema(
+    {
+        idRef: {type: String, required: true, index: true}, // Conta 
+        tipo: {type: String, required: true, enum: Object.values(TipoConsolidado)}, // Tipo da Consolidado
+        valor: {type: Number, required: true}, // Valor da Consolidado
+        anoMes: {type: Number, required: true, index: true}, // Ano e Mês da Consolidado
+    },
+    {
+        methods: {
+            ehValido() {
+                var ano = this.anoMes / 100;
+                var mes = this.anoMes % 100;
+                return ! (ano < 1900 || ano > 2100 || mes < 1 || mes > 12);
+            }
+        }
+    }
+)
+
 module.exports = {
     'ativo': mongoose.model('ativo', Ativo, 'ativo'),
     'transacao': mongoose.model('transacao', Transacao, 'transacao'),
     'carteira': mongoose.model('carteira', Carteira, 'carteira'),
     'carteira-ativo': mongoose.model('carteira-ativo', CarteiraAtivo),
-    'contato': mongoose.model('conta', Conta, 'conta'),
+    'conta': mongoose.model('conta', Conta, 'conta'),
+    'consolidado': mongoose.model('consolidado', Consolidado, 'consolidado'),
 }

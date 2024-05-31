@@ -85,7 +85,7 @@ exports.contaIdGET = function(contaId) {
  *
  * body Conta Dados da conta
  * returns Conta
- **/
+**/
 exports.contaPOST = function(body) {
   return new Promise(async (resolve, reject) => {
     try {
@@ -102,10 +102,11 @@ exports.contaPOST = function(body) {
 /**
  * Atualiza uma conta
  * Atualiza uma conta identificada pelo seu id
- *
+*
+ * body Conta Dados da conta
  * returns Conta
  **/
-exports.contaPUT = function() {
+exports.contaPUT = function(body) {
   return new Promise(async (resolve, reject) => {
     try {
       var id = new mongoose.Types.ObjectId(body._id);

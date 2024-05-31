@@ -1,10 +1,9 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
-import { addDays, addMonths, addYears, getTime } from 'date-fns';
-import { Observable, Observer, catchError, map, of } from 'rxjs';
+import { Observable, Observer, catchError, map } from 'rxjs';
 import { AlertService } from 'src/app/services/alert.service';
-import { ITransacao, Periodicidade, TransacaoImpl } from 'src/app/transacao/models/transacao.model';
+import { ITransacao, TransacaoImpl } from 'src/app/transacao/models/transacao.model';
 import { formatRequestDate } from 'src/app/util/date-formatter.util';
 import { environment } from 'src/environments/environment.development';
 import { TransacaoModalComponent } from '../transacao-modal/transacao-modal.component';
@@ -111,36 +110,6 @@ export class TransacaoService {
         .subscribe(observer);
     });
     return ob;
-  }
-
-  /**
-   * Verifica se a próxima transacao deve ser criada com base na data de vencimento e data de pagamento atuais da transacao atual.
-   *
-   * @param transacao - A transacao atual a ser analisada.
-   */
-  gerarNovaTransacao(transacao: TransacaoImpl) {
-    if (!!transacao.dataLiquidacao && (!transacao.dataFinal || getTime(transacao.dataFinal) > getTime(transacao.dataInicial))) {
-      let novoVencimento: Date;
-      switch (transacao.periodicidade) {
-        case Periodicidade.ANUAL: novoVencimento = addYears(transacao.dataInicial, 1); break;
-        case Periodicidade.SEMESTRAL: novoVencimento = addMonths(transacao.dataInicial, 6); break;
-        case Periodicidade.TRIMESTRAL: novoVencimento = addMonths(transacao.dataInicial, 3); break;
-        case Periodicidade.MENSAL: novoVencimento = addMonths(transacao.dataInicial, 1); break;
-        case Periodicidade.QUINZENAL: novoVencimento = addDays(transacao.dataInicial, 15); break;
-        case Periodicidade.SEMANAL: novoVencimento = addDays(transacao.dataInicial, 7); break;
-        default:
-          return undefined;
-      }
-      if (!transacao.dataLiquidacao || getTime(transacao.dataLiquidacao) < getTime(novoVencimento)) {
-        const novaTransacao = new TransacaoImpl(transacao);
-        novaTransacao.dataInicial = novoVencimento;
-        novaTransacao._id = undefined;
-        novaTransacao.dataLiquidacao = undefined;
-        novaTransacao.origem = transacao._id;
-        return novaTransacao;
-      }
-    }
-    return undefined;
   }
 
   /**

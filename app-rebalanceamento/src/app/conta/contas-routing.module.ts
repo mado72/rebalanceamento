@@ -8,7 +8,10 @@ const routes: Routes = [{
   redirectTo: "saldos"
 },{
   path: "saldos",
-  component: SaldosComponent
+  component: SaldosComponent,
+  data: {
+    botoesControle: true
+  }
 }];
 
 @NgModule({

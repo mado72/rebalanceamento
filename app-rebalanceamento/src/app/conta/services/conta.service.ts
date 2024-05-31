@@ -1,71 +1,49 @@
+import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
-import { Conta, TipoConta } from '../model/conta.model';
+import { Observable, map, tap } from 'rxjs';
+import { environment } from 'src/environments/environment.development';
+import { Conta, IConta } from '../model/conta.model';
 import { Moeda } from 'src/app/ativos/model/ativos.model';
-import { Observable, of } from 'rxjs';
 
 @Injectable({
   providedIn: 'root'
 })
 export class ContaService {
   private contas: Conta[] = [];
-  private sequence = 0;
-  
-  constructor() { }
-  
-  listarContas() : Observable<Conta[]> {
-    if (!!this.contas.length) return of(this.contas);
-    this.contas = Object.assign([] as Conta[], CONTAS);
-    return of(this.contas);
-  }  
+
+  constructor(
+    private _http: HttpClient
+  ) { }
+
+  listarContas(): Observable<Conta[]> {
+    return this._http.get<IConta[]>(`${environment.apiUrl}/conta`).pipe(
+      map(contas=>contas.map(item=>new Conta(item)).sort((a,b)=>a.conta.localeCompare(b.conta)))
+    );
+  }
 
   salvarConta(conta: Conta) {
-    if (!conta.id) {
-      conta.id = ++this.sequence;
-      this.contas.push(conta);
+    if (!conta._id) {
+      return this._http.post<Conta>(`${environment.apiUrl}/conta`, conta)
+        .pipe(
+          map(item => item._id != undefined)
+        )
     }
-    else {
-      let idx = this.contas.findIndex(item=> item.id === conta.id);
-      this.contas[idx] = conta;
-    }
-    return of(true);
+    return this._http.put<Conta>(`${environment.apiUrl}/conta`, conta)
+      .pipe(
+        map(item => item._id != undefined)
+      )
   }
 
   excluirConta(conta: Conta) {
-    this.contas = this.contas.filter(c => c.id!== conta.id);
-    return of(true);
+    return this._http.delete<IConta>(`${environment.apiUrl}/conta/${conta._id}`)
+     .pipe(
+        map(item => new Conta(item))
+      );
+  }
+
+  converterSaldoParaMoeda(conta: Conta, moeda: Moeda) : number {
+    return conta.saldo;
+    // TODO Utilizar mecanismo para calcular a cotação de uma moeda para real
   }
 
 }
-
-const CONTAS : Conta[] = [{
-  id: 1,
-  nome: 'Nu Bank',
-  saldo: 1000,
-  tipo: TipoConta.CORRENTE,
-  moeda: Moeda.REAL
-},{
-  id: 2,
-  nome: 'Itau',
-  saldo: 1000,
-  tipo: TipoConta.CORRENTE,
-  moeda: Moeda.REAL
-},{
-  id: 3,
-  nome: 'Nomad',
-  saldo: 1000,
-  tipo: TipoConta.CORRENTE,
-  moeda: Moeda.DOLAR
-}, {
-  id: 4,
-  nome: 'XP',
-  saldo: 50,
-  tipo: TipoConta.CORRENTE,
-  moeda: Moeda.REAL
-}, {
-  id: 5,
-  nome: 'XP Inv.',
-  saldo: 50,
-  tipo: TipoConta.INVESITMENTO,
-  moeda: Moeda.REAL
-}
-];

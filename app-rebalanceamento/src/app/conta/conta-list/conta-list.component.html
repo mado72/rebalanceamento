@@ -1,0 +1,28 @@
+<table class="table table-sm table-striped">
+    <thead>
+        <tr class="table-dark">
+            <th>Conta</th>
+            <th class="text-center">Tipo</th>
+            <th class="text-center">Saldo Atual</th>
+            <th class="text-center">Vl. Real</th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr *ngFor="let item of contas">
+            <td>
+                <a href="javascript:void(0)" (click)="contaClick(item)">
+                    {{item.conta}}
+                </a>
+            </td>
+            <td class="text-center">{{item.tipo | capitalize }}</td>
+            <td class="text-end">{{sigla(item.moeda)}} {{item.saldo | number:'1.2-2'}}</td>
+            <td class="text-end">R$ {{item.saldo | number:'1.2-2'}}</td>
+        </tr>
+    </tbody>
+    <tfoot>
+        <tr class="table-secondary">
+            <th colspan="3" class="fw-bold">Total</th>
+            <th class="text-end">R$ {{totais.total | number:'1.2-2'}}</th>
+        </tr>
+    </tfoot>
+</table>

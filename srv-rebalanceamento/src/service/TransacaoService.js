@@ -1,8 +1,8 @@
 'use strict';
 var mongoose = require('mongoose');
-const { DateTime } = require("luxon");
 
 const { respondWithCode } = require('../utils/writer');
+const { format, startOfMonth, endOfMonth } = require('date-fns');
 const Transacao = mongoose.model('transacao');
 
 /**
@@ -17,9 +17,9 @@ const Transacao = mongoose.model('transacao');
 exports.transacaoGET = function (mes, pago, categoria) {
   var filter = {};
   if (!!mes) {
-    var now = DateTime.now();
-    var inicio = DateTime.local(now.year, Number(mes), 1).startOf('month').toFormat('yyyy-MM-dd');
-    var fim = DateTime.local(now.year, Number(mes), 1).endOf('month').toFormat('yyyy-MM-dd');
+    var now = new Date();
+    var inicio = format(startOfMonth(now), 'yyyy-MM-dd');
+    var fim = format(endOfMonth(now), 'yyyy-MM-dd');
     filter.dataInicial = {
       $gte: inicio,
       $lte: fim
@@ -101,7 +101,8 @@ exports.transacaoIdGET = function (transacaoId) {
 exports.transacaoPOST = function (body) {
   return new Promise(async (resolve, reject) => {
     try {
-      var transacao = new Transacao(body);
+      const dbInstance = Transacao.toDBInstance(body);
+      var transacao = new Transacao(dbInstance);
       transacao = await transacao.save();
       resolve(Transacao.toObjectInstance(transacao));
     } catch (error) {
@@ -122,7 +123,8 @@ exports.transacaoPUT = function (body) {
   return new Promise(async (resolve, reject) => {
     try {
       var id = new mongoose.Types.ObjectId(body._id);
-      var transacao = await Transacao.findByIdAndUpdate(id, body);
+      const dbInstance = Transacao.toDBInstance(body);
+      var transacao = await Transacao.findByIdAndUpdate(id, dbInstance);
 
       if (!transacao) {
         resolve(respondWithCode(404, `Transação não encontrada`));
