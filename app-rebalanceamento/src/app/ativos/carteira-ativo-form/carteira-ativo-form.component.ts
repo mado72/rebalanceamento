@@ -1,5 +1,5 @@
 import { Component, EventEmitter, Input, Output } from '@angular/core';
-import { CarteiraAtivo } from '../model/ativos.model';
+import { ICarteiraAtivo } from '../model/ativos.model';
 
 @Component({
   selector: 'app-carteira-ativo-form',
@@ -18,37 +18,37 @@ export class CarteiraAtivoFormComponent {
    * @description
    * Propriedade de entrada que recebe os dados iniciais do item da carteira.
    *
-   * @type {CarteiraAtivo}
+   * @type {ICarteiraAtivo}
    * @memberof CarteiraAtivoFormComponent
    */
-  _carteiraAtivo!: CarteiraAtivo;
+  _carteiraAtivo!: ICarteiraAtivo;
 
-  get carteiraAtivo(): CarteiraAtivo {
+  get carteiraAtivo(): ICarteiraAtivo {
     return this._carteiraAtivo;
   }
 
   @Input()
-  set carteiraAtivo(value: CarteiraAtivo) {
-    this._carteiraAtivo = Object.assign({} as CarteiraAtivo, value);
+  set carteiraAtivo(value: ICarteiraAtivo) {
+    this._carteiraAtivo = Object.assign({} as ICarteiraAtivo, value);
   }
 
   /**
    * @description
    * EventEmitter que emite os dados do item da carteira salvo.
    *
-   * @type {EventEmitter<CarteiraAtivo>}
+   * @type {EventEmitter<ICarteiraAtivo>}
    * @memberof CarteiraAtivoFormComponent
    */
-  @Output() salvo = new EventEmitter<CarteiraAtivo>();
+  @Output() salvo = new EventEmitter<ICarteiraAtivo>();
 
   /**
    * @description
    * EventEmitter que emite os dados do item da carteira excluído.
    *
-   * @type {EventEmitter<CarteiraAtivo>}
+   * @type {EventEmitter<ICarteiraAtivo>}
    * @memberof CarteiraAtivoFormComponent
    */
-  @Output() excluido = new EventEmitter<CarteiraAtivo>();
+  @Output() excluido = new EventEmitter<ICarteiraAtivo>();
 
   /**
    * @description

@@ -8,6 +8,7 @@ import { CarteiraFormComponent } from './carteira-form/carteira-form.component';
 import { CarteiraPortifolioComponent } from './carteira-portifolio/carteira-portifolio.component';
 import { CarteiraListaAtivosComponent } from './carteira-lista-ativos/carteira-lista-ativos.component';
 import { CarteiraAtivoComponent } from './carteira-ativo/carteira-ativo.component';
+import { AlocacaoComponent } from './alocacao/alocacao.component';
 
 
 @NgModule({
@@ -16,7 +17,8 @@ import { CarteiraAtivoComponent } from './carteira-ativo/carteira-ativo.componen
     CarteiraAtivoComponent,
     CarteiraAtivoFormComponent,
     CarteiraListaAtivosComponent,
-    CarteiraFormComponent
+    CarteiraFormComponent,
+    AlocacaoComponent
   ],
   imports: [
     CommonModule,

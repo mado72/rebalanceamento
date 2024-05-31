@@ -1,5 +1,5 @@
 import { Component, EventEmitter, Input, Output } from '@angular/core';
-import { CarteiraImpl, CarteiraAtivo } from '../model/ativos.model';
+import { CarteiraImpl, ICarteiraAtivo } from '../model/ativos.model';
 
 /**
  * @description
@@ -21,10 +21,10 @@ export class CarteiraListaAtivosComponent {
    * @description
    * Emite um evento quando um item de ativo é clicado.
    *
-   * @type {EventEmitter<CarteiraAtivo>}
+   * @type {EventEmitter<ICarteiraAtivo>}
    * @memberof CarteiraListaAtivosComponent
    */
-  @Output() itemClicado = new EventEmitter<CarteiraAtivo>();
+  @Output() itemClicado = new EventEmitter<ICarteiraAtivo>();
 
   /**
    * @description
@@ -53,10 +53,10 @@ export class CarteiraListaAtivosComponent {
    * @description
    * Seleciona um item de ativo e emite um evento com o item selecionado.
    *
-   * @param {CarteiraAtivo} item - O item de ativo a ser selecionado.
+   * @param {ICarteiraAtivo} item - O item de ativo a ser selecionado.
    * @memberof CarteiraListaAtivosComponent
    */
-  selecionar(item: CarteiraAtivo): void {
+  selecionar(item: ICarteiraAtivo): void {
     this.itemClicado.emit(item);
   }
 

@@ -1,5 +1,5 @@
 import { Component, EventEmitter, Input, Output } from '@angular/core';
-import { CarteiraImpl, CarteiraAtivo } from '../model/ativos.model';
+import { CarteiraImpl, ICarteiraAtivo } from '../model/ativos.model';
 import { CarteiraService } from '../services/carteira.service';
 
 @Component({
@@ -36,10 +36,10 @@ export class CarteiraAtivoComponent {
 
   /**
    * @descripción O item selecionado do portfólio.
-   * @type {CarteiraAtivo}
+   * @type {ICarteiraAtivo}
    * @memberof CarteiraAtivoComponent
    */
-  carteiraAtivoSelecionado?: CarteiraAtivo;
+  carteiraAtivoSelecionado?: ICarteiraAtivo;
 
   /**
    * @descripción Construtor do CarteiraAtivoComponent.
@@ -73,10 +73,10 @@ export class CarteiraAtivoComponent {
 
   /**
    * @descripção Salva um item do portfólio.
-   * @param {CarteiraAtivo} carteiraAtivo - O item do portfólio a ser salvo.
+   * @param {ICarteiraAtivo} carteiraAtivo - O item do portfólio a ser salvo.
    * @memberof CarteiraAtivoComponent
    */
-  salvarCarteiraItem(carteiraAtivo: CarteiraAtivo) {
+  salvarCarteiraItem(carteiraAtivo: ICarteiraAtivo) {
     console.log(carteiraAtivo);
     delete this.carteiraAtivoSelecionado;
     const idx = this.carteira.items.findIndex(item=>item.ativo.sigla === carteiraAtivo.ativo.sigla);
@@ -109,10 +109,10 @@ export class CarteiraAtivoComponent {
 
   /**
    * @descripção Exclui um item do portfólio.
-   * @param {CarteiraAtivo} carteiraAtivo - O item do portfólio a ser excluído.
+   * @param {ICarteiraAtivo} carteiraAtivo - O item do portfólio a ser excluído.
    * @memberof CarteiraAtivoComponent
    */
-  excluirAtivo(carteiraAtivo: CarteiraAtivo): void {
+  excluirAtivo(carteiraAtivo: ICarteiraAtivo): void {
     this.carteira.items = this.carteira.items.filter(item=>item.ativo.sigla!== carteiraAtivo.ativo.sigla);
     delete this.carteiraAtivoSelecionado;
     // this.carteiraService.excluirCarteiraItem(carteiraAtivo).subscribe(()=>this.carteira.items = this.carteira.items.filter(item=>item.sigla!== carteiraAtivo.sigla));
@@ -128,11 +128,11 @@ export class CarteiraAtivoComponent {
 
   /**
    * @descripção Seleciona um item do portfólio para edição.
-   * @param {CarteiraAtivo} carteiraAtivo - O item do portfólio a ser selecionado.
+   * @param {ICarteiraAtivo} carteiraAtivo - O item do portfólio a ser selecionado.
    * @memberof CarteiraAtivoComponent
    */
-  ativoSelecionado(carteiraAtivo: CarteiraAtivo): void {
-    this.carteiraAtivoSelecionado = Object.assign({} as CarteiraAtivo, carteiraAtivo);
+  ativoSelecionado(carteiraAtivo: ICarteiraAtivo): void {
+    this.carteiraAtivoSelecionado = Object.assign({} as ICarteiraAtivo, carteiraAtivo);
   }
 
   /**

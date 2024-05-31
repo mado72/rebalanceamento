@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { Observable, of } from 'rxjs';
-import { CarteiraImpl, CarteiraAtivo } from '../model/ativos.model';
+import { CarteiraImpl, ICarteiraAtivo } from '../model/ativos.model';
 
 @Injectable({
   providedIn: 'root'
@@ -13,10 +13,11 @@ export class CarteiraService {
   
   constructor() { 
     const carteiras = new Array<CarteiraImpl>();
-    for (let i = 0; i < 8; i++) {
+    for (let i = 0; i < 2; i++) {
       const id = ++this.sequenceCarteira;
-      const carteira = new CarteiraImpl(`Ativo ${id}`);
+      const carteira = new CarteiraImpl(`Carteira ${id}`, .2);
       carteira.id = id;
+      this.obterAtivos(carteira).subscribe(items=>carteira.items = items);
       carteiras.push(carteira)
     }
     this.carteiras = carteiras;
@@ -30,8 +31,8 @@ export class CarteiraService {
     if (!this.carteiras) return of(undefined);
     return of(this.carteiras.find(carteira => carteira.id === id));
   }
-  obterAtivos(carteira: CarteiraImpl): Observable<CarteiraAtivo[]> {
-    const items =(Object.assign([] as CarteiraAtivo[], CARTEIRA.items)).sort(()=>Math.random()-0.5);
+  obterAtivos(carteira: CarteiraImpl): Observable<ICarteiraAtivo[]> {
+    const items =(Object.assign([] as ICarteiraAtivo[], CARTEIRA.items)).sort(()=>Math.random()-0.5);
     return of(items);
   }
   

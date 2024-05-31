@@ -50,7 +50,7 @@ export class AtivoImpl implements Ativo {
     }
 }
 
-export interface CarteiraAtivo {
+export interface ICarteiraAtivo {
     qtd: number,
     ativo: Ativo,
     vlUnitario: number,
@@ -63,32 +63,34 @@ export interface CarteiraAtivo {
     objetivo: number,
 }
 
-export interface Carteira extends ObjetoReferenciado {
+export interface ICarteira extends ObjetoReferenciado {
     nome: string,
-    items: CarteiraAtivo[],
+    items: ICarteiraAtivo[],
 }
 
-export class CarteiraImpl implements Carteira {
+export class CarteiraImpl implements ICarteira {
     id?: number;
     nome: string;
-    items: CarteiraAtivo[];
+    items: ICarteiraAtivo[];
+    objetivo: number;
     readonly tipoRef = TipoObjetoReferenciado.CARTEIRA;
     tipoAtivo?: TipoAtivo;
     moeda?: Moeda;
     
-    constructor(nome: string, id?: number, items?: CarteiraAtivo[]) {
+    constructor(nome: string, objetivo?: number, id?: number, items?: ICarteiraAtivo[]) {
         this.nome = nome;
         this.id = id;
+        this.objetivo = objetivo || 0;
         this.items = items || [];
     }
 
     get total(): number {
         return this.items.map(item => item.valor).reduce((a, b) => a + b, 0);
     }
-    percAtivo(item: CarteiraAtivo): number {
+    percAtivo(item: ICarteiraAtivo): number {
         return item.valor / this.total;
     }
-    diferenca(item: CarteiraAtivo): number {
+    diferenca(item: ICarteiraAtivo): number {
         return this.percAtivo(item) - item.objetivo;
     }
 }

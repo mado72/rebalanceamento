@@ -23,7 +23,7 @@ describe('CarteiraFormComponent', () => {
 
     fixture = TestBed.createComponent(CarteiraFormComponent);
     component = fixture.componentInstance;
-    component.carteira = new CarteiraImpl('nome', 1, []);
+    component.carteira = new CarteiraImpl('nome', 1, 1, []);
     fixture.detectChanges();
   });
 

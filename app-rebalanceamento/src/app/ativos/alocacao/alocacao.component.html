@@ -1,0 +1,27 @@
+<table class="table table-striped">
+    <thead>
+        <tr class="table-dark">
+            <th>Classe</th>
+            <th class="text-center">Financeiro</th>
+            <th class="text-center">% Planejado</th>
+            <th class="text-center">% Atual</th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr *ngFor="let alocacao of alocacoes">
+            <th>{{alocacao.carteira}}</th>
+            <td class="text-end">{{alocacao.valor | currency:siglaMoeda(alocacao)}}</td>
+            <td class="text-end">{{alocacao.planejado | percent}}</td>
+            <td class="text-end">{{alocacao.atual | percent}}</td>
+        </tr>
+    </tbody>
+    <tfoot>
+        <tr class="table-secondary">
+            <th>{{total.carteira}}</th>
+            <td class="text-end">{{total.valor | currency:'R$'}}</td>
+            <td class="text-end">{{total.planejado | percent}}</td>
+            <td class="text-end">{{total.atual | percent}}</td>
+        </tr>
+    </tfoot>
+</table>
+<pre class="debug">{{ alocacoes | json}}</pre>
