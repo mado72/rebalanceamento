@@ -162,7 +162,20 @@ exports.carteiraIdAlocacaoGET = function (carteiraId) {
         resolve(respondWithCode(404, `Não encontrado ${carteiraId}`));
         return;
       }
-      resolve(carteira.ativos);
+      var mapIdAtivos = new Map(carteira.ativos.map(ativo=>[ativo.ativoId.toString(), ativo]));
+
+      var ativosId = Array.from(mapIdAtivos.keys());
+      var ativos = await Ativo.find({ _id: { $in: ativosId } });
+
+      var result = ativos.map(ativo => {
+        var ativoCarteira = mapIdAtivos.get(ativo._id.toString()).toObject();
+        ativoCarteira.ativo = ativo.toObject();
+        return ativoCarteira;
+      });
+      resolve({
+        carteira: carteira,
+        ativos: result
+      });
 
     } catch (error) {
       reject(error);
