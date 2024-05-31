@@ -104,6 +104,7 @@ var Transacao = new Schema({
 var CarteiraAtivo = new Schema({
     _id: false,
     ativoId: { type: mongoose.Schema.Types.ObjectId, ref: 'ativo', index: true, unique: true }, // Referência ao ativo
+    quantidade: {type: Number, required: true}, // Quantidade do ativo na carteira
     objetivo: {type: Number, required: true}, // Objetivo do ativo na carteira
 });
 
@@ -116,9 +117,9 @@ var Carteira = new Schema({
 });
 
 var Ativo = new Schema({
-    ativo: {type: String, required: true, index: true, unique: true}, // Nome do ativo
+    nome: {type: String, required: true, index: true, unique: true}, // Nome do ativo
     moeda: {type: String, required: true, enum: Object.values(TipoMoeda)}, // Moeda do ativo
-    simbolo: {type: String, required: true, index: true, unique: true}, // Simbolo do ativo
+    sigla: {type: String, required: true, index: true, unique: true}, // Simbolo do ativo
     descricao: {type: String}, // Descrição do ativo
     setor: {type: String, required: true}, // Setor do ativo
     classe: {type: String, required: true, enum: Object.values(TipoClasse)}, // Classe do ativo
