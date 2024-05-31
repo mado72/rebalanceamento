@@ -1,15 +1,14 @@
 import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
-import { addMonths, endOfMonth, format, isSameMonth, parse, startOfMonth } from 'date-fns';
+import { endOfMonth, format, isSameMonth, parse, startOfMonth } from 'date-fns';
+import ptBR from 'date-fns/locale/pt-BR';
 import { Moeda } from 'src/app/ativos/model/ativos.model';
+import { ConsolidadoService } from 'src/app/patrimonio/services/consolidado.service';
 import { AlertService } from 'src/app/services/alert.service';
 import { ContaFormComponent } from '../conta-form/conta-form.component';
 import { Conta, TipoConta } from '../model/conta.model';
 import { ContaService } from '../services/conta.service';
-import ptBR from 'date-fns/locale/pt-BR'
-import { PatrimonioService } from 'src/app/patrimonio/services/patrimonio.service';
-import { Consolidado, TipoConsolidado } from 'src/app/patrimonio/models/patrimonio.model';
 
 @Component({
   selector: 'app-saldos',
@@ -31,7 +30,7 @@ export class SaldosComponent implements OnInit {
 
   constructor (
     private _contaService: ContaService,
-    private _patrimonioService: PatrimonioService,
+    private _patrimonioService: ConsolidadoService,
     private _alertService: AlertService,
     private _modalService: NgbModal,
     private _route: ActivatedRoute,
