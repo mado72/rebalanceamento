@@ -19,6 +19,7 @@ import { HandleErrorInterceptor } from './interceptors/handle-error.interceptor'
 import { MenuComponent } from './menu/menu.component';
 import { PainelComponent } from './painel/painel.component';
 import { UtilModule } from './util/util.module';
+import { PatrimonioModule } from './patrimonio/patrimonio.module';
 
 registerLocaleData(localePt);
 
@@ -40,6 +41,7 @@ registerLocaleData(localePt);
     NgbModule,
     AtivosModule,
     ContasModule,
+    PatrimonioModule,
     UtilModule
   ],
   providers: [

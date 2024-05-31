@@ -54,22 +54,21 @@ export class SaldosComponent implements OnInit {
     this._mesCorrente = mesCorrente;
 
     if (isSameMonth(this._mesCorrente, new Date())) {
-      this._contaService.listarContas().subscribe(contas => this.contas = contas);
+      this._contaService.listarContas().subscribe(contas => {
+        if (! this.botoesControle) {
+          contas = contas.filter(conta=> conta.tipo != TipoConta.CARTAO)
+        }
+        this.contas = contas
+      });
     }
     else {
       const inicio = startOfMonth(this._mesCorrente);
       this._patrimonioService.obterConsolidados({inicio, fim: endOfMonth(inicio)}).subscribe(consolidados=>{
-        const contaMap = new Map<string, Conta>();
+        const consolidadoMap = new Map(consolidados.map(consolidado=> [consolidado.idRef, consolidado]));
         this.contas.forEach(c=>{
-          c.saldo = 0;
-          contaMap.set(c._id as string, c);
+          const consolidado = consolidadoMap.get(c._id as string);
+          c.saldo = consolidado?.valor || 0;
         });
-        consolidados.forEach(consolidado=>{
-          const conta = contaMap.get(consolidado.idRef);
-          if (conta) {
-            conta.saldo = consolidado.valor;
-          }
-        })
       })
     }
   }
