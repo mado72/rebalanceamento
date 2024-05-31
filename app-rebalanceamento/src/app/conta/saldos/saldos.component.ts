@@ -1,10 +1,15 @@
 import { Component, OnInit } from '@angular/core';
+import { ActivatedRoute } from '@angular/router';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
-import { Moeda, MoedaSigla } from 'src/app/ativos/model/ativos.model';
+import { addMonths, endOfMonth, format, isSameMonth, parse, startOfMonth } from 'date-fns';
+import { Moeda } from 'src/app/ativos/model/ativos.model';
+import { AlertService } from 'src/app/services/alert.service';
 import { ContaFormComponent } from '../conta-form/conta-form.component';
 import { Conta, TipoConta } from '../model/conta.model';
 import { ContaService } from '../services/conta.service';
-import { AlertService } from 'src/app/services/alert.service';
+import ptBR from 'date-fns/locale/pt-BR'
+import { PatrimonioService } from 'src/app/patrimonio/services/patrimonio.service';
+import { Consolidado, TipoConsolidado } from 'src/app/patrimonio/models/patrimonio.model';
 
 @Component({
   selector: 'app-saldos',
@@ -16,11 +21,55 @@ export class SaldosComponent implements OnInit {
 
   private _contaSelecionada?: Conta | undefined;
 
+  botoesControle: boolean = false;
+
+  private _mesCorrente!: Date;
+
+  get mesSelecionado() {
+    return format(this.mesCorrente, "MMMM", { locale: ptBR });
+  }
+
   constructor (
     private _contaService: ContaService,
+    private _patrimonioService: PatrimonioService,
     private _alertService: AlertService,
-    private _modalService: NgbModal
+    private _modalService: NgbModal,
+    private _route: ActivatedRoute,
   ) {}
+
+  ngOnInit(): void {
+    const pBotaoAdicionar = this._route.snapshot.data["botoesControle"];
+    if (pBotaoAdicionar !== undefined) {
+      this.botoesControle = pBotaoAdicionar;
+    }
+    this.mesCorrente = new Date();
+
+    // TODO Adiiconar função para pegar os saldos históricos.
+  }
+
+  get mesCorrente() {
+    return this._mesCorrente;
+  }
+
+  set mesCorrente(mesCorrente: Date) {
+    this._mesCorrente = mesCorrente;
+
+    if (isSameMonth(this._mesCorrente, new Date())) {
+      this._contaService.listarContas().subscribe(contas => this.contas = contas);
+    }
+    else {
+      const inicio = startOfMonth(this._mesCorrente);
+      this._patrimonioService.obterConsolidados({inicio, fim: endOfMonth(inicio)}).subscribe(consolidados=>{
+        this.contas.forEach(c=>c.saldo = 0);
+        consolidados.forEach(consolidado=>{
+          const conta = this.contas.find(c => c._id === consolidado.idRef);
+          if (conta) {
+            conta.saldo = consolidado.valor;
+          }
+        })
+      })
+    }
+  }
 
   public get contaSelecionada(): Conta | undefined {
     return this._contaSelecionada;
@@ -44,21 +93,6 @@ export class SaldosComponent implements OnInit {
         this.excluirConta(conta);
         modalRef.close('Excluir');
       })
-    }
-  }
-
-  ngOnInit(): void {
-    this._contaService.listarContas().subscribe(contas => this.contas = contas);
-  }
-
-  sigla(moeda: Moeda): string {
-    return MoedaSigla[moeda];
-  }
-
-  get totais() {
-    const total = this.contas.map(conta=>conta.saldo).reduce((acc,vl)=>acc+=vl, 0);
-    return {
-      total
     }
   }
 
@@ -91,16 +125,39 @@ export class SaldosComponent implements OnInit {
     delete this.contaSelecionada;
   }
 
-  salvarConta(conta: Conta) { 
-    this._contaService.salvarConta(conta).subscribe(()=>{
-      delete this.contaSelecionada;
-      this._alertService.alert({
-        tipo: 'sucesso',
-        mensagem: 'Conta salva com sucesso!',
-        titulo: 'Resultado da operação'
-      })
-      this._contaService.listarContas().subscribe(contas => this.contas = contas);
+  private contaSalva() {
+    delete this.contaSelecionada;
+    this._alertService.alert({
+      tipo: 'sucesso',
+      mensagem: 'Conta salva com sucesso!',
+      titulo: 'Resultado da operação'
     });
+  }
+
+  salvarConta(conta: Conta) { 
+    if (isSameMonth(this.mesCorrente, new Date())) {
+      this._contaService.salvarConta(conta).subscribe(()=>{
+        this.contaSalva();
+        this._contaService.listarContas().subscribe(contas => this.contas = contas);
+      });
+    }
+    else {
+      const anoMes = Number(format(this.mesCorrente, 'yyyyMM'));
+      const contas = this.contas.filter(item=>item.conta != conta.conta);
+      contas.push(conta);
+      this._patrimonioService.definirConsolidadosContas(contas, anoMes).subscribe(()=>{
+        this.contaSalva();
+        this.mesCorrente = this.mesCorrente; // Para forçar atualização
+      })
+    }
+  }
+
+  get mesStr() {
+    return format(this.mesCorrente, 'yyyy-MM');
+  }
+
+  set mesStr(value: string) {
+    this.mesCorrente = parse(value, 'yyyy-MM', new Date());
   }
 
 }

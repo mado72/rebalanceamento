@@ -6,12 +6,14 @@ import { ContaFormComponent } from './conta-form/conta-form.component';
 import { ContasRoutingModule } from './contas-routing.module';
 import { SaldosComponent } from './saldos/saldos.component';
 import { UtilModule } from '../util/util.module';
+import { ContaListComponent } from './conta-list/conta-list.component';
 
 
 @NgModule({
   declarations: [
     SaldosComponent,
-    ContaFormComponent
+    ContaFormComponent,
+    ContaListComponent
   ],
   imports: [
     CommonModule,
