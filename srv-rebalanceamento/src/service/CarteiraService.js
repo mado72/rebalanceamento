@@ -10,12 +10,12 @@ const CarteiraAtivo = mongoose.model('carteira-ativo');
  * Lista os ativos disponíveis
  * Lista os ativos cadastrados
  *
- * classe Classe  (optional)
+ * tipoAtivo Tipo de Ativo  (optional)
  * returns List
  **/
-exports.ativoGET = function (classe) {
+exports.ativoGET = function (tipoAtivo) {
   return new Promise(async function (resolve, reject) {
-    var filter = !!classe ? { "classe": classe } : {}
+    var filter = !!tipoAtivo ? { "tipoAtivo": tipoAtivo } : {}
     try {
       var result = await Ativo.find(filter);
       resolve(result);
@@ -172,10 +172,9 @@ exports.carteiraIdAlocacaoGET = function (carteiraId) {
         ativoCarteira.ativo = ativo.toObject();
         return ativoCarteira;
       });
-      resolve({
-        carteira: carteira,
-        ativos: result
-      });
+      carteira = carteira.toObject();
+      carteira.ativos = result;
+      resolve(carteira);
 
     } catch (error) {
       reject(error);
