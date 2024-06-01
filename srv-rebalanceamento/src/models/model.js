@@ -106,6 +106,8 @@ var CarteiraAtivo = new Schema({
     ativoId: { type: mongoose.Schema.Types.ObjectId, ref: 'ativo', index: true, unique: true }, // Referência ao ativo
     quantidade: {type: Number, required: true}, // Quantidade do ativo na carteira
     objetivo: {type: Number, required: true}, // Objetivo do ativo na carteira
+    vlInicial: {type: Number, required: true}, // Valor Inicial do ativo na carteira
+    vlAtual: {type: Number, required: true}, // Valor Atual do ativo na carteira
 });
 
 var Carteira = new Schema({
@@ -122,7 +124,7 @@ var Ativo = new Schema({
     sigla: {type: String, required: true, index: true, unique: true}, // Simbolo do ativo
     descricao: {type: String}, // Descrição do ativo
     setor: {type: String, required: true}, // Setor do ativo
-    classe: {type: String, required: true, enum: Object.values(TipoClasse)}, // Classe do ativo
+    tipoAtivo: {type: String, required: true, enum: Object.values(TipoClasse)}, // Classe do ativo
 })
 
 var Conta = new Schema({

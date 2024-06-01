@@ -1278,7 +1278,7 @@ components:
     Ativo:
       required:
       - ativo
-      - classe
+      - tipoAtivo
       - moeda
       - setor
       - simbolo
@@ -1310,7 +1310,7 @@ components:
           minLength: 3
           type: string
           example: Tecnologia
-        classe:
+        tipoAtivo:
           type: string
           example: ACAO
           enum:
@@ -1326,7 +1326,7 @@ components:
         simbolo: NYSE:GOOGL
         setor: Tecnologia
         ativo: GOOGLE
-        classe: ACAO
+        tipoAtivo: ACAO
         moeda: REAL
         id: 100
         descricao: Google na NYSE
@@ -1337,6 +1337,8 @@ components:
         required: 
           - ativoId
           - objetivo
+          - quantidade
+          - vlInicial
         properties:
           ativoId:
             type: string
@@ -1347,6 +1349,15 @@ components:
             format: double
             description: Percentual do objetivo do ativo na carteira
             example: 0.5
+          quantidade:
+            type: number
+            format: double
+          vlInicial:
+            type: number
+            format: double
+          vlAtual:
+            type: number
+            format: double
     Conta:
       required:
       - conta
