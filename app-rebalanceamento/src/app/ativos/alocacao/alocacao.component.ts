@@ -46,7 +46,7 @@ export class AlocacaoComponent implements OnInit {
   ) { }
 
   ngOnInit(): void {
-    this._carteiraService.listarCarteiras().subscribe(carteiras => {
+    this._carteiraService.obterCarteiras().subscribe(carteiras => {
       this.total = {
         carteira: 'Total',
         valor: 0,

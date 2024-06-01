@@ -1,6 +1,6 @@
 <p>carteira-portifolio works!</p>
 <button (click)="adicionarCarteira()">Adicionar Carteira</button>
-<ng-container *ngIf="!!carteiraSelecionada && !carteiraSelecionada.id">
+<ng-container *ngIf="!!carteiraSelecionada && !carteiraSelecionada._id">
     <app-carteira-form
         [carteira]="carteiraSelecionada"
         (onCancelar)="cancelarEdicaoCarteira()"

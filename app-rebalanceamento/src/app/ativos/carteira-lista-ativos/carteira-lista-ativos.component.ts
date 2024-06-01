@@ -1,5 +1,12 @@
 import { Component, EventEmitter, Input, Output } from '@angular/core';
-import { CarteiraImpl, ICarteiraAtivo } from '../model/ativos.model';
+import { CarteiraImpl, IAtivo, ICarteiraAtivo } from '../model/ativos.model';
+
+interface ValorAtivo {
+    resultado: number;
+    objetivo: number;
+    vlInicial: number;
+    vlAtual: number | undefined;
+}
 
 /**
  * @description
@@ -67,14 +74,14 @@ export class CarteiraListaAtivosComponent {
    * @returns {any} - Um objeto contendo os totais de resultados, objetivos, valores iniciais e atuais.
    * @memberof CarteiraListaAtivosComponent
    */
-  get totais() {
+  get totais() : ValorAtivo {
     const totais = (this.carteira.items || [])
       .map(item => {
         return {
-          resultado: item.vlInicial ? item.valor - item.vlInicial : 0,
+          resultado: item.vlAtual || 0 - (item.vlInicial || 0),
           objetivo: item.objetivo,
           vlInicial: item.vlInicial || 0,
-          valor: item.valor
+          vlAtual: item.vlAtual
         };
       });
     if (!totais.length) {
@@ -82,7 +89,7 @@ export class CarteiraListaAtivosComponent {
         resultado: 0,
         objetivo: 0,
         vlInicial: 0,
-        valor: 0
+        vlAtual: 0
       }
     }
     return totais.reduce((acc, item)=>{
@@ -90,8 +97,12 @@ export class CarteiraListaAtivosComponent {
           resultado: acc.resultado + item.resultado,
           objetivo: acc.objetivo + item.objetivo,
           vlInicial: (acc.vlInicial + item.vlInicial || 0),
-          valor: acc.valor + item.valor
+          vlAtual: acc.vlAtual || 0 + (item.vlAtual || 0)
         }
       })
+  }
+
+  vlUnitario(ativo: ICarteiraAtivo) {
+    return (ativo.vlAtual || ativo.vlInicial || 0) / ativo.quantidade;
   }
 }

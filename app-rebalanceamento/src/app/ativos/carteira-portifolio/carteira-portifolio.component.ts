@@ -1,6 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { CarteiraImpl } from '../model/ativos.model';
 import { CarteiraService } from '../services/carteira.service';
+import { ActivatedRoute } from '@angular/router';
 
 @Component({
   selector: 'app-carteira-portifolio',
@@ -12,16 +13,23 @@ export class CarteiraPortifolioComponent implements OnInit{
 
   carteiraSelecionada?: CarteiraImpl;
 
-  constructor(private carteiraService: CarteiraService) {
-
-  }
+  constructor(
+    private carteiraService: CarteiraService,
+    private _route: ActivatedRoute,
+  ) {}
 
   ngOnInit(): void {
-      this.carteiraService.listarCarteiras().subscribe(carteiras=>this.carteiras = carteiras);
+    const idCarteira = this._route.snapshot.params['carteira'];
+    if (! idCarteira) {
+      this.carteiraService.obterCarteiras().subscribe(carteiras=>this.carteiras = carteiras);
+    }
+    else {
+      this.carteiraService.obterCarteira(idCarteira).subscribe(carteira=>carteira && (this.carteiras = [carteira]));
+    }
   }
 
   adicionarCarteira() {
-    this.carteiraSelecionada = new CarteiraImpl('Nova Carteira');
+    this.carteiraSelecionada = new CarteiraImpl({});
   }
 
   editarCarteira(carteira: CarteiraImpl) {
@@ -40,7 +48,7 @@ export class CarteiraPortifolioComponent implements OnInit{
     console.log(`Salvar ${this.carteiraSelecionada?.nome}`);
     if (this.carteiraSelecionada)
       this.carteiraService.salvarCarteira(this.carteiraSelecionada).subscribe(()=>{
-        this.carteiraService.listarCarteiras().subscribe(carteiras=>this.carteiras = carteiras);
+        this.carteiraService.obterCarteiras().subscribe(carteiras=>this.carteiras = carteiras);
       });
     
     delete this.carteiraSelecionada;

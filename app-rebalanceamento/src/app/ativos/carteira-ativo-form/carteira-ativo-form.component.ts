@@ -68,12 +68,12 @@ export class CarteiraAtivoFormComponent {
   constructor() {
     this.carteiraAtivo = {
       ativo: {
-        sigla: ""
+        sigla: "",
+        nome: "",
       },
-      qtd: 0,
-      vlUnitario: 0,
+      quantidade: 0,
+      vlAtual: 0,
       vlInicial: 0,
-      valor: 0,
       objetivo: 0,
     };
   }

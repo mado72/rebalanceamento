@@ -28,79 +28,99 @@ export enum TipoObjetoReferenciado {
 }
 
 export interface ObjetoReferenciado {
-    id?: any,
+    _id?: any,
     tipoRef: TipoObjetoReferenciado
+}
+
+export interface ICotacao {
+    sigla: string,
+    data: Date,
+    valor: number
 }
 
 export interface IAtivo {
     _id?: string
     nome: string,
     sigla: string,
-    quantidade: number
     tipoAtivo?: TipoAtivo,
     moeda?: Moeda,
-    vlInicial?: number
+    cotacao?: ICotacao
 }
 
 export class AtivoImpl implements IAtivo {
     _id?: string;
     nome: string;
     sigla: string;
-    quantidade: number;
     tipoAtivo?: TipoAtivo | undefined;
     moeda: Moeda;
-    vlInicial: number;
+    cotacao?: ICotacao;
     
     constructor(ativo: IAtivo) {
         this._id = ativo._id;
         this.nome = ativo.nome;
         this.sigla = ativo.sigla;
-        this.quantidade = ativo.quantidade;
-        this.vlInicial = ativo.vlInicial || 0;
         this.moeda = ativo.moeda || Moeda.REAL;
         this.tipoAtivo = ativo.tipoAtivo;
+        this.cotacao = ativo.cotacao;
     }
 }
 
 export interface ICarteiraAtivo {
-    qtd: number,
-    ativo: IAtivo,
-    vlUnitario: number,
+    ativoId?: string,
+    quantidade: number,
+    objetivo: number,
     vlInicial?: number,
-    valor: number,
+    vlAtual?: number,
+    ativo: IAtivo,
     referencia?: {
         tipo: TipoObjetoReferenciado,
         id: number
     }
-    objetivo: number,
 }
 
 export interface ICarteira extends ObjetoReferenciado {
+    _id?: number;
     nome: string,
-    items: ICarteiraAtivo[],
+    items: ICarteiraAtivo[];
+    objetivo: number;
+    tipoAtivo: TipoAtivo;
+    moeda?: Moeda;
 }
 
 export class CarteiraImpl implements ICarteira {
-    id?: number;
+    _id?: number;
     nome: string;
-    items: ICarteiraAtivo[];
+    private _items: ICarteiraAtivo[] = [];
     objetivo: number;
     readonly tipoRef = TipoObjetoReferenciado.CARTEIRA;
-    tipoAtivo?: TipoAtivo;
-    moeda?: Moeda;
+    tipoAtivo: TipoAtivo;
+    moeda: Moeda;
+    private _total: number = 0;
     
-    constructor(nome: string, objetivo?: number, id?: number, items?: ICarteiraAtivo[]) {
-        this.nome = nome;
-        this.id = id;
-        this.objetivo = objetivo || 0;
-        this.items = items || [];
+    constructor(carteira: Partial<ICarteira>) {
+        this._id = carteira._id;
+        this.nome = carteira.nome || 'Nova Carteira';
+        this.objetivo = carteira.objetivo || 0;
+        this.tipoAtivo = carteira.tipoAtivo || TipoAtivo.ACAO;
+        this.moeda = carteira.moeda || Moeda.REAL;
+        this._items = carteira.items || [];
+    }
+
+    get items() {
+        return this._items;
+    }
+
+    set items(items: ICarteiraAtivo[]) {
+        this._items = Object.assign([], items);
+        this._total = this.items.map(item => item.vlAtual || item.vlInicial || 0).reduce((a, b) => a + b, 0);
     }
 
     get total(): number {
-        return this.items.map(item => item.valor).reduce((a, b) => a + b, 0);
+        return this._total;
     }
+
     percAtivo(item: ICarteiraAtivo): number {
-        return item.valor / this.total;
+        return (item.vlAtual || item.vlInicial || 0) / this.total;
     }
     diferenca(item: ICarteiraAtivo): number {
         return this.percAtivo(item) - item.objetivo;

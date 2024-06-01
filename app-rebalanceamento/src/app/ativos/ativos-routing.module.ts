@@ -11,6 +11,9 @@ const routes: Routes = [{
   path: "carteiras",
   component: CarteiraPortifolioComponent
 },{
+  path: "carteira/:carteira",
+  component: CarteiraPortifolioComponent,
+},{
   path: "alocacao",
   component: AlocacaoComponent
 }];

@@ -67,7 +67,10 @@ export class CarteiraAtivoComponent {
   set carteira(carteira: CarteiraImpl) {
     this._carteira = carteira;
     if (!! carteira) {
-      Promise.resolve().then(()=>this.carteiraService.obterAtivos(carteira).subscribe(items=>this.carteira.items = items));
+      // TODO Refletir os itens atualizados nos totais de carteira-lista-ativos
+      Promise.resolve().then(()=>this.carteiraService.obterAlocacao(carteira).subscribe(items=>{
+        this.carteira.items = items;
+      }));
     }
   }
 
@@ -98,10 +101,10 @@ export class CarteiraAtivoComponent {
     this.carteiraAtivoSelecionado = {
       ativo: {
         sigla: "",
+        nome: "",
       },
-      qtd: 0,
-      valor: 0,
-      vlUnitario: 0,
+      quantidade: 0,
+      vlAtual: 0,
       vlInicial: 0,
       objetivo: 0,
     }
