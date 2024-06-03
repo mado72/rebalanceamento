@@ -10,6 +10,11 @@
     <input type="month" name="selectorMes" class="form-control" [(ngModel)]="viewDateStr" onfocus="showPicker()" onclick="showPicker()"/>
   </div>
   <div class="col-md-4 text-end">
+    <div class="form-group">
+      <label for="slIniciao">Sl. Inicial</label>
+      <input type="number" name="slInicial" id="slInicial" [(ngModel)]="saldoInicial" step="0.01">
+    </div>
+
     <button (click)="obterEventos()" class="btn btn-success">
       Atualizar
       <span class="fs-4 lh-1 m-0 p-0">&#10227;</span>
@@ -24,6 +29,7 @@
   (dataClicked)="abrirPopup($event)"
   (eventoClicked)="handleEvent($event)"
   [eventoDetalheTemplate]="detalhesEvento"
+  [templateDataConteudo]="detalheDia"
    />
 
 <app-popup-menu>
@@ -39,6 +45,24 @@
     </a>
   </div>
 </app-popup-menu>
+
+<ng-template #detalheDia let-dia="dia" let-data="data">
+  <ng-container *ngIf="!!dia && dataNoMesSelecionado(data) && saldos[dia-1]">
+    <div>
+      <h6>Resumo</h6>
+      <div class="text-end p2"><ng-containter [ngTemplateOutlet]="DisplayNum" [ngTemplateOutletContext]="{num: saldos[dia-1].inicio}"/></div>
+      <div class="text-end p2 border-bottom"><ng-containter [ngTemplateOutlet]="DisplayNum" [ngTemplateOutletContext]="{num: saldos[dia-1].transacoes}"/></div>
+      <div class="text-end p2"><ng-containter [ngTemplateOutlet]="DisplayNum" [ngTemplateOutletContext]="{num: saldos[dia-1].fim}"/></div>
+    </div>
+  </ng-container>
+</ng-template>
+
+<ng-template #DisplayNum let-num="num">
+  <div class="d-flex justify-content-end small">
+    <span *ngIf="num < 0">-</span>
+    <span class="text-end ms-auto" [style.color]="num < 0 ? 'red': undefined">{{num | absolute | number:'1.2-2'}}</span>
+  </div>
+</ng-template>
 
 <ng-template #detalhesEvento let-evento="evento">
   <div class="card">

@@ -15,7 +15,7 @@ export class ContaService {
     private _http: HttpClient
   ) { }
 
-  listarContas(): Observable<Conta[]> {
+  obterContas(): Observable<Conta[]> {
     return this._http.get<IConta[]>(`${environment.apiUrl}/conta`).pipe(
       map(contas=>contas.map(item=>new Conta(item)).sort((a,b)=>a.conta.localeCompare(b.conta)))
     );

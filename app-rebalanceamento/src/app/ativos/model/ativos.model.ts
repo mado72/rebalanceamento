@@ -87,6 +87,14 @@ export interface ICarteira extends ObjetoReferenciado {
     moeda?: Moeda;
 }
 
+export interface TotalCarteira {
+    resultado: number;
+    objetivo: number;
+    vlInicial: number;
+    vlAtual: number | undefined;
+}
+
+
 export class CarteiraImpl implements ICarteira {
     _id?: number;
     nome: string;
@@ -95,7 +103,7 @@ export class CarteiraImpl implements ICarteira {
     readonly tipoRef = TipoObjetoReferenciado.CARTEIRA;
     tipoAtivo: TipoAtivo;
     moeda: Moeda;
-    private _total: number = 0;
+    private _total!: TotalCarteira;
     
     constructor(carteira: Partial<ICarteira>) {
         this._id = carteira._id;
@@ -112,17 +120,49 @@ export class CarteiraImpl implements ICarteira {
 
     set items(items: ICarteiraAtivo[]) {
         this._items = Object.assign([], items);
-        this._total = this.items.map(item => item.vlAtual || item.vlInicial || 0).reduce((a, b) => a + b, 0);
+        this._total = this.calculaTotais();
     }
 
-    get total(): number {
+    get total(): TotalCarteira {
         return this._total;
     }
 
     percAtivo(item: ICarteiraAtivo): number {
-        return (item.vlAtual || item.vlInicial || 0) / this.total;
+        if (this.total.vlAtual)
+            return (item.vlAtual || item.vlInicial || 0) / this.total.vlAtual;
+        return 0;
     }
+
     diferenca(item: ICarteiraAtivo): number {
         return this.percAtivo(item) - item.objetivo;
+    }
+
+    private calculaTotais(): TotalCarteira {
+        const totais = (this.items || [])
+        .map(item => {
+          return {
+            resultado: item.vlAtual || 0 - (item.vlInicial || 0),
+            objetivo: item.objetivo,
+            vlInicial: item.vlInicial || 0,
+            vlAtual: item.vlAtual || 0
+          };
+        });
+      if (!totais.length) {
+        return {
+          resultado: 0,
+          objetivo: 0,
+          vlInicial: 0,
+          vlAtual: 0
+        }
+      }
+      return totais.reduce((acc, item)=>{
+          return {
+            resultado: acc.resultado + item.resultado,
+            objetivo: acc.objetivo + item.objetivo,
+            vlInicial: acc.vlInicial + item.vlInicial || 0,
+            vlAtual: acc.vlAtual + item.vlAtual || 0
+          }
+        })
+  
     }
 }

@@ -67,41 +67,6 @@ export class CarteiraListaAtivosComponent {
     this.itemClicado.emit(item);
   }
 
-  /**
-   * @description
-   * Calcula os totais de resultados, objetivos, valores iniciais e atuais da carteira.
-   *
-   * @returns {any} - Um objeto contendo os totais de resultados, objetivos, valores iniciais e atuais.
-   * @memberof CarteiraListaAtivosComponent
-   */
-  get totais() : ValorAtivo {
-    const totais = (this.carteira.items || [])
-      .map(item => {
-        return {
-          resultado: item.vlAtual || 0 - (item.vlInicial || 0),
-          objetivo: item.objetivo,
-          vlInicial: item.vlInicial || 0,
-          vlAtual: item.vlAtual
-        };
-      });
-    if (!totais.length) {
-      return {
-        resultado: 0,
-        objetivo: 0,
-        vlInicial: 0,
-        vlAtual: 0
-      }
-    }
-    return totais.reduce((acc, item)=>{
-        return {
-          resultado: acc.resultado + item.resultado,
-          objetivo: acc.objetivo + item.objetivo,
-          vlInicial: (acc.vlInicial + item.vlInicial || 0),
-          vlAtual: acc.vlAtual || 0 + (item.vlAtual || 0)
-        }
-      })
-  }
-
   vlUnitario(ativo: ICarteiraAtivo) {
     return (ativo.vlAtual || ativo.vlInicial || 0) / ativo.quantidade;
   }

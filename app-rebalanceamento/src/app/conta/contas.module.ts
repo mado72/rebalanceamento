@@ -7,6 +7,7 @@ import { ContasRoutingModule } from './contas-routing.module';
 import { SaldosComponent } from './saldos/saldos.component';
 import { UtilModule } from '../util/util.module';
 import { ContaListComponent } from './conta-list/conta-list.component';
+import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
 
 
 @NgModule({
@@ -18,6 +19,7 @@ import { ContaListComponent } from './conta-list/conta-list.component';
   imports: [
     CommonModule,
     FormsModule,
+    NgbModule,
     ContasRoutingModule,
     UtilModule
   ],

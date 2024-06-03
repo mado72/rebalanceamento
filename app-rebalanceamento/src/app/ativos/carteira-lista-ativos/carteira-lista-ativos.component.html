@@ -52,12 +52,12 @@ ID: {{ carteira._id }}
         <tr style="border-top: 1px solid black; background-color: silver;">
             <td></td>
             <td class="text-end"></td>
-            <td class="text-end">{{totais.vlInicial | number: '1.2-2'}}</td>
+            <td class="text-end">{{carteira.total.vlInicial | number: '1.2-2'}}</td>
             <td class="text-end"></td>
-            <td class="text-end">{{totais.vlAtual || 0 | number: '1.2-2'}}</td>
-            <td class="text-end">{{totais.resultado | number: '1.2-2'}}</td>
+            <td class="text-end">{{carteira.total.vlAtual || 0 | number: '1.2-2'}}</td>
+            <td class="text-end">{{carteira.total.resultado | number: '1.2-2'}}</td>
             <td class="text-end"></td>
-            <td class="text-end">{{totais.objetivo | percent: '1.2-2'}}</td>
+            <td class="text-end">{{carteira.total.objetivo | percent: '1.2-2'}}</td>
             <td class="text-end"></td>
             <td class="text-end"></td>
         </tr>

@@ -27,7 +27,11 @@ export class CalendarioMensalCelulaComponent {
 
   @Input() tipMinWidth = "160px";
 
-  @Input() templateDetalhes: TemplateRef<any> | undefined;
+  @Input() templateEventoDetalhes: TemplateRef<any> | undefined;
+
+  @Input() templateListaEventos: TemplateRef<any> | undefined;
+
+  @Input() templateDataConteudo: TemplateRef<any> | undefined;
 
   constructor() { 
   }

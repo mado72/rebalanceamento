@@ -58,7 +58,6 @@ export class CarteiraService {
           return alocacao.ativos;
         })
       )
-    // TODO COntinuar depuração para listar os ativos da carteira
   }
   
   salvarCarteira(carteira: CarteiraImpl): Observable<CarteiraImpl> {

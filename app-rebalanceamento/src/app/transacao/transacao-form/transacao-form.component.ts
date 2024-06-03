@@ -51,7 +51,7 @@ export class TransacaoFormComponent implements OnInit {
 
   ngOnInit(): void {
 
-    this._contaService.listarContas().subscribe(contas => {
+    this._contaService.obterContas().subscribe(contas => {
       this.contas = contas.sort((a, b) => {
         return 1000 * a.tipo.localeCompare(b.tipo) + a.conta.localeCompare(b.conta);
       });

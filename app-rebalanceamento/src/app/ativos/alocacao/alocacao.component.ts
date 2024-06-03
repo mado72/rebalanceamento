@@ -55,9 +55,9 @@ export class AlocacaoComponent implements OnInit {
       }
 
       this.alocacoes = carteiras.map((carteira: CarteiraImpl) => {
-        this.total.valor += carteira.total;
+        this.total.valor += carteira.total.vlAtual || 0;
         this.total.planejado += carteira.objetivo;
-        return new Alocacao(carteira.nome, carteira.total, carteira.objetivo, this.total, carteira.moeda)
+        return new Alocacao(carteira.nome, carteira.total.vlAtual || 0, carteira.objetivo, this.total, carteira.moeda)
       }
       );
 

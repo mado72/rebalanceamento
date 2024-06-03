@@ -32,6 +32,10 @@ export class CalendarioMensalComponent {
 
   @Input() eventoDetalheTemplate: TemplateRef<any> | undefined;
 
+  @Input() templateListaEventos: TemplateRef<any> | undefined;
+
+  @Input() templateDataConteudo: TemplateRef<any> | undefined;
+
   constructor(private matrizService: TransacaoMatrizService) { }
 
   get eventos() {
@@ -75,7 +79,7 @@ export class CalendarioMensalComponent {
     return {
       mesCorrente: dataNoMesCorrente,
       fundo: dataNoMesCorrente ? 'white' : 'lightgray',
-      eventos: this.matrizService.obterItensMatrizData({matriz: this.eventos, data: dataCelula}),
+      eventos: this.matrizService.extrairItensMatrizData({matriz: this.eventos, data: dataCelula}),
       data: dataCelula
     }
   }
