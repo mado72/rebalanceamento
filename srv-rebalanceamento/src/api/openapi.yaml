@@ -1284,20 +1284,24 @@ components:
         id: 100
     Ativo:
       required:
-      - ativo
+      - sigla
+      - nome
       - tipoAtivo
       - moeda
       - setor
-      - simbolo
       type: object
       properties:
         _id:
           type: string
           description: Id do Ativo
-        ativo:
+        sigla:
           minLength: 1
           type: string
-          example: GOOGLE
+          example: NYSE:GOOGL
+        nome:
+          minLength: 3
+          type: string
+          example: Google na NYSE
         moeda:
           type: string
           example: REAL
@@ -1305,14 +1309,6 @@ components:
           - REAL
           - DOLAR
           - USDT
-        simbolo:
-          minLength: 1
-          type: string
-          example: NYSE:GOOGL
-        descricao:
-          minLength: 3
-          type: string
-          example: Google na NYSE
         setor:
           minLength: 3
           type: string
