@@ -83,7 +83,7 @@ export interface ICarteira extends ObjetoReferenciado {
     nome: string,
     items: ICarteiraAtivo[];
     objetivo: number;
-    tipoAtivo: TipoAtivo;
+    classe: TipoAtivo;
     moeda?: Moeda;
 }
 
@@ -101,7 +101,7 @@ export class CarteiraImpl implements ICarteira {
     private _items: ICarteiraAtivo[] = [];
     objetivo: number;
     readonly tipoRef = TipoObjetoReferenciado.CARTEIRA;
-    tipoAtivo: TipoAtivo;
+    classe: TipoAtivo;
     moeda: Moeda;
     private _total!: TotalCarteira;
     
@@ -109,7 +109,7 @@ export class CarteiraImpl implements ICarteira {
         this._id = carteira._id;
         this.nome = carteira.nome || 'Nova Carteira';
         this.objetivo = carteira.objetivo || 0;
-        this.tipoAtivo = carteira.tipoAtivo || TipoAtivo.ACAO;
+        this.classe = carteira.classe || TipoAtivo.ACAO;
         this.moeda = carteira.moeda || Moeda.REAL;
         this._items = carteira.items || [];
     }

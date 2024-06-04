@@ -24,6 +24,8 @@ export class CarteiraListaAtivosComponent {
 
   private _carteira!: CarteiraImpl;
 
+  @Input() exibirLinkEdicao: boolean = true;
+
   /**
    * @description
    * Emite um evento quando um item de ativo é clicado.

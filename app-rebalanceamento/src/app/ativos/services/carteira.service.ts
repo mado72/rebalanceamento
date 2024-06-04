@@ -1,6 +1,6 @@
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Injectable } from '@angular/core';
-import { Observable, map } from 'rxjs';
+import { Observable, map, tap } from 'rxjs';
 import { environment } from 'src/environments/environment.development';
 import { AtivoImpl, CarteiraImpl, IAtivo, ICarteira, ICarteiraAtivo, Moeda, TipoAtivo } from '../model/ativos.model';
 
@@ -51,7 +51,7 @@ export class CarteiraService {
       )
   }
 
-  obterAlocacao(carteira: CarteiraImpl): Observable<ICarteiraAtivo[]> {
+  obterAlocacao(carteira: ICarteira): Observable<ICarteiraAtivo[]> {
     return this._http.get<Alocacao>(`${environment.apiUrl}/carteira/${carteira._id}/alocacao`)
       .pipe(
         map(alocacao=>{
@@ -59,25 +59,43 @@ export class CarteiraService {
         })
       )
   }
+
+  atualizarAlocacao(carteria: ICarteira): Observable<ICarteiraAtivo[]> {
+    return this._http.post<Alocacao>(`${environment.apiUrl}/carteira/${carteria._id}/alocacao`, carteria.items)
+      .pipe(
+        map(alocacao=>{
+          return alocacao.ativos;
+        })
+      )
+  }
   
-  salvarCarteira(carteira: CarteiraImpl): Observable<CarteiraImpl> {
+  salvarCarteira(carteira: ICarteira): Observable<CarteiraImpl> {
     return this._http.post<ICarteira>(`${environment.apiUrl}/carteira`, carteira)
       .pipe(
         map(carteira => new CarteiraImpl(carteira))
       );
   }
   
-  atualizarCarteira(carteira: CarteiraImpl): Observable<boolean> {
+  atualizarCarteira(carteira: ICarteira): Observable<boolean> {
     return this._http.put<ICarteira>(`${environment.apiUrl}/carteira`, carteira)
       .pipe(
         map(carteira => carteira? true : false)
       )
   }
   
-  excluirCarteira(carteira: CarteiraImpl) {
+  excluirCarteira(carteira: ICarteira) {
     return this._http.delete<ICarteira>(`${environment.apiUrl}/carteira/${carteira._id}`)
       .pipe(
         map(carteira => carteira? true : false)
+      )
+  }
+
+  buscarAtivos(termo: string) {
+    return this._http.get<IAtivo[]>(`${environment.apiUrl}/ativo?nome=${termo}`)
+      .pipe(
+        tap(ativos=>{
+          console.debug(ativos.length);
+        })
       )
   }
 }

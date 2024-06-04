@@ -1,11 +1,13 @@
-ID: {{ carteira._id }}
 <pre class="debug">{{carteira | json}}</pre>
 <table *ngIf="!! carteira" class="table table-striped">
     <thead>
         <tr class="table-dark">
-            <th>
-                Carteira: {{carteira.nome}}
-                ({{carteira.tipoAtivo}} - {{carteira.moeda}})
+            <th colspan="10">
+                <ng-container *ngIf="exibirLinkEdicao else SomenteNome">
+                    <a [routerLink]="['/carteira', carteira._id]">{{carteira.nome}}</a>
+                </ng-container>
+                <ng-template #SomenteNome>{{carteira.nome}}</ng-template>
+                ({{carteira.classe}} - {{carteira.moeda}})
             </th>
         </tr>
         <tr>
@@ -48,9 +50,9 @@ ID: {{ carteira._id }}
             <td class="text-end">{{carteira.diferenca(registro) | percent:'1.2-2'}}</td>
         </tr>
     </tbody>
-    <tfoot>
-        <tr style="border-top: 1px solid black; background-color: silver;">
-            <td></td>
+    <tfoot *ngIf="carteira.total">
+        <tr class="table-secondary">
+            <th>Total</th>
             <td class="text-end"></td>
             <td class="text-end">{{carteira.total.vlInicial | number: '1.2-2'}}</td>
             <td class="text-end"></td>

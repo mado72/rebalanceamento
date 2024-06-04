@@ -8,7 +8,7 @@ import { CarteiraImpl, Moeda, MoedaSigla, TipoAtivo } from '../model/ativos.mode
 })
 export class CarteiraFormComponent {
   
-  @Output() onSalvar = new EventEmitter();
+  @Output() onSalvar = new EventEmitter<CarteiraImpl>();
   
   @Output() onCancelar = new EventEmitter();
 
@@ -24,7 +24,7 @@ export class CarteiraFormComponent {
   }
 
   salvarEdicao() {
-    this.onSalvar.emit();
+    this.onSalvar.emit(this._carteira);
   }
   cancelarEdicao() {
     this.onCancelar.emit();

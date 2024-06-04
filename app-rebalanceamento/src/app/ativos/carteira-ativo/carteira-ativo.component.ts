@@ -1,6 +1,9 @@
 import { Component, EventEmitter, Input, Output } from '@angular/core';
-import { CarteiraImpl, ICarteiraAtivo } from '../model/ativos.model';
+import { CarteiraImpl, ICarteira, ICarteiraAtivo } from '../model/ativos.model';
 import { CarteiraService } from '../services/carteira.service';
+import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
+import { CarteiraAtivoFormComponent } from '../carteira-ativo-form/carteira-ativo-form.component';
+import { AlertService } from 'src/app/services/alert.service';
 
 @Component({
   selector: 'app-carteira-ativo',
@@ -14,11 +17,24 @@ import { CarteiraService } from '../services/carteira.service';
 export class CarteiraAtivoComponent {
   
   /**
+   * @descripción Construtor do CarteiraAtivoComponent.
+   * @param {CarteiraService} _carteiraService - O serviço para gerenciar o portfólio.
+   * @memberof CarteiraAtivoComponent
+   */
+  constructor(
+    private _carteiraService: CarteiraService,
+    private _alertService: AlertService,
+    private modalService: NgbModal
+  ) {}
+
+  /**
    * @descripción O objeto do portfólio.
    * @type {CarteiraImpl}
    * @memberof CarteiraAtivoComponent
    */
   private _carteira!: CarteiraImpl;
+
+  @Input() exibirLinkEdicaoCarteira = true;
 
   /**
    * @descripción Emissor de eventos para editar o portfólio.
@@ -39,14 +55,76 @@ export class CarteiraAtivoComponent {
    * @type {ICarteiraAtivo}
    * @memberof CarteiraAtivoComponent
    */
-  carteiraAtivoSelecionado?: ICarteiraAtivo;
+  private _carteiraAtivoSelecionado?: ICarteiraAtivo;
 
-  /**
-   * @descripción Construtor do CarteiraAtivoComponent.
-   * @param {CarteiraService} carteiraService - O serviço para gerenciar o portfólio.
-   * @memberof CarteiraAtivoComponent
-   */
-  constructor(private carteiraService: CarteiraService) {
+  get carteiraAtivoSelecionado() {
+    return this._carteiraAtivoSelecionado;
+  }
+
+  set carteiraAtivoSelecionado(value: ICarteiraAtivo | undefined) {
+    this._carteiraAtivoSelecionado = value;
+
+    if (!!value) {
+      const modalRef = this.modalService.open(CarteiraAtivoFormComponent, { size: 'lg' });
+      const component = modalRef.componentInstance as CarteiraAtivoFormComponent;
+      component._carteiraAtivo = value;
+
+      component.onCancelar.subscribe(() => modalRef.dismiss({action: 'cancelar'}));
+      component.onExcluir.subscribe(carteiraAtivo => modalRef.close({action: 'excluir', carteiraAtivo}));
+      component.onSalvar.subscribe(carteiraAtivo => modalRef.close({action: 'salvar', carteiraAtivo}));
+      component.onTermoChanged.subscribe(termo=>{
+        this._carteiraService.buscarAtivos(termo).subscribe(ativos=>
+          component.ativos=ativos.filter(ativo=>ativo.tipoAtivo===this.carteira.classe && (!ativo.moeda || ativo.moeda === this.carteira.moeda)));
+      })
+      
+      modalRef.result.then(result => {
+        const ativo = result.carteiraAtivo as ICarteiraAtivo || undefined;
+
+        if (['excluir', 'salvar'].includes(result.action)) {
+          if (!ativo) {
+            this._alertService.alert({
+              mensagem: `Ativo não selecionado`,
+              tipo: 'erro',
+              titulo: 'Resultado da operação'
+            });
+            return;
+          }
+  
+          this.carteira.items = this.carteira.items.filter(alocacao=>alocacao.ativoId != ativo.ativoId)
+            .map(alocacao=>{
+              const {['ativo']: removed, ...postData} = Object.assign({}, alocacao) ;
+              return postData as ICarteiraAtivo;
+            });
+
+          const resultadoOperacao = (mensagem: string) => {
+            this._alertService.alert({
+              mensagem,
+              tipo:'sucesso',
+              titulo: 'Resultado da operação'
+            });
+          }
+
+          if (result.action === 'excluir') {
+            this._carteiraService.atualizarAlocacao(this.carteira).subscribe(()=>{
+              resultadoOperacao('Ativo excluído com sucesso');
+              this.obterAtivosCarteira();
+            })
+          } else {
+            const {['ativo']: removed, ...postData} = Object.assign({}, ativo);
+            this.carteira.items.push(postData as ICarteiraAtivo);
+            
+            this._carteiraService.atualizarAlocacao(this.carteira).subscribe(()=>{
+              resultadoOperacao('Ativo atualizado com sucesso');
+              this.obterAtivosCarteira();
+            })
+          }
+        }
+      
+        delete this._carteiraAtivoSelecionado;
+      }, ()=>{
+        delete this._carteiraAtivoSelecionado;
+      });
+    }
   }
   
   /**
@@ -68,10 +146,14 @@ export class CarteiraAtivoComponent {
     this._carteira = carteira;
     if (!! carteira) {
       // TODO Refletir os itens atualizados nos totais de carteira-lista-ativos
-      Promise.resolve().then(()=>this.carteiraService.obterAlocacao(carteira).subscribe(items=>{
-        this.carteira.items = items;
-      }));
+      this.obterAtivosCarteira();
     }
+  }
+
+  private obterAtivosCarteira() {
+    Promise.resolve().then(() => this._carteiraService.obterAlocacao(this.carteira).subscribe(items => {
+      this.carteira.items = items;
+    }));
   }
 
   /**

@@ -1,23 +1,37 @@
-<p>carteira-form works!</p>
+<div class="modal-header">
+  <h4 class="modal-title m-2">Editar Carteira</h4>
+</div>
+<div class="modal-body row">
+  <div class="form-group col">
+    <label class="form-label" for="nome">Carteira</label>
+    <input class="form-control" type="text" name="nome" id="nome" [(ngModel)]="carteira.nome">
+  </div>
 
-<label for="nome">Carteira</label>
-<input type="text" name="nome" id="nome" [(ngModel)]="carteira.nome">
+  <div class="form-group col">
+    <label class="form-label" for="classe">Tipo</label>
+    <select class="form-select" name="classe" id="classe" [(ngModel)]="carteira.classe">
+      <option [value]="undefined">Selecione...</option>
+      <option [value]="tipo" *ngFor="let tipo of tipos">{{tipo}}</option>
+    </select>
+  </div>
 
-<label for="tipo">Tipo</label>
-<select name="tipo" id="tipo" [(ngModel)]="carteira.tipoAtivo">
-  <option [value]="undefined">Selecione...</option>
-  <option [value]="tipo" *ngFor="let tipo of tipos">{{tipo}}</option>
-</select>
+  <div class="form-group col">
+    <label class="form-label" for="moeda">Moeda</label>
+    <select class="form-select" name="moeda" id="moeda" [(ngModel)]="carteira.moeda">
+      <option [value]="undefined">Selecione...</option>
+      <option [value]="moeda" *ngFor="let moeda of moedas">{{sigla(moeda)}} {{moeda}}</option>
+    </select>
+  </div>
+</div>
+<div class="modal-footer">
+  <div class="form-group">
+    <button class="btn btn-sm btn-primary m-1" (click)="salvarEdicao()">
+        Salvar
+    </button>
+    <button class="btn btn-sm btn-primary m-1" (click)="cancelarEdicao()">
+        Cancelar
+    </button>
+  </div>
+</div>
 
-<label for="moeda">Moeda</label>
-<select name="moeda" id="moeda" [(ngModel)]="carteira.moeda">
-  <option [value]="undefined">Selecione...</option>
-  <option [value]="moeda" *ngFor="let moeda of moedas">{{sigla(moeda)}} {{moeda}}</option>
-</select>
 
-<button (click)="salvarEdicao()">
-    Salvar
-</button>
-<button (click)="cancelarEdicao()">
-    Cancelar
-</button>
