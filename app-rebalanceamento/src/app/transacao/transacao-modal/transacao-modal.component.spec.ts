@@ -1,9 +1,10 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 
-import { TransacaoModalComponent } from './transacao-modal.component';
-import { TransacaoFormComponent } from '../transacao-form/transacao-form.component';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { carteiraProviders } from 'src/app/test/test.module';
+import { TransacaoFormComponent } from '../transacao-form/transacao-form.component';
+import { TransacaoModalComponent } from './transacao-modal.component';
 
 describe('TransacaoModalComponent', () => {
   let component: TransacaoModalComponent;
@@ -18,6 +19,9 @@ describe('TransacaoModalComponent', () => {
       imports: [
         CommonModule,
         FormsModule,
+      ],
+      providers: [
+        ...carteiraProviders
       ]
     })
     .compileComponents();

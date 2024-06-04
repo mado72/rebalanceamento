@@ -5,6 +5,8 @@ import { TipoConta } from '../model/conta.model';
 import { Moeda } from 'src/app/ativos/model/ativos.model';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { CapitalizePipe } from 'src/app/util/capitalize.pipe';
+import { AbsolutePipe } from 'src/app/util/absolute.pipe';
 
 describe('ContaFormComponent', () => {
   let component: ContaFormComponent;
@@ -12,7 +14,11 @@ describe('ContaFormComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      declarations: [ ContaFormComponent ],
+      declarations: [ 
+        ContaFormComponent,
+        CapitalizePipe,
+        AbsolutePipe
+      ],
       imports: [
         CommonModule,
         FormsModule
@@ -23,7 +29,7 @@ describe('ContaFormComponent', () => {
     fixture = TestBed.createComponent(ContaFormComponent);
     component = fixture.componentInstance;
     component.conta = {
-      id: 1,
+      _id: '123213',
       conta: 'teste',
       saldo: 100,
       tipo: TipoConta.CORRENTE,

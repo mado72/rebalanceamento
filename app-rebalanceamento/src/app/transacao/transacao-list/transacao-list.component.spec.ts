@@ -4,92 +4,39 @@ import { CommonModule } from '@angular/common';
 import { HttpClientTestingModule } from '@angular/common/http/testing';
 import { FormsModule } from '@angular/forms';
 import { ToastrModule } from 'ngx-toastr';
-import { Observable, of } from 'rxjs';
-import { TipoTransacao, TransacaoImpl } from '../models/transacao.model';
-import { MatrizTransacoes, TransacaoMatrizService } from '../services/transacao-matriz.service';
-import { TransacaoService } from '../services/transacao.service';
-import { TransacaoListComponent } from './transacao-list.component';
+import { transacaoProviders } from 'src/app/test/test.module';
 import { PopupMenuComponent } from 'src/app/util/popup-menu/popup-menu.component';
+import { TransacaoListComponent } from './transacao-list.component';
+import { TipoAtivo } from 'src/app/ativos/model/ativos.model';
+import { MatrizType } from '../services/transacao-matriz.service';
+import { TransacaoImpl } from '../models/transacao.model';
 
+class LinhaMock {
 
-class MockedMatrizService {
- 
-  matriz: MatrizTransacoes = new Map([
-    ["Transacao 1", 
-      {
-        0: [],
-        1: [new TransacaoImpl({
-          descricao: 'Transacao 1',
-          valor: 100,
-          tipoTransacao: TipoTransacao.DEBITO,
-          dataInicial: new Date(2020, 1, 18)
-        })],
-        2: [],
-        3: [new TransacaoImpl({
-          descricao: 'Transacao 1',
-          valor: 100,
-          tipoTransacao: TipoTransacao.DEBITO,
-          dataInicial: new Date(2020, 3, 11)
-        })],
-        4: [],
-        5: [new TransacaoImpl({
-          descricao: 'Transacao 1',
-          valor: 100,
-          tipoTransacao: TipoTransacao.DEBITO,
-          dataInicial: new Date(2020, 5, 31)
-        })]
-      }
-    ],
-    ["Transacao 2", 
-    {
-        0: [],
-        1: [new TransacaoImpl({
-          descricao: 'Transacao 2',
-          valor: 100,
-          tipoTransacao: TipoTransacao.TRANSFERENCIA,
-          dataInicial: new Date(2020, 1, 18)
-        })],
-        2: [],
-        3: [],
-        4: [],
-        5: [
-          new TransacaoImpl({
-            descricao: 'Transacao 2',
-            valor: 100,
-            tipoTransacao: TipoTransacao.TRANSFERENCIA,
-            dataInicial: new Date(2020, 5, 12)
-          }),
-          new TransacaoImpl({
-            descricao: 'Transacao 2',
-            valor: 200,
-            tipoTransacao: TipoTransacao.TRANSFERENCIA,
-            dataInicial: new Date(2020, 5, 13)
-          })
-        ]
-      }
-    ]
-  ]);
-    
-  obterTransacoes(): Observable<MatrizTransacoes> {
-    return of(this.matriz);
-  }
-  rotulos(matriz: MatrizTransacoes) {
-    return new Array(...matriz.keys());
+  matriz = {} as MatrizType<TransacaoImpl>;
+
+  celulas = new Array(12);
+
+  diaInicial?: number;
+
+  constructor() {
   }
 
-  totalMes() {
-    return 100;
+  get total() {
+    return 0;
+  }
+
+  get nomeTransacao() {
+    return 'Nome Transacao'
   }
 }
 
 describe('TransacaoListComponent', () => {
   let component: TransacaoListComponent;
   let fixture: ComponentFixture<TransacaoListComponent>;
-  let mockMatrizService: MockedMatrizService;
-  let mockTransacaoService: TransacaoService;
+  let linha = new LinhaMock()
 
   beforeEach(async () => {
-    mockMatrizService = new MockedMatrizService();
     // mockTransacaoService = jasmine.createSpyObj(TransacaoService);
 
     await TestBed.configureTestingModule({
@@ -106,14 +53,30 @@ describe('TransacaoListComponent', () => {
         PopupMenuComponent
       ],
       providers: [
-        { provide: TransacaoMatrizService, useValue: mockMatrizService },
-        { provide: TransacaoService, useValue: mockTransacaoService }
+        ...transacaoProviders
       ]
     })
     .compileComponents();
 
     fixture = TestBed.createComponent(TransacaoListComponent);
+
     component = fixture.componentInstance;
+    spyOn(component, 'obterCelula').and.returnValue({
+      classe: {
+        credito: false,
+        debito: false,
+        liquidado: false,
+        projecao: false,
+        transferencia: false
+      },
+      transacoes: [],
+      linha: linha ,
+      mes:1,
+      nomeTransacao: 'Nome',
+      total: 0,
+      ehUnico: false
+    });
+
     fixture.detectChanges();
   });
 
@@ -122,6 +85,7 @@ describe('TransacaoListComponent', () => {
   });
 
   it('as transações devem ser representadas por linhas e células', () => {
+    
     component.obterTransacoes();
     expect(component.linhas.length).toBe(2);
     

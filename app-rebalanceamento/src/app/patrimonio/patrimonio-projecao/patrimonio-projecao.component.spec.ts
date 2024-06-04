@@ -1,6 +1,9 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 
 import { PatrimonioProjecaoComponent } from './patrimonio-projecao.component';
+import { carteiraProviders, transacaoProviders } from 'src/app/test/test.module';
+import { CapitalizePipe } from 'src/app/util/capitalize.pipe';
+import { AbsolutePipe } from 'src/app/util/absolute.pipe';
 
 describe('PatrimonioProjecaoComponent', () => {
   let component: PatrimonioProjecaoComponent;
@@ -8,7 +11,15 @@ describe('PatrimonioProjecaoComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      declarations: [ PatrimonioProjecaoComponent ]
+      declarations: [ 
+        PatrimonioProjecaoComponent,
+        CapitalizePipe,
+        AbsolutePipe
+      ],
+      providers: [
+        ...carteiraProviders,
+        ...transacaoProviders
+      ]
     })
     .compileComponents();
 

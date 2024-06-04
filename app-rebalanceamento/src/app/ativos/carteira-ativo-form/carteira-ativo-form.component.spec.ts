@@ -3,6 +3,7 @@ import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { CarteiraAtivoFormComponent } from './carteira-ativo-form.component';
+import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
 
 describe('CarteiraAtivoFormComponent', () => {
   let component: CarteiraAtivoFormComponent;
@@ -13,7 +14,8 @@ describe('CarteiraAtivoFormComponent', () => {
       declarations: [ CarteiraAtivoFormComponent ],
       imports: [ 
         CommonModule,
-        FormsModule
+        FormsModule,
+        NgbModule
       ]
     })
     .compileComponents();
