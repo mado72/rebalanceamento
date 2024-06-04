@@ -13,9 +13,14 @@ const CarteiraAtivo = mongoose.model('carteira-ativo');
  * tipoAtivo Tipo de Ativo  (optional)
  * returns List
  **/
-exports.ativoGET = function (tipoAtivo) {
+exports.ativoGET = function (tipoAtivo, termo) {
   return new Promise(async function (resolve, reject) {
-    var filter = !!tipoAtivo ? { "tipoAtivo": tipoAtivo } : {}
+    var filter = {};
+    !!tipoAtivo && (filter.tipoAtivo = tipoAtivo);
+    !!termo && (filter.$or = [
+      {nome : {$regex: new RegExp(termo, 'i')}}, 
+      {sigla : {$regex: new RegExp(termo, 'i')}}, 
+      {descricao : {$regex: new RegExp(termo, 'i')}}]);
     try {
       var result = await Ativo.find(filter);
       resolve(result);
@@ -294,13 +299,11 @@ exports.carteiraPOST = function (body) {
 exports.carteiraPUT = function (body) {
   return new Promise(async (resolve, reject) => {
     try {
-      var carteira = Carteira.findById(body._id);
+      var carteira = Carteira.findByIdAndUpdate(body._id, body);
       if (!carteira) {
         resolve(respondWithCode(404, `Não encontrado ${body._id}`));
         return;
       }
-      carteira = Object.assign(carteira, body);
-      carteira.save();
       resolve(carteira);
     } catch (error) {
       reject(error);

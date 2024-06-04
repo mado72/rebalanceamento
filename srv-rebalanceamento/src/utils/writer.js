@@ -51,6 +51,7 @@ var handleError = exports.handleError = function(res, arg1, status) {
     stack: arg1.stack
   }
   var payload = JSON.stringify(error, null, 2);
-  res.writeHead(status || arg1.code || 400, {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*', 'Access-Control-Allow-Methods': 'GET,POST,PUT,DELETE,OPTIONS'});
+  console.error(arg1);
+  res.writeHead(status || (arg1 && arg1.code < 600 ? arg1.code : undefined) || 400, {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*', 'Access-Control-Allow-Methods': 'GET,POST,PUT,DELETE,OPTIONS'});
   res.end(payload);
 }

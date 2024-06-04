@@ -3,8 +3,8 @@
 var utils = require('../utils/writer.js');
 var Carteira = require('../service/CarteiraService');
 
-module.exports.ativoGET = function ativoGET (req, res, next, tipoAtivo) {
-  Carteira.ativoGET(tipoAtivo)
+module.exports.ativoGET = function ativoGET (req, res, next, tipoAtivo, nome) {
+  Carteira.ativoGET(tipoAtivo, nome)
     .then(function (response) {
       utils.writeJson(res, response);
     })
