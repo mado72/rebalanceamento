@@ -20,6 +20,7 @@ import { MenuComponent } from './menu/menu.component';
 import { PainelComponent } from './painel/painel.component';
 import { UtilModule } from './util/util.module';
 import { PatrimonioModule } from './patrimonio/patrimonio.module';
+import { CalendarioModule } from './calendario/calendario.module';
 
 registerLocaleData(localePt);
 
@@ -42,7 +43,8 @@ registerLocaleData(localePt);
     AtivosModule,
     ContasModule,
     PatrimonioModule,
-    UtilModule
+    CalendarioModule,
+    UtilModule,
   ],
   providers: [
     {provide: LOCALE_ID, useValue: 'pt' },

@@ -10,6 +10,9 @@ import { CarteiraAtivoComponent } from './carteira-ativo/carteira-ativo.componen
 import { CarteiraFormComponent } from './carteira-form/carteira-form.component';
 import { CarteiraListaAtivosComponent } from './carteira-lista-ativos/carteira-lista-ativos.component';
 import { CarteiraPortifolioComponent } from './carteira-portifolio/carteira-portifolio.component';
+import { AtivosListaComponent } from './ativos-lista/ativos-lista.component';
+import { AtivoModalComponent } from './ativo-modal/ativo-modal.component';
+import { UtilModule } from '../util/util.module';
 
 
 @NgModule({
@@ -19,12 +22,15 @@ import { CarteiraPortifolioComponent } from './carteira-portifolio/carteira-port
     CarteiraAtivoFormComponent,
     CarteiraListaAtivosComponent,
     CarteiraFormComponent,
-    AlocacaoComponent
+    AlocacaoComponent,
+    AtivosListaComponent,
+    AtivoModalComponent
   ],
   imports: [
     CommonModule,
     NgbTypeaheadModule,
     FormsModule,
+    UtilModule,
     AtivosRoutingModule
   ],
   exports: [
