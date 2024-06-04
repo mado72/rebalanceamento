@@ -2,7 +2,7 @@ import { CommonModule } from '@angular/common';
 import { NgModule } from '@angular/core';
 
 import { FormsModule } from '@angular/forms';
-import { NgbTypeaheadModule } from '@ng-bootstrap/ng-bootstrap';
+import { NgbDropdownModule, NgbTypeaheadModule } from '@ng-bootstrap/ng-bootstrap';
 import { AlocacaoComponent } from './alocacao/alocacao.component';
 import { AtivosRoutingModule } from './ativos-routing.module';
 import { CarteiraAtivoFormComponent } from './carteira-ativo-form/carteira-ativo-form.component';
@@ -29,6 +29,7 @@ import { UtilModule } from '../util/util.module';
   imports: [
     CommonModule,
     NgbTypeaheadModule,
+    NgbDropdownModule,
     FormsModule,
     UtilModule,
     AtivosRoutingModule

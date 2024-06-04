@@ -98,4 +98,23 @@ export class CarteiraService {
         })
       )
   }
+
+  atualizarAtivo(ativo: AtivoImpl) {
+    return this._http.put<IAtivo>(`${environment.apiUrl}/ativo`, ativo)
+      .pipe(
+        map(ativo => new AtivoImpl(ativo))
+      )
+  }
+
+  salvarAtivo(ativo: AtivoImpl) {
+    if (ativo._id !== undefined) {
+      return this.atualizarAtivo(ativo);
+    }
+    
+    return this._http.post<IAtivo>(`${environment.apiUrl}/ativo`, ativo)
+      .pipe(
+        map(ativo => new AtivoImpl(ativo))
+      )
+  }
+
 }
