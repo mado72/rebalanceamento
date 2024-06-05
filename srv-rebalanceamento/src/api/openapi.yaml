@@ -1321,10 +1321,12 @@ components:
           - ACAO
           - FII
           - INTERNACIONAL
-          - CRYPTO
+          - CRIPTO
           - ALTCOINS
           - CDB
           - RF
+          - FUNDO
+          - CASHBACK
       example:
         simbolo: NYSE:GOOGL
         setor: Tecnologia
