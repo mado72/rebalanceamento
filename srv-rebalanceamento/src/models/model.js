@@ -50,8 +50,8 @@ const TipoClasse = Object.freeze({
     FUNDO: "FUNDO",
     CDB : "CDB",
     RF : "RF",
-    INTERNACIONAL : "INTERNACIONAL",
-    CRYPTO : "CRYPTO",
+    REFERENCIA : "REFERENCIA",
+    CRIPTO : "CRIPTO",
     ALTCOINS : "ALTCOINS"
 })
 
@@ -60,7 +60,8 @@ const TipoConsolidado = Object.freeze({
     ACAO : "ACAO",
     FII : "FII",
     RF : "RF",
-    INTL : "INTL",
+    CDB : "CDB",
+    FUNDO : "FUNDO",
     TRADE : "TRADE",
     RESERVA : "RESERVA",
     CRIPTO : "CRIPTO",
@@ -118,6 +119,12 @@ var Carteira = new Schema({
     ativos: [CarteiraAtivo], // Ativos
 });
 
+var ReferenciaCarteira = new Schema({
+    _id: false,
+    id: {type: mongoose.Schema.Types.ObjectId, ref: 'carteira', index: true, unique: true}, // ID de referência da carteira
+    tipo: {type: String, required: true}, // Tipo de referência da carteira
+})
+
 var Ativo = new Schema({
     nome: {type: String, required: true, index: true, unique: true}, // Nome do ativo
     moeda: {type: String, required: true, enum: Object.values(TipoMoeda)}, // Moeda do ativo
@@ -125,6 +132,8 @@ var Ativo = new Schema({
     descricao: {type: String}, // Descrição do ativo
     setor: {type: String, required: true}, // Setor do ativo
     tipoAtivo: {type: String, required: true, enum: Object.values(TipoClasse)}, // Classe do ativo
+    cotacao: {type: Number, format: 'double', required: false}, // Cotação do ativo
+    referencia: {type: ReferenciaCarteira, required: false}, // Referência da carteira
 })
 
 var Conta = new Schema({
