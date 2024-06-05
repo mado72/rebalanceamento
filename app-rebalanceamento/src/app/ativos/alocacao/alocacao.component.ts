@@ -1,7 +1,8 @@
 import { Component, OnInit } from '@angular/core';
 import { CarteiraService } from '../services/carteira.service';
-import { CarteiraImpl, Moeda, MoedaSigla } from '../model/ativos.model';
+import { CarteiraImpl, ICarteiraAtivo, Moeda, MoedaSigla } from '../model/ativos.model';
 import { ContaService } from 'src/app/conta/services/conta.service';
+import { Observable, forkJoin } from 'rxjs';
 
 interface IAlocacao {
   carteira: string;
@@ -11,13 +12,15 @@ interface IAlocacao {
   moeda?: Moeda;
 }
 class Alocacao implements IAlocacao {
-  carteira!: string;
-  valor!: number;
-  planejado!: number;
-  totalizacao!: IAlocacao;
+  id: string;
+  carteira: string;
+  valor: number;
+  planejado: number;
+  totalizacao: IAlocacao;
   moeda?: Moeda;
 
-  constructor(carteira: string, total: number, planejado: number, totalizacao: IAlocacao, moeda?: Moeda) {
+  constructor(id: string, carteira: string, total: number, planejado: number, totalizacao: IAlocacao, moeda?: Moeda) {
+    this.id = id;
     this.carteira = carteira;
     this.valor = total;
     this.planejado = planejado;
@@ -54,14 +57,42 @@ export class AlocacaoComponent implements OnInit {
         atual: 0
       }
 
-      this.alocacoes = carteiras.map((carteira: CarteiraImpl) => {
-        this.total.valor += carteira.total.vlAtual || 0;
-        this.total.planejado += carteira.objetivo;
-        return new Alocacao(carteira.nome, carteira.total.vlAtual || 0, carteira.objetivo, this.total, carteira.moeda)
-      }
-      );
+      Promise.resolve().then(() => {
+        const mapConsultas = carteiras.reduce((acc, carteira)=>{
+          const key = carteira._id as string;
+          acc[key] = {
+            ob: this._carteiraService.obterAlocacao(carteira),
+            carteira
+          }
+          return acc;
+        }, {} as {[key: string]:{ob: Observable<ICarteiraAtivo[]>, carteira: CarteiraImpl}})
 
-      this.alocacoes.forEach(alocacao => this.total.atual += alocacao.atual);
+        const mapObservables = Object.keys(mapConsultas).reduce((acc, key)=>{
+          acc[key] = mapConsultas[key].ob;
+          return acc;
+        }, {} as {[key: string]: Observable<ICarteiraAtivo[]>});
+
+        forkJoin(mapObservables).subscribe(mapResults=> {
+          Object.keys(mapResults).forEach(key=> {
+            const carteira = mapConsultas[key].carteira;
+            carteira.items = mapResults[key];
+            this.total.valor += carteira.total?.vlAtual || 0;
+            this.total.planejado += carteira.objetivo;
+            this.alocacoes.push(new Alocacao(carteira._id as string, carteira.nome, carteira.total?.vlAtual || 0, carteira.objetivo, this.total, carteira.moeda))
+          });
+
+          this.alocacoes.forEach(alocacao => this.total.atual += alocacao.atual);
+          
+        });
+      });
+
+      // this.alocacoes = carteiras.map((carteira: CarteiraImpl) => {
+      //   this.total.valor += carteira.total?.vlAtual || 0;
+      //   this.total.planejado += carteira.objetivo;
+      //   return new Alocacao(carteira._id as string, carteira.nome, carteira.total?.vlAtual || 0, carteira.objetivo, this.total, carteira.moeda)
+      // }
+      // );
+
     })
   }
 

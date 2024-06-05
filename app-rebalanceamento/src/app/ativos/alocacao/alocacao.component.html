@@ -1,4 +1,4 @@
-<table class="table table-striped">
+<table class="table table-striped" *ngIf="total">
     <thead>
         <tr class="table-dark">
             <th>Classe</th>
@@ -9,18 +9,22 @@
     </thead>
     <tbody>
         <tr *ngFor="let alocacao of alocacoes">
-            <th>{{alocacao.carteira}}</th>
+            <th>
+                <a href="javascript:void(0)" [routerLink]="['/carteira/', alocacao.carteira]">
+                    {{alocacao.carteira}}
+                </a>
+            </th>
             <td class="text-end">{{alocacao.valor | currency:siglaMoeda(alocacao)}}</td>
-            <td class="text-end">{{alocacao.planejado | percent}}</td>
-            <td class="text-end">{{alocacao.atual | percent}}</td>
+            <td class="text-end">{{alocacao.planejado | percent:'1.2-4'}}</td>
+            <td class="text-end">{{alocacao.atual | percent:'1.2-4'}}</td>
         </tr>
     </tbody>
     <tfoot>
         <tr class="table-secondary">
             <th>{{total.carteira}}</th>
             <td class="text-end">{{total.valor | currency:'R$'}}</td>
-            <td class="text-end">{{total.planejado | percent}}</td>
-            <td class="text-end">{{total.atual | percent}}</td>
+            <td class="text-end">{{total.planejado | percent:'1.2-4'}}</td>
+            <td class="text-end">{{total.atual | percent:'1.2-4'}}</td>
         </tr>
     </tfoot>
 </table>
