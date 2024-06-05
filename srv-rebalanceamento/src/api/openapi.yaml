@@ -1043,19 +1043,7 @@ paths:
         description: Tipo do consolidado
         required: true
         schema:
-          type: string
-          enum:
-          - CONTA
-          - ACAO
-          - FII
-          - RF
-          - INTL
-          - TRADE
-          - RESERVA
-          - CRIPTO
-          - SWING
-          - PROVENTO
-          - RETIRADA
+          $ref: '#/components/schemas/Classe'
       - name: inicio
         in: query
         required: true
@@ -1149,11 +1137,12 @@ components:
       - MOEDA
       - ACAO
       - FII
-      - INTERNACIONAL
-      - CRYPTO
-      - ALTCOINS
+      - FUNDO
       - CDB
       - RF
+      - REFERENCIA
+      - CRIPTO
+      - ALTCOINS
     
     Transacao:
       type: object
@@ -1265,17 +1254,7 @@ components:
           format: double
           example: 0.01
         classe:
-          type: string
-          example: ACAO
-          enum:
-          - MOEDA
-          - ACAO
-          - FII
-          - INTERNACIONAL
-          - CRYPTO
-          - ALTCOINS
-          - CDB
-          - RF
+          $ref: '#/components/schemas/Classe'
       example:
         objetivo: 0.01
         classe: ACAO
@@ -1314,19 +1293,21 @@ components:
           type: string
           example: Tecnologia
         tipoAtivo:
-          type: string
-          example: ACAO
-          enum:
-          - MOEDA
-          - ACAO
-          - FII
-          - INTERNACIONAL
-          - CRIPTO
-          - ALTCOINS
-          - CDB
-          - RF
-          - FUNDO
-          - CASHBACK
+          $ref: '#/components/schemas/Classe'
+        referencia:
+          type: object
+          required:
+            - id
+            - tipo
+          properties:
+            id:
+              type: string
+              description: Id da referência
+              example: 43ed222fcc12d
+            tipo:
+              type: string
+              description: Tipo da referência
+              example: CARTEIRA
       example:
         simbolo: NYSE:GOOGL
         setor: Tecnologia
@@ -1414,19 +1395,7 @@ components:
         idRef:
           type: string
         tipo:
-          type: string
-          enum:
-          - CONTA
-          - ACAO
-          - FII
-          - RF
-          - INTL
-          - TRADE
-          - RESERVA
-          - CRIPTO
-          - SWING
-          - PROVENTO
-          - RETIRADA
+          $ref: '#/components/schemas/Classe'
         valor:
           type: number
         anoMes:
