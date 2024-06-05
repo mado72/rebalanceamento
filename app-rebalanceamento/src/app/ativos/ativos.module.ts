@@ -13,6 +13,7 @@ import { CarteiraPortifolioComponent } from './carteira-portifolio/carteira-port
 import { AtivosListaComponent } from './ativos-lista/ativos-lista.component';
 import { AtivoModalComponent } from './ativo-modal/ativo-modal.component';
 import { UtilModule } from '../util/util.module';
+import { AtivoBuscaComponent } from './ativo-busca/ativo-busca.component';
 
 
 @NgModule({
@@ -24,7 +25,8 @@ import { UtilModule } from '../util/util.module';
     CarteiraFormComponent,
     AlocacaoComponent,
     AtivosListaComponent,
-    AtivoModalComponent
+    AtivoModalComponent,
+    AtivoBuscaComponent
   ],
   imports: [
     CommonModule,

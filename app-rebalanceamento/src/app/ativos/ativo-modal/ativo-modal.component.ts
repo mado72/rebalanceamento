@@ -1,5 +1,5 @@
 import { Component, EventEmitter, Input, Output } from '@angular/core';
-import { AtivoImpl } from '../model/ativos.model';
+import { AtivoImpl, Moeda, TipoAtivo } from '../model/ativos.model';
 
 @Component({
   selector: 'app-ativo-modal',
@@ -14,6 +14,12 @@ export class AtivoModalComponent {
 
   @Output() onSave = new EventEmitter<AtivoImpl>();
 
+  @Output() onRemove = new EventEmitter<AtivoImpl>();
+
+  readonly moedas = Object.values(Moeda);
+
+  readonly tipos = Object.values(TipoAtivo);
+
   constructor() { }
 
   close() {
@@ -22,6 +28,10 @@ export class AtivoModalComponent {
 
   save() {
     this.onSave.emit(this.ativo);
+  }
+
+  remove() {
+    this.onRemove.emit(this.ativo);
   }
 
 }

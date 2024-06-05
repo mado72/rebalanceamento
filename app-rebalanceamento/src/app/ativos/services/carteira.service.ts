@@ -117,4 +117,11 @@ export class CarteiraService {
       )
   }
 
+  removerAtivo(ativo: AtivoImpl) {
+    return this._http.delete<IAtivo>(`${environment.apiUrl}/ativo/${ativo._id}`)
+      .pipe(
+        map(ativo => new AtivoImpl(ativo))
+      )
+  }
+
 }

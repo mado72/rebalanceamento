@@ -1,0 +1,7 @@
+<label class="form-label" for="ativo">Ativo:</label>
+<input class="form-control" type="text" id="ativo" name="ativo" [(ngModel)]="termo"
+    (selectItem)="selecionarAtivo($event)" [inputFormatter]="formatar" [ngbTypeahead]="buscarAtivo"
+    [resultTemplate]="autoTemplate">
+<ng-template #autoTemplate let-r="result">
+    <option>{{r.nome}}</option>
+</ng-template>

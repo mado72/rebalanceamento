@@ -44,6 +44,7 @@ export interface IAtivo {
     sigla: string,
     tipoAtivo?: TipoAtivo,
     moeda?: Moeda,
+    setor?: string;
     cotacao?: ICotacao
 }
 
@@ -53,6 +54,7 @@ export class AtivoImpl implements IAtivo {
     sigla: string;
     tipoAtivo?: TipoAtivo | undefined;
     moeda: Moeda;
+    setor?: string;
     cotacao?: ICotacao;
     
     constructor(ativo: IAtivo) {
@@ -62,6 +64,7 @@ export class AtivoImpl implements IAtivo {
         this.moeda = ativo.moeda || Moeda.REAL;
         this.tipoAtivo = ativo.tipoAtivo;
         this.cotacao = ativo.cotacao;
+        this.setor = ativo.setor;
     }
 }
 

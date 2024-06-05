@@ -2,10 +2,46 @@
 <div class="modal-header">
     <h4 class="modal-title">Cadastro de Ativo</h4>
 </div>
-<div class="modal-body">
-{{ativo | json}}
-</div>
-<div class="modal-footer">
-    <button type="button" class="btn btn-default" (click)="close()">Fechar</button>
-    <button type="button" class="btn btn-primary" (click)="save()">Salvar</button>
-</div>
+<form>
+    <div class="modal-body">
+        <div class="form-group">
+            <label for="nome" class="form-label">Ativo</label>
+            <input type="text" class="form-control" id="nome" name="nome" [(ngModel)]="ativo.nome" minlength="3">
+        </div>
+
+        <div class="row">
+            <div class="form-group col-md">
+                <label for="sigla" class="form-label">Sigla</label>
+                <input type="text" class="form-control" id="sigla" name="sigla" [(ngModel)]="ativo.sigla" minlength="1">
+            </div>
+    
+            <div class="form-group col-md">
+                <label for="setor" class="form-label">Setor</label>
+                <input type="text" class="form-control" id="setor" name="setor" [(ngModel)]="ativo.setor" minlength="3">
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="form-group col-md">
+                <label for="moeda" class="form-label">Moeda</label>
+                <select name="moeda" id="moeda" class="form-select" [(ngModel)]="ativo.moeda">
+                    <option [value]="undefined">Selecione...</option>
+                    <option *ngFor="let moeda of moedas" [ngValue]="moeda">{{moeda}}</option>
+                </select>
+            </div>
+    
+            <div class="form-group col-md">
+                <label for="tipoAtivo" class="form-label">Tipo</label>
+                <select name="tipoAtivo" id="tipoAtivo" class="form-select" [(ngModel)]="ativo.tipoAtivo">
+                    <option [value]="undefined">Selecione...</option>
+                    <option *ngFor="let tipoAtivo of tipos" [ngValue]="tipoAtivo">{{tipoAtivo}}</option>
+                </select>
+            </div>
+        </div>
+    </div>
+    <div class="modal-footer">
+        <button type="button" class="btn btn-default" (click)="close()">Fechar</button>
+        <button type="submit" class="btn btn-primary" (click)="save()">Salvar</button>
+        <button type="submit" class="btn btn-sanger" (click)="remove()">Excluir</button>
+    </div>
+</form>

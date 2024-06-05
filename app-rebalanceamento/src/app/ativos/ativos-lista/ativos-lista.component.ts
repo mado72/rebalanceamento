@@ -1,7 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { AlertService } from 'src/app/services/alert.service';
-import { AtivoImpl, Moeda, MoedaSigla, TipoAtivo } from '../model/ativos.model';
+import { AtivoImpl, IAtivo, Moeda, MoedaSigla, TipoAtivo } from '../model/ativos.model';
 import { CarteiraService } from '../services/carteira.service';
 import { AtivoModalComponent } from '../ativo-modal/ativo-modal.component';
 
@@ -47,6 +47,8 @@ export class AtivosListaComponent implements OnInit {
     return this._ativosDisponiveis;
   }
 
+  buscarPorTermo = (termo: string) => this._carteiraService.buscarAtivos(termo);
+
   filtrar() {
     this.ativos = this._ativosDisponiveis.filter(ativo => {
       return (!this.filtro.moeda || this.filtro.moeda === ativo.moeda)
@@ -68,18 +70,30 @@ export class AtivosListaComponent implements OnInit {
     return MoedaSigla[moeda];
   }
 
-  editarAtivo(ativo: AtivoImpl) {
+  novoAtivo() {
+    this.editarAtivo(new AtivoImpl({
+      nome: '',
+      sigla: '',
+      moeda: Moeda.REAL,
+      tipoAtivo: TipoAtivo.ACAO,
+      setor: ''
+    }));
+  }
+
+
+  editarAtivo(ativo: AtivoImpl | IAtivo) {
     const modalRef = this._modalService.open(AtivoModalComponent, { size: 'lg' });
     const component = modalRef.componentInstance as AtivoModalComponent;
 
-    component.onClose.subscribe(()=>modalRef.dismiss('fechar'));
-    component.onSave.subscribe(()=>modalRef.close('salvar'));
-    component.ativo = ativo;
+    component.onClose.subscribe(() => modalRef.dismiss('fechar'));
+    component.onSave.subscribe(() => modalRef.close('salvar'));
+    component.onRemove.subscribe(() => modalRef.close('excluir'));
+    component.ativo = new AtivoImpl(ativo);
 
     modalRef.result.then(
-      (result)=>{
-        if(result ==='salvar') {
-          this._carteiraService.salvarAtivo(ativo).subscribe(()=>{
+      (result) => {
+        if (result === 'salvar') {
+          this._carteiraService.salvarAtivo(component.ativo).subscribe(() => {
             this._alertService.alert({
               titulo: 'Resultado da operação',
               mensagem: 'Ativo salvo com sucesso',
@@ -88,8 +102,18 @@ export class AtivosListaComponent implements OnInit {
             this.obterAtivos();
           })
         }
-      }, 
-      (reason)=>{
+        else if (result == 'excluir') {
+          this._carteiraService.removerAtivo(component.ativo).subscribe(() => {
+            this._alertService.alert({
+              titulo: 'Resultado da operação',
+              mensagem: 'Ativo removido com sucesso',
+              tipo:'sucesso'
+            });
+            this.obterAtivos();
+          })
+        }
+      },
+      (reason) => {
         modalRef.dismiss();
       })
   }
