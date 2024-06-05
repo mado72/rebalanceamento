@@ -1,5 +1,5 @@
 import { Component, EventEmitter, Input, Output } from '@angular/core';
-import { CarteiraImpl, ICarteira, ICarteiraAtivo } from '../model/ativos.model';
+import { CarteiraImpl, ICarteira, ICarteiraAtivo, TipoAtivo } from '../model/ativos.model';
 import { CarteiraService } from '../services/carteira.service';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { CarteiraAtivoFormComponent } from '../carteira-ativo-form/carteira-ativo-form.component';
@@ -73,8 +73,12 @@ export class CarteiraAtivoComponent {
       component.onExcluir.subscribe(carteiraAtivo => modalRef.close({action: 'excluir', carteiraAtivo}));
       component.onSalvar.subscribe(carteiraAtivo => modalRef.close({action: 'salvar', carteiraAtivo}));
       component.onTermoChanged.subscribe(termo=>{
-        this._carteiraService.buscarAtivos(termo).subscribe(ativos=>
-          component.ativos=ativos.filter(ativo=>ativo.tipoAtivo===this.carteira.classe && (!ativo.moeda || ativo.moeda === this.carteira.moeda)));
+        if (!!termo) {
+          this._carteiraService.buscarAtivos(termo).subscribe(ativos=>
+            component.ativos=ativos.filter(ativo=>
+              (ativo.tipoAtivo===this.carteira.classe || ativo.tipoAtivo == TipoAtivo.REFERENCIA) 
+              && (!ativo.moeda || ativo.moeda === this.carteira.moeda)));
+        }
       })
       
       modalRef.result.then(result => {

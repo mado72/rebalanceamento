@@ -66,4 +66,12 @@ export class CarteiraFormComponent {
     return MoedaSigla[moeda];
   }
 
+  get objetivoPerc() {
+    return this.carteira.objetivo * 100;
+  }
+
+  set objetivoPerc(value: number) {
+    this.carteira.objetivo = value / 100;
+  }
+
 }
