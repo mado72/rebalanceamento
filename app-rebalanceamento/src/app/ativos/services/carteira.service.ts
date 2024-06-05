@@ -92,11 +92,6 @@ export class CarteiraService {
 
   buscarAtivos(termo: string) {
     return this._http.get<IAtivo[]>(`${environment.apiUrl}/ativo?nome=${termo}`)
-      .pipe(
-        tap(ativos=>{
-          console.debug(ativos.length);
-        })
-      )
   }
 
   atualizarAtivo(ativo: AtivoImpl) {

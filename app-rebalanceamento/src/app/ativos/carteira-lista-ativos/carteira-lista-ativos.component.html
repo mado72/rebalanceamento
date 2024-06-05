@@ -42,7 +42,7 @@
             </td>
             <td class="text-end">
                 <ng-container *ngIf="registro.vlInicial">
-                    {{(registro.vlAtual || 0 - registro.vlInicial) / registro.vlInicial | percent:'1.2-2'}}
+                    {{resultado(registro) | percent:'1.2-2'}}
                 </ng-container>
             </td>
             <td class="text-end">{{registro.objetivo | percent:'1.2-2'}}</td>
@@ -56,9 +56,9 @@
             <td class="text-end"></td>
             <td class="text-end">{{carteira.total.vlInicial | number: '1.2-2'}}</td>
             <td class="text-end"></td>
-            <td class="text-end">{{carteira.total.vlAtual || 0 | number: '1.2-2'}}</td>
-            <td class="text-end">{{carteira.total.resultado | number: '1.2-2'}}</td>
-            <td class="text-end"></td>
+            <td class="text-end">{{(carteira.total.vlAtual || 0) | number: '1.2-2'}}</td>
+            <td class="text-end">{{(carteira.total.vlAtual || 0) - carteira.total.vlInicial | number: '1.2-2'}}</td>
+            <td class="text-end">{{resultado(carteira.total) | percent: '1.2-2'}}</td>
             <td class="text-end">{{carteira.total.objetivo | percent: '1.2-2'}}</td>
             <td class="text-end"></td>
             <td class="text-end"></td>

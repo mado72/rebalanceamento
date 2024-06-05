@@ -2,9 +2,7 @@ import { Component, EventEmitter, Input, Output } from '@angular/core';
 import { CarteiraImpl, IAtivo, ICarteiraAtivo } from '../model/ativos.model';
 
 interface ValorAtivo {
-    resultado: number;
-    objetivo: number;
-    vlInicial: number;
+    vlInicial: number | undefined;
     vlAtual: number | undefined;
 }
 
@@ -71,5 +69,9 @@ export class CarteiraListaAtivosComponent {
 
   vlUnitario(ativo: ICarteiraAtivo) {
     return (ativo.vlAtual || ativo.vlInicial || 0) / ativo.quantidade;
+  }
+
+  resultado(ativo: ValorAtivo | ICarteiraAtivo) {
+    return !ativo.vlInicial? NaN : ((ativo.vlAtual || 0) - ativo.vlInicial) / ativo.vlInicial;
   }
 }

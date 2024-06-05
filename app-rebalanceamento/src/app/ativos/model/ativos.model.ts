@@ -45,7 +45,11 @@ export interface IAtivo {
     tipoAtivo?: TipoAtivo,
     moeda?: Moeda,
     setor?: string;
-    cotacao?: ICotacao
+    cotacao?: ICotacao;
+    referencia?: {
+        tipo: TipoObjetoReferenciado,
+        id: string
+    }
 }
 
 export class AtivoImpl implements IAtivo {
@@ -56,7 +60,11 @@ export class AtivoImpl implements IAtivo {
     moeda: Moeda;
     setor?: string;
     cotacao?: ICotacao;
-    
+    referencia?: {
+        tipo: TipoObjetoReferenciado,
+        id: string
+    }
+
     constructor(ativo: IAtivo) {
         this._id = ativo._id;
         this.nome = ativo.nome;
@@ -65,6 +73,7 @@ export class AtivoImpl implements IAtivo {
         this.tipoAtivo = ativo.tipoAtivo;
         this.cotacao = ativo.cotacao;
         this.setor = ativo.setor;
+        this.referencia = ativo.referencia;
     }
 }
 
@@ -82,7 +91,7 @@ export interface ICarteiraAtivo {
 }
 
 export interface ICarteira extends ObjetoReferenciado {
-    _id?: number;
+    _id?: string;
     nome: string,
     items: ICarteiraAtivo[];
     objetivo: number;
@@ -99,7 +108,7 @@ export interface TotalCarteira {
 
 
 export class CarteiraImpl implements ICarteira {
-    _id?: number;
+    _id?: string;
     nome: string;
     private _items: ICarteiraAtivo[] = [];
     objetivo: number;
@@ -107,7 +116,7 @@ export class CarteiraImpl implements ICarteira {
     classe: TipoAtivo;
     moeda: Moeda;
     private _total!: TotalCarteira;
-    
+
     constructor(carteira: Partial<ICarteira>) {
         this._id = carteira._id;
         this.nome = carteira.nome || 'Nova Carteira';
@@ -142,30 +151,31 @@ export class CarteiraImpl implements ICarteira {
 
     private calculaTotais(): TotalCarteira {
         const totais = (this.items || [])
-        .map(item => {
-          return {
-            resultado: item.vlAtual || 0 - (item.vlInicial || 0),
-            objetivo: item.objetivo,
-            vlInicial: item.vlInicial || 0,
-            vlAtual: item.vlAtual || 0
-          };
-        });
-      if (!totais.length) {
-        return {
-          resultado: 0,
-          objetivo: 0,
-          vlInicial: 0,
-          vlAtual: 0
+            .map(item => {
+                return {
+                    resultado: item.vlAtual || 0 - (item.vlInicial || 0),
+                    objetivo: item.objetivo,
+                    vlInicial: item.vlInicial || 0,
+                    vlAtual: item.vlAtual || 0
+                };
+            });
+        const totalInicial = {
+            resultado: 0,
+            objetivo: 0,
+            vlInicial: 0,
+            vlAtual: 0
+        };
+        if (!totais.length) {
+            return totalInicial
         }
-      }
-      return totais.reduce((acc, item)=>{
-          return {
-            resultado: acc.resultado + item.resultado,
-            objetivo: acc.objetivo + item.objetivo,
-            vlInicial: acc.vlInicial + item.vlInicial || 0,
-            vlAtual: acc.vlAtual + item.vlAtual || 0
-          }
+        return totais.reduce((acc, item) => {
+            return {
+                resultado: acc.resultado + item.resultado,
+                objetivo: acc.objetivo + item.objetivo,
+                vlInicial: acc.vlInicial + item.vlInicial || 0,
+                vlAtual: acc.vlAtual + item.vlAtual || 0
+            }
         })
-  
+
     }
 }

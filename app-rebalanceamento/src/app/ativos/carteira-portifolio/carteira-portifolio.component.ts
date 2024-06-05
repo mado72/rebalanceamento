@@ -70,7 +70,14 @@ export class CarteiraPortifolioComponent implements OnInit{
   }
 
   excluirCarteira(carteira: CarteiraImpl) {
-    this.carteiraService.excluirCarteira(carteira).subscribe();
+    this.carteiraService.excluirCarteira(carteira).subscribe(()=>{
+      this._alertService.alert({
+        titulo: 'Resultado da operação',
+        mensagem: 'Carteira excluída',
+        tipo: 'sucesso'
+      })
+      this.obterCarteiras();
+  });
   }
 
   cancelarEdicaoCarteira() {
