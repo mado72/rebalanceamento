@@ -176,7 +176,7 @@ export class TransacaoMatrizService {
       })
   }
 
-  obterItensMatrizData<T extends ItemDataInicial>({ matriz, data }: { matriz: MatrizType<T>; data: Date }): T[] {
+  extrairItensMatrizData<T extends ItemDataInicial>({ matriz, data }: { matriz: MatrizType<T>; data: Date }): T[] {
     return new Array(...matriz.keys())
       .flatMap(linha => {
         const meses = matriz.get(linha);

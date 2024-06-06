@@ -7,6 +7,8 @@ import { ContasRoutingModule } from './contas-routing.module';
 import { SaldosComponent } from './saldos/saldos.component';
 import { UtilModule } from '../util/util.module';
 import { ContaListComponent } from './conta-list/conta-list.component';
+import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
+import { NegativoDirective } from '../util/negativo.directive';
 
 
 @NgModule({
@@ -18,8 +20,10 @@ import { ContaListComponent } from './conta-list/conta-list.component';
   imports: [
     CommonModule,
     FormsModule,
+    NgbModule,
     ContasRoutingModule,
-    UtilModule
+    UtilModule,
+    NegativoDirective
   ],
   exports: [
     SaldosComponent

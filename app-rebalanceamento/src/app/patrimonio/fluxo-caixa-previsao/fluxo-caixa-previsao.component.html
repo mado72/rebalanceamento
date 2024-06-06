@@ -16,7 +16,7 @@
         </tr>
         <tr>
             <th class="text-start">Despesas</th>
-            <td class="text-end" *ngFor="let previsao of previsoes | keyvalue: originalOrder">{{-previsao.value.despesas | number:'1.2-2'}}</td>
+            <td class="text-end" *ngFor="let previsao of previsoes | keyvalue: originalOrder">{{previsao.value.despesas | number:'1.2-2'}}</td>
         </tr>
     </tbody>
     <tfoot>

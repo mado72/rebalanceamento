@@ -276,6 +276,13 @@ paths:
         required: false
         schema:
           $ref: '#/components/schemas/Classe'
+      - in: query
+        name: nome
+        description: Parte do nome
+        example: GOOGL
+        required: false
+        schema:
+          type: string
       responses:
         "200":
           description: Successful operation
@@ -1036,19 +1043,7 @@ paths:
         description: Tipo do consolidado
         required: true
         schema:
-          type: string
-          enum:
-          - CONTA
-          - ACAO
-          - FII
-          - RF
-          - INTL
-          - TRADE
-          - RESERVA
-          - CRIPTO
-          - SWING
-          - PROVENTO
-          - RETIRADA
+          $ref: '#/components/schemas/Classe'
       - name: inicio
         in: query
         required: true
@@ -1142,11 +1137,12 @@ components:
       - MOEDA
       - ACAO
       - FII
-      - INTERNACIONAL
-      - CRYPTO
-      - ALTCOINS
+      - FUNDO
       - CDB
       - RF
+      - REFERENCIA
+      - CRIPTO
+      - ALTCOINS
     
     Transacao:
       type: object
@@ -1258,17 +1254,7 @@ components:
           format: double
           example: 0.01
         classe:
-          type: string
-          example: ACAO
-          enum:
-          - MOEDA
-          - ACAO
-          - FII
-          - INTERNACIONAL
-          - CRYPTO
-          - ALTCOINS
-          - CDB
-          - RF
+          $ref: '#/components/schemas/Classe'
       example:
         objetivo: 0.01
         classe: ACAO
@@ -1277,20 +1263,24 @@ components:
         id: 100
     Ativo:
       required:
-      - ativo
-      - classe
+      - sigla
+      - nome
+      - tipoAtivo
       - moeda
       - setor
-      - simbolo
       type: object
       properties:
         _id:
           type: string
           description: Id do Ativo
-        ativo:
+        sigla:
           minLength: 1
           type: string
-          example: GOOGLE
+          example: NYSE:GOOGL
+        nome:
+          minLength: 3
+          type: string
+          example: Google na NYSE
         moeda:
           type: string
           example: REAL
@@ -1298,35 +1288,31 @@ components:
           - REAL
           - DOLAR
           - USDT
-        simbolo:
-          minLength: 1
-          type: string
-          example: NYSE:GOOGL
-        descricao:
-          minLength: 3
-          type: string
-          example: Google na NYSE
         setor:
           minLength: 3
           type: string
           example: Tecnologia
-        classe:
-          type: string
-          example: ACAO
-          enum:
-          - MOEDA
-          - ACAO
-          - FII
-          - INTERNACIONAL
-          - CRYPTO
-          - ALTCOINS
-          - CDB
-          - RF
+        tipoAtivo:
+          $ref: '#/components/schemas/Classe'
+        referencia:
+          type: object
+          required:
+            - id
+            - tipo
+          properties:
+            id:
+              type: string
+              description: Id da referência
+              example: 43ed222fcc12d
+            tipo:
+              type: string
+              description: Tipo da referência
+              example: CARTEIRA
       example:
         simbolo: NYSE:GOOGL
         setor: Tecnologia
         ativo: GOOGLE
-        classe: ACAO
+        tipoAtivo: ACAO
         moeda: REAL
         id: 100
         descricao: Google na NYSE
@@ -1337,6 +1323,8 @@ components:
         required: 
           - ativoId
           - objetivo
+          - quantidade
+          - vlInicial
         properties:
           ativoId:
             type: string
@@ -1347,6 +1335,15 @@ components:
             format: double
             description: Percentual do objetivo do ativo na carteira
             example: 0.5
+          quantidade:
+            type: number
+            format: double
+          vlInicial:
+            type: number
+            format: double
+          vlAtual:
+            type: number
+            format: double
     Conta:
       required:
       - conta
@@ -1398,19 +1395,7 @@ components:
         idRef:
           type: string
         tipo:
-          type: string
-          enum:
-          - CONTA
-          - ACAO
-          - FII
-          - RF
-          - INTL
-          - TRADE
-          - RESERVA
-          - CRIPTO
-          - SWING
-          - PROVENTO
-          - RETIRADA
+          $ref: '#/components/schemas/Classe'
         valor:
           type: number
         anoMes:

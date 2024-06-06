@@ -1,6 +1,9 @@
 import { Component, EventEmitter, Input, Output } from '@angular/core';
-import { CarteiraImpl, CarteiraAtivo } from '../model/ativos.model';
+import { CarteiraImpl, ICarteira, ICarteiraAtivo, TipoAtivo } from '../model/ativos.model';
 import { CarteiraService } from '../services/carteira.service';
+import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
+import { CarteiraAtivoFormComponent } from '../carteira-ativo-form/carteira-ativo-form.component';
+import { AlertService } from 'src/app/services/alert.service';
 
 @Component({
   selector: 'app-carteira-ativo',
@@ -14,11 +17,24 @@ import { CarteiraService } from '../services/carteira.service';
 export class CarteiraAtivoComponent {
   
   /**
+   * @descripción Construtor do CarteiraAtivoComponent.
+   * @param {CarteiraService} _carteiraService - O serviço para gerenciar o portfólio.
+   * @memberof CarteiraAtivoComponent
+   */
+  constructor(
+    private _carteiraService: CarteiraService,
+    private _alertService: AlertService,
+    private modalService: NgbModal
+  ) {}
+
+  /**
    * @descripción O objeto do portfólio.
    * @type {CarteiraImpl}
    * @memberof CarteiraAtivoComponent
    */
   private _carteira!: CarteiraImpl;
+
+  @Input() exibirLinkEdicaoCarteira = true;
 
   /**
    * @descripción Emissor de eventos para editar o portfólio.
@@ -36,17 +52,83 @@ export class CarteiraAtivoComponent {
 
   /**
    * @descripción O item selecionado do portfólio.
-   * @type {CarteiraAtivo}
+   * @type {ICarteiraAtivo}
    * @memberof CarteiraAtivoComponent
    */
-  carteiraAtivoSelecionado?: CarteiraAtivo;
+  private _carteiraAtivoSelecionado?: ICarteiraAtivo;
 
-  /**
-   * @descripción Construtor do CarteiraAtivoComponent.
-   * @param {CarteiraService} carteiraService - O serviço para gerenciar o portfólio.
-   * @memberof CarteiraAtivoComponent
-   */
-  constructor(private carteiraService: CarteiraService) {
+  get carteiraAtivoSelecionado() {
+    return this._carteiraAtivoSelecionado;
+  }
+
+  set carteiraAtivoSelecionado(value: ICarteiraAtivo | undefined) {
+    this._carteiraAtivoSelecionado = value;
+
+    if (!!value) {
+      const modalRef = this.modalService.open(CarteiraAtivoFormComponent, { size: 'lg' });
+      const component = modalRef.componentInstance as CarteiraAtivoFormComponent;
+      component._carteiraAtivo = value;
+
+      component.onCancelar.subscribe(() => modalRef.dismiss({action: 'cancelar'}));
+      component.onExcluir.subscribe(carteiraAtivo => modalRef.close({action: 'excluir', carteiraAtivo}));
+      component.onSalvar.subscribe(carteiraAtivo => modalRef.close({action: 'salvar', carteiraAtivo}));
+      component.onTermoChanged.subscribe(termo=>{
+        if (!!termo) {
+          this._carteiraService.buscarAtivos(termo).subscribe(ativos=>
+            component.ativos=ativos.filter(ativo=>
+              (ativo.tipoAtivo===this.carteira.classe || ativo.tipoAtivo == TipoAtivo.REFERENCIA) 
+              && (!ativo.moeda || ativo.moeda === this.carteira.moeda)));
+        }
+      })
+      
+      modalRef.result.then(result => {
+        const ativo = result.carteiraAtivo as ICarteiraAtivo || undefined;
+
+        if (['excluir', 'salvar'].includes(result.action)) {
+          if (!ativo) {
+            this._alertService.alert({
+              mensagem: `Ativo não selecionado`,
+              tipo: 'erro',
+              titulo: 'Resultado da operação'
+            });
+            return;
+          }
+  
+          this.carteira.items = this.carteira.items.filter(alocacao=>alocacao.ativoId != ativo.ativoId)
+            .map(alocacao=>{
+              const {['ativo']: removed, ...postData} = Object.assign({}, alocacao) ;
+              return postData as ICarteiraAtivo;
+            });
+
+          const resultadoOperacao = (mensagem: string) => {
+            this._alertService.alert({
+              mensagem,
+              tipo:'sucesso',
+              titulo: 'Resultado da operação'
+            });
+          }
+
+          if (result.action === 'excluir') {
+            this._carteiraService.atualizarAlocacao(this.carteira).subscribe(()=>{
+              resultadoOperacao('Ativo excluído com sucesso');
+              this.obterAtivosCarteira();
+            })
+          } else {
+            const {['ativo']: removed, ...postData} = Object.assign({}, ativo);
+            this.carteira.items.push(postData as ICarteiraAtivo);
+            
+            this._carteiraService.atualizarAlocacao(this.carteira).subscribe(()=>{
+              resultadoOperacao('Ativo atualizado com sucesso');
+              this.obterAtivosCarteira();
+            })
+          }
+        }
+      
+        delete this._carteiraAtivoSelecionado;
+      }, ()=>{
+        delete this._carteiraAtivoSelecionado;
+      });
+    }
   }
   
   /**
@@ -67,16 +149,23 @@ export class CarteiraAtivoComponent {
   set carteira(carteira: CarteiraImpl) {
     this._carteira = carteira;
     if (!! carteira) {
-      Promise.resolve().then(()=>this.carteiraService.obterAtivos(carteira).subscribe(items=>this.carteira.items = items));
+      // TODO Refletir os itens atualizados nos totais de carteira-lista-ativos
+      this.obterAtivosCarteira();
     }
+  }
+
+  private obterAtivosCarteira() {
+    Promise.resolve().then(() => this._carteiraService.obterAlocacao(this.carteira).subscribe(items => {
+      this.carteira.items = items;
+    }));
   }
 
   /**
    * @descripção Salva um item do portfólio.
-   * @param {CarteiraAtivo} carteiraAtivo - O item do portfólio a ser salvo.
+   * @param {ICarteiraAtivo} carteiraAtivo - O item do portfólio a ser salvo.
    * @memberof CarteiraAtivoComponent
    */
-  salvarCarteiraItem(carteiraAtivo: CarteiraAtivo) {
+  salvarCarteiraItem(carteiraAtivo: ICarteiraAtivo) {
     console.log(carteiraAtivo);
     delete this.carteiraAtivoSelecionado;
     const idx = this.carteira.items.findIndex(item=>item.ativo.sigla === carteiraAtivo.ativo.sigla);
@@ -98,10 +187,10 @@ export class CarteiraAtivoComponent {
     this.carteiraAtivoSelecionado = {
       ativo: {
         sigla: "",
+        nome: "",
       },
-      qtd: 0,
-      valor: 0,
-      vlUnitario: 0,
+      quantidade: 0,
+      vlAtual: 0,
       vlInicial: 0,
       objetivo: 0,
     }
@@ -109,10 +198,10 @@ export class CarteiraAtivoComponent {
 
   /**
    * @descripção Exclui um item do portfólio.
-   * @param {CarteiraAtivo} carteiraAtivo - O item do portfólio a ser excluído.
+   * @param {ICarteiraAtivo} carteiraAtivo - O item do portfólio a ser excluído.
    * @memberof CarteiraAtivoComponent
    */
-  excluirAtivo(carteiraAtivo: CarteiraAtivo): void {
+  excluirAtivo(carteiraAtivo: ICarteiraAtivo): void {
     this.carteira.items = this.carteira.items.filter(item=>item.ativo.sigla!== carteiraAtivo.ativo.sigla);
     delete this.carteiraAtivoSelecionado;
     // this.carteiraService.excluirCarteiraItem(carteiraAtivo).subscribe(()=>this.carteira.items = this.carteira.items.filter(item=>item.sigla!== carteiraAtivo.sigla));
@@ -128,11 +217,11 @@ export class CarteiraAtivoComponent {
 
   /**
    * @descripção Seleciona um item do portfólio para edição.
-   * @param {CarteiraAtivo} carteiraAtivo - O item do portfólio a ser selecionado.
+   * @param {ICarteiraAtivo} carteiraAtivo - O item do portfólio a ser selecionado.
    * @memberof CarteiraAtivoComponent
    */
-  ativoSelecionado(carteiraAtivo: CarteiraAtivo): void {
-    this.carteiraAtivoSelecionado = Object.assign({} as CarteiraAtivo, carteiraAtivo);
+  ativoSelecionado(carteiraAtivo: ICarteiraAtivo): void {
+    this.carteiraAtivoSelecionado = Object.assign({} as ICarteiraAtivo, carteiraAtivo);
   }
 
   /**

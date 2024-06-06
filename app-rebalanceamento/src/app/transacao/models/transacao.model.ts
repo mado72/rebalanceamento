@@ -106,6 +106,12 @@ export class TransacaoImpl implements ITransacao {
         return !this.liquidada && !!this.dataFinal && isAfter(this.dataFinal, this.dataInicial)
     }
 
+    get valorTransacao() {
+        return (this.tipoTransacao == TipoTransacao.DEBITO ? -1 : 
+            this.tipoTransacao == TipoTransacao.CREDITO ? 1 : 0) 
+            * this.valor;
+    }
+
     public programacaoDatas(ateData: Date) {
         const datas = new Array<Date>();
         let dataFinalPeriodo = endOfDay(ateData);

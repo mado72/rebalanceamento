@@ -54,7 +54,7 @@ export class SaldosComponent implements OnInit {
     this._mesCorrente = mesCorrente;
 
     if (isSameMonth(this._mesCorrente, new Date())) {
-      this._contaService.listarContas().subscribe(contas => {
+      this._contaService.obterContas().subscribe(contas => {
         if (! this.botoesControle) {
           contas = contas.filter(conta=> conta.tipo != TipoConta.CARTAO)
         }
@@ -122,7 +122,7 @@ export class SaldosComponent implements OnInit {
         mensagem: 'Conta excluída com sucesso!',
         titulo: 'Resultado da operação'
       })
-      this._contaService.listarContas().subscribe(contas => this.contas = contas);
+      this._contaService.obterContas().subscribe(contas => this.contas = contas);
     });
     delete this.contaSelecionada;
   }
@@ -140,7 +140,7 @@ export class SaldosComponent implements OnInit {
     if (isSameMonth(this.mesCorrente, new Date())) {
       this._contaService.salvarConta(conta).subscribe(()=>{
         this.contaSalva();
-        this._contaService.listarContas().subscribe(contas => this.contas = contas);
+        this._contaService.obterContas().subscribe(contas => this.contas = contas);
       });
     }
     else {

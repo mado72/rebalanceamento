@@ -1,5 +1,10 @@
 import { Component, EventEmitter, Input, Output } from '@angular/core';
-import { CarteiraImpl, CarteiraAtivo } from '../model/ativos.model';
+import { CarteiraImpl, IAtivo, ICarteiraAtivo } from '../model/ativos.model';
+
+interface ValorAtivo {
+    vlInicial: number | undefined;
+    vlAtual: number | undefined;
+}
 
 /**
  * @description
@@ -17,14 +22,16 @@ export class CarteiraListaAtivosComponent {
 
   private _carteira!: CarteiraImpl;
 
+  @Input() exibirLinkEdicao: boolean = true;
+
   /**
    * @description
    * Emite um evento quando um item de ativo é clicado.
    *
-   * @type {EventEmitter<CarteiraAtivo>}
+   * @type {EventEmitter<ICarteiraAtivo>}
    * @memberof CarteiraListaAtivosComponent
    */
-  @Output() itemClicado = new EventEmitter<CarteiraAtivo>();
+  @Output() itemClicado = new EventEmitter<ICarteiraAtivo>();
 
   /**
    * @description
@@ -53,45 +60,22 @@ export class CarteiraListaAtivosComponent {
    * @description
    * Seleciona um item de ativo e emite um evento com o item selecionado.
    *
-   * @param {CarteiraAtivo} item - O item de ativo a ser selecionado.
+   * @param {ICarteiraAtivo} item - O item de ativo a ser selecionado.
    * @memberof CarteiraListaAtivosComponent
    */
-  selecionar(item: CarteiraAtivo): void {
+  selecionar(item: ICarteiraAtivo): void {
     this.itemClicado.emit(item);
   }
 
-  /**
-   * @description
-   * Calcula os totais de resultados, objetivos, valores iniciais e atuais da carteira.
-   *
-   * @returns {any} - Um objeto contendo os totais de resultados, objetivos, valores iniciais e atuais.
-   * @memberof CarteiraListaAtivosComponent
-   */
-  get totais() {
-    const totais = (this.carteira.items || [])
-      .map(item => {
-        return {
-          resultado: item.vlInicial ? item.valor - item.vlInicial : 0,
-          objetivo: item.objetivo,
-          vlInicial: item.vlInicial || 0,
-          valor: item.valor
-        };
-      });
-    if (!totais.length) {
-      return {
-        resultado: 0,
-        objetivo: 0,
-        vlInicial: 0,
-        valor: 0
-      }
-    }
-    return totais.reduce((acc, item)=>{
-        return {
-          resultado: acc.resultado + item.resultado,
-          objetivo: acc.objetivo + item.objetivo,
-          vlInicial: (acc.vlInicial + item.vlInicial || 0),
-          valor: acc.valor + item.valor
-        }
-      })
+  vlUnitario(ativo: ICarteiraAtivo) {
+    return !ativo.vlInicial? NaN : (ativo.vlAtual || 0) / ativo.quantidade;
+  }
+
+  resultado(ativo: ValorAtivo | ICarteiraAtivo) {
+    return !ativo.vlInicial? NaN : ((ativo.vlAtual || 0) - ativo.vlInicial);
+  }
+
+  resultadoPerc(ativo: ValorAtivo | ICarteiraAtivo) {
+    return !ativo.vlInicial? NaN : this.resultado(ativo) / ativo.vlInicial;
   }
 }

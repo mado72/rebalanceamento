@@ -1,6 +1,10 @@
 import { Component, OnInit } from '@angular/core';
+import { ActivatedRoute } from '@angular/router';
+import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
+import { CarteiraFormComponent } from '../carteira-form/carteira-form.component';
 import { CarteiraImpl } from '../model/ativos.model';
 import { CarteiraService } from '../services/carteira.service';
+import { AlertService } from 'src/app/services/alert.service';
 
 @Component({
   selector: 'app-carteira-portifolio',
@@ -12,38 +16,53 @@ export class CarteiraPortifolioComponent implements OnInit{
 
   carteiraSelecionada?: CarteiraImpl;
 
-  constructor(private carteiraService: CarteiraService) {
+  idCarteira?: string;
 
-  }
+  constructor(
+    private _carteiraService: CarteiraService,
+    private _alertService: AlertService,
+    private _route: ActivatedRoute,
+    private _modal: NgbModal
+  ) {}
 
   ngOnInit(): void {
-      this.carteiraService.listarCarteiras().subscribe(carteiras=>this.carteiras = carteiras);
+    this.idCarteira = this._route.snapshot.params['carteira'];
+    this.obterCarteiras();
+  }
+
+  obterCarteiras() {
+    if (! this.idCarteira) {
+      this._carteiraService.obterCarteiras().subscribe(carteiras=>this.carteiras = carteiras);
+    }
+    else {
+      this._carteiraService.obterCarteira(this.idCarteira).subscribe(carteira=>carteira && (this.carteiras = [carteira]));
+    }
   }
 
   adicionarCarteira() {
-    this.carteiraSelecionada = new CarteiraImpl('Nova Carteira');
+    this.editarCarteira(new CarteiraImpl({}));
   }
 
   editarCarteira(carteira: CarteiraImpl) {
     this.carteiraSelecionada = carteira;
-    console.log(`Editar ${carteira.nome}`);
+
+    this._carteiraService.editarCarteira(carteira).subscribe((result)=>{
+      delete this.carteiraSelecionada;
+      if (!!result) {
+        this.obterCarteiras();
+      }
+    });
   }
 
   excluirCarteira(carteira: CarteiraImpl) {
-    this.carteiraService.excluirCarteira(carteira).subscribe();
-  }
-
-  cancelarEdicaoCarteira() {
-    delete this.carteiraSelecionada;
-  }
-  salvarEdicaoCarteira() {
-    console.log(`Salvar ${this.carteiraSelecionada?.nome}`);
-    if (this.carteiraSelecionada)
-      this.carteiraService.salvarCarteira(this.carteiraSelecionada).subscribe(()=>{
-        this.carteiraService.listarCarteiras().subscribe(carteiras=>this.carteiras = carteiras);
-      });
-    
-    delete this.carteiraSelecionada;
+    this._carteiraService.excluirCarteira(carteira).subscribe(()=>{
+      this._alertService.alert({
+        titulo: 'Resultado da operação',
+        mensagem: 'Carteira excluída',
+        tipo: 'sucesso'
+      })
+      this.obterCarteiras();
+  });
   }
 
 }

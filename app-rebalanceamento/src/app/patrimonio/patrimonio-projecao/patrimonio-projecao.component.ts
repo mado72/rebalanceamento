@@ -34,7 +34,7 @@ export class PatrimonioProjecaoComponent implements OnInit {
 
   ngOnInit(): void {
     
-    this._contaService.listarContas().subscribe(contas=>{
+    this._contaService.obterContas().subscribe(contas=>{
       
       const inicio = startOfMonth(new Date());
       const fim = endOfYear(inicio);

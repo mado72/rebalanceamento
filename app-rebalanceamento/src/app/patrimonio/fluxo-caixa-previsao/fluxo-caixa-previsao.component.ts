@@ -47,11 +47,11 @@ export class FluxoCaixaPrevisaoComponent implements OnInit {
     const inicio = startOfMonth(now);
     const fim = endOfMonth(now);
     forkJoin({
-      conta: this._contaService.listarContas(),
+      conta: this._contaService.obterContas(),
       transacoes: this._transacaoService.obterTransacoesIntervalo({ inicio, fim })
     }).subscribe(res => {
       const saldoInicial = res.conta
-        .filter(conta => conta.tipo != TipoConta.CARTAO)
+        .filter(conta => [TipoConta.CORRENTE, TipoConta.POUPANCA].includes(conta.tipo))
         .reduce((acc, conta) => acc += this._contaService.converterSaldoParaMoeda(conta, Moeda.REAL), 0);
 
       const intervalos = [1].concat(
@@ -74,14 +74,14 @@ export class FluxoCaixaPrevisaoComponent implements OnInit {
 
       const mapRecebiveis = this.mapearPorIntervalos(creditaveis, intervalos);
 
-      const mapDespesas = this.mapearPorIntervalos(naoLiquidadas, intervalos);
+      const mapDespesas = this.mapearPorIntervalos(naoLiquidadas.filter(transacao => transacao.tipoTransacao === TipoTransacao.DEBITO), intervalos);
       
       let saldo = saldoInicial;
       this.previsoes = Object.fromEntries(intervalos.reduce((acc, intervalo, idx) => {
         if (idx == 0) return acc;
-        const recebiveis = mapRecebiveis.get(intervalo) || 0;
-        const despesas = mapDespesas.get(intervalo) || 0;
-        const previsao = saldo + recebiveis - despesas;
+        const recebiveis = mapRecebiveis.get(this.intervaloToString(intervalo)) || 0;
+        const despesas = mapDespesas.get(this.intervaloToString(intervalo)) || 0;
+        const previsao = saldo + recebiveis + despesas;
         acc.set(intervalo.inicio, { saldo, recebiveis, despesas, previsao });
 
         saldo = previsao;
@@ -92,13 +92,21 @@ export class FluxoCaixaPrevisaoComponent implements OnInit {
 
 
   private mapearPorIntervalos(transacoes: TransacaoImpl[], intervalos: Intervalo[]) {
-    return transacoes.map(transacao => {
+    const mapIntervalo = transacoes.map(transacao => {
       const data = getDate(transacao.dataInicial);
-      const intervalo = intervalos.find(intervalo=>data >= intervalo.inicio && data < intervalo.fim) as Intervalo;
+      const intervalo = intervalos.find(intervalo => data >= intervalo.inicio && data < intervalo.fim) as Intervalo;
       return {
-        intervalo,
-        valor: transacao.valor
+        intervalo: this.intervaloToString(intervalo),
+        valor: transacao.valorTransacao
       };
-    }).reduce((acc, item) => acc.set(item.intervalo, acc.get(item.intervalo) || 0 + item.valor), new Map<Intervalo, number>());
+    });
+    return mapIntervalo.reduce((acc, item) => {
+      acc.set(item.intervalo, (acc.get(item.intervalo) || 0) + item.valor);
+      return acc;
+    }, new Map<string, number>());
+  }
+
+  private intervaloToString(intervalo: Intervalo): string {
+    return `${intervalo.inicio}-${intervalo.fim}`;
   }
 }

@@ -1,7 +1,7 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 
 import { CarteiraFormComponent } from './carteira-form.component';
-import { CarteiraImpl } from '../model/ativos.model';
+import { CarteiraImpl, Moeda, TipoAtivo } from '../model/ativos.model';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 
@@ -23,7 +23,13 @@ describe('CarteiraFormComponent', () => {
 
     fixture = TestBed.createComponent(CarteiraFormComponent);
     component = fixture.componentInstance;
-    component.carteira = new CarteiraImpl('nome', 1, []);
+    component.carteira = new CarteiraImpl({
+      nome: 'Carteira',
+      objetivo: 0.10,
+      classe: TipoAtivo.ACAO,
+      moeda: Moeda.REAL,
+      items: []
+    });
     fixture.detectChanges();
   });
 

@@ -2,7 +2,7 @@ import { Moeda } from "src/app/ativos/model/ativos.model";
 
 export enum TipoConta {
     CORRENTE = "CORRENTE",
-    INVESITMENTO = "INVESITMENTO",
+    INVESTIMENTO = "INVESTIMENTO",
     POUPANCA = "POUPANCA",
     CARTAO = "CARTAO"
 }

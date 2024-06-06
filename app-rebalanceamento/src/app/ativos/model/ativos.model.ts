@@ -28,67 +28,154 @@ export enum TipoObjetoReferenciado {
 }
 
 export interface ObjetoReferenciado {
-    id?: any,
+    _id?: any,
     tipoRef: TipoObjetoReferenciado
 }
 
-export interface Ativo {
+export interface ICotacao {
+    sigla: string,
+    data: Date,
+    valor: number
+}
+
+export interface IAtivo {
+    _id?: string
+    nome: string,
     sigla: string,
     tipoAtivo?: TipoAtivo,
     moeda?: Moeda,
-}
-
-export class AtivoImpl implements Ativo {
-    sigla: string;
-    tipoAtivo?: TipoAtivo | undefined;
-    moeda?: Moeda | undefined;
-    
-    constructor(sigla: string, tipoAtivo?: TipoAtivo | undefined, moeda?: Moeda | undefined) {
-        this.sigla = sigla;
-        this.tipoAtivo = tipoAtivo;
-        this.moeda = moeda;
+    setor?: string;
+    cotacao?: ICotacao;
+    referencia?: {
+        tipo: TipoObjetoReferenciado,
+        id: string
     }
 }
 
-export interface CarteiraAtivo {
-    qtd: number,
-    ativo: Ativo,
-    vlUnitario: number,
+export class AtivoImpl implements IAtivo {
+    _id?: string;
+    nome: string;
+    sigla: string;
+    tipoAtivo?: TipoAtivo | undefined;
+    moeda: Moeda;
+    setor?: string;
+    cotacao?: ICotacao;
+    referencia?: {
+        tipo: TipoObjetoReferenciado,
+        id: string
+    }
+
+    constructor(ativo: IAtivo) {
+        this._id = ativo._id;
+        this.nome = ativo.nome;
+        this.sigla = ativo.sigla;
+        this.moeda = ativo.moeda || Moeda.REAL;
+        this.tipoAtivo = ativo.tipoAtivo;
+        this.cotacao = ativo.cotacao;
+        this.setor = ativo.setor;
+        this.referencia = ativo.referencia;
+    }
+}
+
+export interface ICarteiraAtivo {
+    ativoId?: string,
+    quantidade: number,
+    objetivo: number,
     vlInicial?: number,
-    valor: number,
+    vlAtual?: number,
+    ativo: IAtivo,
     referencia?: {
         tipo: TipoObjetoReferenciado,
         id: number
     }
-    objetivo: number,
 }
 
-export interface Carteira extends ObjetoReferenciado {
+export interface ICarteira extends ObjetoReferenciado {
+    _id?: string;
     nome: string,
-    items: CarteiraAtivo[],
+    items: ICarteiraAtivo[];
+    objetivo: number;
+    classe: TipoAtivo;
+    moeda?: Moeda;
 }
 
-export class CarteiraImpl implements Carteira {
-    id?: number;
+export interface TotalCarteira {
+    resultado: number;
+    objetivo: number;
+    vlInicial: number;
+    vlAtual: number | undefined;
+}
+
+
+export class CarteiraImpl implements ICarteira {
+    _id?: string;
     nome: string;
-    items: CarteiraAtivo[];
+    private _items: ICarteiraAtivo[] = [];
+    objetivo: number;
     readonly tipoRef = TipoObjetoReferenciado.CARTEIRA;
-    tipoAtivo?: TipoAtivo;
-    moeda?: Moeda;
-    
-    constructor(nome: string, id?: number, items?: CarteiraAtivo[]) {
-        this.nome = nome;
-        this.id = id;
-        this.items = items || [];
+    classe: TipoAtivo;
+    moeda: Moeda;
+    private _total!: TotalCarteira;
+
+    constructor(carteira: Partial<ICarteira>) {
+        this._id = carteira._id;
+        this.nome = carteira.nome || 'Nova Carteira';
+        this.objetivo = carteira.objetivo || 0;
+        this.classe = carteira.classe || TipoAtivo.ACAO;
+        this.moeda = carteira.moeda || Moeda.REAL;
+        this._items = carteira.items || [];
     }
 
-    get total(): number {
-        return this.items.map(item => item.valor).reduce((a, b) => a + b, 0);
+    get items() {
+        return this._items;
     }
-    percAtivo(item: CarteiraAtivo): number {
-        return item.valor / this.total;
+
+    set items(items: ICarteiraAtivo[]) {
+        this._items = Object.assign([], items);
+        this._total = this.calculaTotais();
     }
-    diferenca(item: CarteiraAtivo): number {
-        return this.percAtivo(item) - item.objetivo;
+
+    get total(): TotalCarteira {
+        return this._total;
+    }
+
+    percAtivo(item: ICarteiraAtivo): number {
+        if (this.total.vlAtual)
+            return (item.vlAtual || item.vlInicial || 0) / this.total.vlAtual;
+        return 0;
+    }
+
+    diferenca(item: ICarteiraAtivo): number {
+        return (this.percAtivo(item) - item.objetivo) / item.objetivo;
+    }
+
+    private calculaTotais(): TotalCarteira {
+        const totais = (this.items || [])
+            .map(item => {
+                return {
+                    resultado: item.vlAtual || 0 - (item.vlInicial || 0),
+                    objetivo: item.objetivo,
+                    vlInicial: item.vlInicial || 0,
+                    vlAtual: item.vlAtual || 0
+                };
+            });
+        const totalInicial = {
+            resultado: 0,
+            objetivo: 0,
+            vlInicial: 0,
+            vlAtual: 0
+        };
+        if (!totais.length) {
+            return totalInicial
+        }
+        return totais.reduce((acc, item) => {
+            return {
+                resultado: acc.resultado + item.resultado,
+                objetivo: acc.objetivo + item.objetivo,
+                vlInicial: acc.vlInicial + item.vlInicial || 0,
+                vlAtual: acc.vlAtual + item.vlAtual || 0
+            }
+        })
+
     }
 }

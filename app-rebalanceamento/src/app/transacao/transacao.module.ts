@@ -10,6 +10,7 @@ import { TransacaoRoutingModule } from './transacao-routing.module';
 import { CalendarioModule } from '../calendario/calendario.module';
 import { PopupMenuComponent } from '../util/popup-menu/popup-menu.component';
 import { UtilModule } from '../util/util.module';
+import { NegativoDirective } from '../util/negativo.directive';
 
 
 @NgModule({
@@ -25,7 +26,8 @@ import { UtilModule } from '../util/util.module';
     FormsModule,
     CommonModule,
     UtilModule,
-    PopupMenuComponent
+    PopupMenuComponent,
+    NegativoDirective
   ]
 })
 export class TransacaoModule { }

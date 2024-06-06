@@ -10,12 +10,17 @@ const CarteiraAtivo = mongoose.model('carteira-ativo');
  * Lista os ativos disponíveis
  * Lista os ativos cadastrados
  *
- * classe Classe  (optional)
+ * tipoAtivo Tipo de Ativo  (optional)
  * returns List
  **/
-exports.ativoGET = function (classe) {
+exports.ativoGET = function (tipoAtivo, termo) {
   return new Promise(async function (resolve, reject) {
-    var filter = !!classe ? { "classe": classe } : {}
+    var filter = {};
+    !!tipoAtivo && (filter.tipoAtivo = tipoAtivo);
+    !!termo && (filter.$or = [
+      {nome : {$regex: new RegExp(termo, 'i')}}, 
+      {sigla : {$regex: new RegExp(termo, 'i')}}, 
+      {descricao : {$regex: new RegExp(termo, 'i')}}]);
     try {
       var result = await Ativo.find(filter);
       resolve(result);
@@ -162,7 +167,19 @@ exports.carteiraIdAlocacaoGET = function (carteiraId) {
         resolve(respondWithCode(404, `Não encontrado ${carteiraId}`));
         return;
       }
-      resolve(carteira.ativos);
+      var mapIdAtivos = new Map(carteira.ativos.map(ativo=>[ativo.ativoId.toString(), ativo]));
+
+      var ativosId = Array.from(mapIdAtivos.keys());
+      var ativos = await Ativo.find({ _id: { $in: ativosId } });
+
+      var result = ativos.map(ativo => {
+        var ativoCarteira = mapIdAtivos.get(ativo._id.toString()).toObject();
+        ativoCarteira.ativo = ativo.toObject();
+        return ativoCarteira;
+      });
+      carteira = carteira.toObject();
+      carteira.ativos = result;
+      resolve(carteira);
 
     } catch (error) {
       reject(error);
@@ -282,13 +299,11 @@ exports.carteiraPOST = function (body) {
 exports.carteiraPUT = function (body) {
   return new Promise(async (resolve, reject) => {
     try {
-      var carteira = Carteira.findById(body._id);
+      var carteira = Carteira.findByIdAndUpdate(body._id, body);
       if (!carteira) {
         resolve(respondWithCode(404, `Não encontrado ${body._id}`));
         return;
       }
-      carteira = Object.assign(carteira, body);
-      carteira.save();
       resolve(carteira);
     } catch (error) {
       reject(error);
