@@ -68,10 +68,14 @@ export class CarteiraListaAtivosComponent {
   }
 
   vlUnitario(ativo: ICarteiraAtivo) {
-    return (ativo.vlAtual || ativo.vlInicial || 0) / ativo.quantidade;
+    return !ativo.vlInicial? NaN : (ativo.vlAtual || 0) / ativo.quantidade;
   }
 
   resultado(ativo: ValorAtivo | ICarteiraAtivo) {
-    return !ativo.vlInicial? NaN : ((ativo.vlAtual || 0) - ativo.vlInicial) / ativo.vlInicial;
+    return !ativo.vlInicial? NaN : ((ativo.vlAtual || 0) - ativo.vlInicial);
+  }
+
+  resultadoPerc(ativo: ValorAtivo | ICarteiraAtivo) {
+    return !ativo.vlInicial? NaN : this.resultado(ativo) / ativo.vlInicial;
   }
 }

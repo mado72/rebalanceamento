@@ -19,7 +19,7 @@ export class CarteiraPortifolioComponent implements OnInit{
   idCarteira?: string;
 
   constructor(
-    private carteiraService: CarteiraService,
+    private _carteiraService: CarteiraService,
     private _alertService: AlertService,
     private _route: ActivatedRoute,
     private _modal: NgbModal
@@ -32,10 +32,10 @@ export class CarteiraPortifolioComponent implements OnInit{
 
   obterCarteiras() {
     if (! this.idCarteira) {
-      this.carteiraService.obterCarteiras().subscribe(carteiras=>this.carteiras = carteiras);
+      this._carteiraService.obterCarteiras().subscribe(carteiras=>this.carteiras = carteiras);
     }
     else {
-      this.carteiraService.obterCarteira(this.idCarteira).subscribe(carteira=>carteira && (this.carteiras = [carteira]));
+      this._carteiraService.obterCarteira(this.idCarteira).subscribe(carteira=>carteira && (this.carteiras = [carteira]));
     }
   }
 
@@ -46,31 +46,16 @@ export class CarteiraPortifolioComponent implements OnInit{
   editarCarteira(carteira: CarteiraImpl) {
     this.carteiraSelecionada = carteira;
 
-    const modalRef = this._modal.open(CarteiraFormComponent, { size: 'lg' });
-    const component = modalRef.componentInstance as CarteiraFormComponent;
-
-    component.onSalvar.subscribe((carteira) => {
-      modalRef.close({action: 'salvar', carteira: carteira});
-    });
-    component.onCancelar.subscribe(() => {
-      modalRef.dismiss('cancelar');
-    });
-    component.carteira = carteira;
-    
-    modalRef.result.then((result)=>{
-      if (result.action === 'salvar') {
-        this.salvarEdicaoCarteira(result.carteira);
+    this._carteiraService.editarCarteira(carteira).subscribe((result)=>{
+      delete this.carteiraSelecionada;
+      if (!!result) {
+        this.obterCarteiras();
       }
-      this.cancelarEdicaoCarteira();
-    }, ()=>{
-      this.cancelarEdicaoCarteira();
-    })
-
-    console.log(`Editar ${carteira.nome}`);
+    });
   }
 
   excluirCarteira(carteira: CarteiraImpl) {
-    this.carteiraService.excluirCarteira(carteira).subscribe(()=>{
+    this._carteiraService.excluirCarteira(carteira).subscribe(()=>{
       this._alertService.alert({
         titulo: 'Resultado da operação',
         mensagem: 'Carteira excluída',
@@ -78,34 +63,6 @@ export class CarteiraPortifolioComponent implements OnInit{
       })
       this.obterCarteiras();
   });
-  }
-
-  cancelarEdicaoCarteira() {
-    delete this.carteiraSelecionada;
-  }
-  salvarEdicaoCarteira(carteira: CarteiraImpl) {
-    console.log(`Salvar ${carteira.nome}`);
-    if (!! carteira._id) {
-      this.carteiraService.atualizarCarteira(carteira).subscribe(()=>{
-        this._alertService.alert({
-          titulo: 'Resultado da operação',
-          mensagem: 'Carteira atualizada',
-          tipo: 'sucesso'
-        })
-        this.obterCarteiras();
-      });
-    }
-    else {
-      this.carteiraService.salvarCarteira(carteira).subscribe(()=>{
-        this._alertService.alert({
-          titulo: 'Resultado da operação',
-          mensagem: 'Carteira criada',
-          tipo: 'sucesso'
-        })
-        this.obterCarteiras();
-      });
-    }
-    delete this.carteiraSelecionada;
   }
 
 }

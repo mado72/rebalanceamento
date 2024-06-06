@@ -35,19 +35,11 @@
             <td class="text-end">{{registro.vlInicial | number:'1.2-2'}}</td>
             <td class="text-end">{{vlUnitario(registro) | number:'1.2-2'}}</td>
             <td class="text-end">{{registro.vlAtual | number:'1.2-2'}}</td>
-            <td class="text-end">
-                <ng-container *ngIf="registro.vlInicial">
-                    {{registro.vlAtual || 0 - registro.vlInicial | number:'1.2-2'}}
-                </ng-container>
-            </td>
-            <td class="text-end">
-                <ng-container *ngIf="registro.vlInicial">
-                    {{resultado(registro) | percent:'1.2-2'}}
-                </ng-container>
-            </td>
+            <td class="text-end" [negativo]="resultado(registro)">{{resultado(registro) | number:'1.2-2'}}</td>
+            <td class="text-end" [negativo]="resultado(registro)">{{resultadoPerc(registro) | percent:'1.2-2'}}</td>
             <td class="text-end">{{registro.objetivo | percent:'1.2-2'}}</td>
             <td class="text-end">{{carteira.percAtivo(registro) | percent:'1.2-2'}}</td>
-            <td class="text-end">{{carteira.diferenca(registro) | percent:'1.2-2'}}</td>
+            <td class="text-end" [negativo]="carteira.diferenca(registro)">{{carteira.diferenca(registro) | percent:'1.2-2'}}</td>
         </tr>
     </tbody>
     <tfoot *ngIf="carteira.total">
@@ -57,8 +49,8 @@
             <td class="text-end">{{carteira.total.vlInicial | number: '1.2-2'}}</td>
             <td class="text-end"></td>
             <td class="text-end">{{(carteira.total.vlAtual || 0) | number: '1.2-2'}}</td>
-            <td class="text-end">{{(carteira.total.vlAtual || 0) - carteira.total.vlInicial | number: '1.2-2'}}</td>
-            <td class="text-end">{{resultado(carteira.total) | percent: '1.2-2'}}</td>
+            <td class="text-end" [negativo]="resultado(carteira.total)">{{resultado(carteira.total) | number: '1.2-2'}}</td>
+            <td class="text-end" [negativo]="resultado(carteira.total)">{{resultadoPerc(carteira.total) | percent: '1.2-2'}}</td>
             <td class="text-end">{{carteira.total.objetivo | percent: '1.2-2'}}</td>
             <td class="text-end"></td>
             <td class="text-end"></td>

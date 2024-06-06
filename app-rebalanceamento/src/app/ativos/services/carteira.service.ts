@@ -1,8 +1,11 @@
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Injectable } from '@angular/core';
-import { Observable, map, tap } from 'rxjs';
+import { Observable, Observer, map, tap } from 'rxjs';
 import { environment } from 'src/environments/environment.development';
 import { AtivoImpl, CarteiraImpl, IAtivo, ICarteira, ICarteiraAtivo, Moeda, TipoAtivo } from '../model/ativos.model';
+import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
+import { CarteiraFormComponent } from '../carteira-form/carteira-form.component';
+import { AlertService } from 'src/app/services/alert.service';
 
 
 type Alocacao = {
@@ -20,7 +23,9 @@ type Alocacao = {
 export class CarteiraService {
   
   constructor(
-    private _http: HttpClient
+    private _http: HttpClient,
+    private _modalService: NgbModal,
+    private _alertService: AlertService
   ) { }
 
   obterCarteiras(filtro?: {moeda?: Moeda, classe?: string}): Observable<CarteiraImpl[]> {
@@ -117,6 +122,62 @@ export class CarteiraService {
       .pipe(
         map(ativo => new AtivoImpl(ativo))
       )
+  }
+
+  editarCarteira(carteira: CarteiraImpl) : Observable<CarteiraImpl|void> {
+    const ob = new Observable<CarteiraImpl|void>((observer:Observer<CarteiraImpl|void>) => {
+      
+      const modalRef = this._modalService.open(CarteiraFormComponent, { size: 'lg' });
+      const component = modalRef.componentInstance as CarteiraFormComponent;
+  
+      component.onSalvar.subscribe((carteira) => {
+        modalRef.close({action: 'salvar', carteira: carteira});
+      });
+      component.onCancelar.subscribe(() => {
+        modalRef.dismiss('cancelar');
+      });
+      component.carteira = carteira;
+      
+      modalRef.result.then((result)=>{
+        if (result.action === 'salvar') {
+          this.salvarEdicaoCarteira(result.carteira);
+          observer.next(result.carteira);
+          observer.complete();
+        }
+      }, ()=>{
+        this._alertService.alert({
+          titulo: 'Resultado da operação',
+          mensagem: 'Operação cancelada',
+          tipo: 'common'
+        });
+        observer.next();
+        observer.complete
+      })
+
+    });
+    return ob;
+  }
+
+  salvarEdicaoCarteira(carteira: CarteiraImpl) {
+    console.log(`Salvar ${carteira.nome}`);
+    if (!! carteira._id) {
+      this.atualizarCarteira(carteira).subscribe(()=>{
+        this._alertService.alert({
+          titulo: 'Resultado da operação',
+          mensagem: 'Carteira atualizada',
+          tipo: 'sucesso'
+        })
+      });
+    }
+    else {
+      this.salvarCarteira(carteira).subscribe(()=>{
+        this._alertService.alert({
+          titulo: 'Resultado da operação',
+          mensagem: 'Carteira criada',
+          tipo: 'sucesso'
+        })
+      });
+    }
   }
 
 }

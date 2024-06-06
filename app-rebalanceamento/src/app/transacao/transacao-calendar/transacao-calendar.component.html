@@ -50,18 +50,11 @@
   <ng-container *ngIf="!!dia && dataNoMesSelecionado(data) && saldos[dia-1]">
     <div>
       <h6>Resumo</h6>
-      <div class="text-end p2"><ng-containter [ngTemplateOutlet]="DisplayNum" [ngTemplateOutletContext]="{num: saldos[dia-1].inicio}"/></div>
-      <div class="text-end p2 border-bottom"><ng-containter [ngTemplateOutlet]="DisplayNum" [ngTemplateOutletContext]="{num: saldos[dia-1].transacoes}"/></div>
-      <div class="text-end p2"><ng-containter [ngTemplateOutlet]="DisplayNum" [ngTemplateOutletContext]="{num: saldos[dia-1].fim}"/></div>
+      <div class="text-end p2" [negativo]="saldos[dia-1].inicio">{{saldos[dia-1].inicio}}</div>
+      <div class="text-end p2 border-bottom">{{saldos[dia-1].transacoes}}</div>
+      <div class="text-end p2" [negativo]="saldos[dia-1].fim">{{saldos[dia-1].fim}}</div>
     </div>
   </ng-container>
-</ng-template>
-
-<ng-template #DisplayNum let-num="num">
-  <div class="d-flex justify-content-end small">
-    <span *ngIf="num < 0">-</span>
-    <span class="text-end ms-auto" [style.color]="num < 0 ? 'red': undefined">{{num | absolute | number:'1.2-2'}}</span>
-  </div>
 </ng-template>
 
 <ng-template #detalhesEvento let-evento="evento">

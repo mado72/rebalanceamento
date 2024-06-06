@@ -5,6 +5,7 @@ import { ContaService } from 'src/app/conta/services/conta.service';
 import { Observable, forkJoin } from 'rxjs';
 
 interface IAlocacao {
+  id: string;
   carteira: string;
   valor: number;
   planejado: number;
@@ -49,51 +50,51 @@ export class AlocacaoComponent implements OnInit {
   ) { }
 
   ngOnInit(): void {
+    this.obterAlocacoes();
+  }
+
+  private obterAlocacoes() {
+    this.alocacoes = [];
     this._carteiraService.obterCarteiras().subscribe(carteiras => {
+
+      carteiras.sort((a, b) => a.nome.localeCompare(b.nome));
       this.total = {
+        id: 'total',
         carteira: 'Total',
         valor: 0,
         planejado: 0,
         atual: 0
-      }
+      };
 
       Promise.resolve().then(() => {
-        const mapConsultas = carteiras.reduce((acc, carteira)=>{
+        const mapConsultas = carteiras.reduce((acc, carteira) => {
           const key = carteira._id as string;
           acc[key] = {
             ob: this._carteiraService.obterAlocacao(carteira),
             carteira
-          }
+          };
           return acc;
-        }, {} as {[key: string]:{ob: Observable<ICarteiraAtivo[]>, carteira: CarteiraImpl}})
+        }, {} as { [key: string]: { ob: Observable<ICarteiraAtivo[]>; carteira: CarteiraImpl; }; });
 
-        const mapObservables = Object.keys(mapConsultas).reduce((acc, key)=>{
+        const mapObservables = Object.keys(mapConsultas).reduce((acc, key) => {
           acc[key] = mapConsultas[key].ob;
           return acc;
-        }, {} as {[key: string]: Observable<ICarteiraAtivo[]>});
+        }, {} as { [key: string]: Observable<ICarteiraAtivo[]>; });
 
-        forkJoin(mapObservables).subscribe(mapResults=> {
-          Object.keys(mapResults).forEach(key=> {
+        forkJoin(mapObservables).subscribe(mapResults => {
+          Object.keys(mapResults).forEach(key => {
             const carteira = mapConsultas[key].carteira;
             carteira.items = mapResults[key];
             this.total.valor += carteira.total?.vlAtual || 0;
             this.total.planejado += carteira.objetivo;
-            this.alocacoes.push(new Alocacao(carteira._id as string, carteira.nome, carteira.total?.vlAtual || 0, carteira.objetivo, this.total, carteira.moeda))
+            this.alocacoes.push(new Alocacao(carteira._id as string, carteira.nome, carteira.total?.vlAtual || 0, carteira.objetivo, this.total, carteira.moeda));
           });
 
           this.alocacoes.forEach(alocacao => this.total.atual += alocacao.atual);
-          
+
         });
       });
-
-      // this.alocacoes = carteiras.map((carteira: CarteiraImpl) => {
-      //   this.total.valor += carteira.total?.vlAtual || 0;
-      //   this.total.planejado += carteira.objetivo;
-      //   return new Alocacao(carteira._id as string, carteira.nome, carteira.total?.vlAtual || 0, carteira.objetivo, this.total, carteira.moeda)
-      // }
-      // );
-
-    })
+    });
   }
 
   siglaMoeda(alocacao: IAlocacao) {
@@ -102,5 +103,21 @@ export class AlocacaoComponent implements OnInit {
     } else {
       return 'R$';
     }
+  }
+
+  diferencaPerc(alocacao: IAlocacao) {
+    return (alocacao.atual - alocacao.planejado) / alocacao.planejado;
+  }
+
+  editarCarteira(carteiraId: string) {
+    this._carteiraService.obterCarteira(carteiraId).subscribe(carteira=>{
+      if (!!carteira) {
+        this._carteiraService.editarCarteira(carteira).subscribe(result=>{
+          if (!!result) {
+            this.obterAlocacoes();
+          }
+        });
+      }
+    })
   }
 }

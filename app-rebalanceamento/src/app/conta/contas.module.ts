@@ -8,6 +8,7 @@ import { SaldosComponent } from './saldos/saldos.component';
 import { UtilModule } from '../util/util.module';
 import { ContaListComponent } from './conta-list/conta-list.component';
 import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
+import { NegativoDirective } from '../util/negativo.directive';
 
 
 @NgModule({
@@ -21,7 +22,8 @@ import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
     FormsModule,
     NgbModule,
     ContasRoutingModule,
-    UtilModule
+    UtilModule,
+    NegativoDirective
   ],
   exports: [
     SaldosComponent

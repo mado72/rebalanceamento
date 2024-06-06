@@ -146,7 +146,7 @@ export class CarteiraImpl implements ICarteira {
     }
 
     diferenca(item: ICarteiraAtivo): number {
-        return this.percAtivo(item) - item.objetivo;
+        return (this.percAtivo(item) - item.objetivo) / item.objetivo;
     }
 
     private calculaTotais(): TotalCarteira {

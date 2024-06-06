@@ -14,6 +14,7 @@ import { AtivosListaComponent } from './ativos-lista/ativos-lista.component';
 import { AtivoModalComponent } from './ativo-modal/ativo-modal.component';
 import { UtilModule } from '../util/util.module';
 import { AtivoBuscaComponent } from './ativo-busca/ativo-busca.component';
+import { NegativoDirective } from '../util/negativo.directive';
 
 
 @NgModule({
@@ -34,7 +35,8 @@ import { AtivoBuscaComponent } from './ativo-busca/ativo-busca.component';
     NgbDropdownModule,
     FormsModule,
     UtilModule,
-    AtivosRoutingModule
+    AtivosRoutingModule,
+    NegativoDirective
   ],
   exports: [
     CarteiraPortifolioComponent

@@ -47,7 +47,7 @@
     </table>
 </div>
 <ng-template #DisplayNum let-valor="valor" let-sigla="sigla">
-    <div class="d-flex justify-content-end small" [style.color]="valor < 0 ? 'red': undefined">
+    <div class="d-flex justify-content-end small" [negativo]="valor">
         <span *ngIf="valor < 0">-</span>
         <span class="text-end ms-auto">{{sigla}}
             {{valor | absolute | number:'1.2-2'}}</span>
