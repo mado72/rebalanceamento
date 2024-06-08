@@ -1,5 +1,5 @@
 import { Component, EventEmitter, Input, Output } from '@angular/core';
-import { IAtivo, ICarteiraAtivo } from '../model/ativos.model';
+import { IAtivo, ICarteiraAtivo, Moeda } from '../model/ativos.model';
 import { Observable, OperatorFunction, catchError, debounceTime, delay, distinctUntilChanged, from, map, of, skipUntil, skipWhile, switchMap, tap, timer } from 'rxjs';
 
 @Component({
@@ -75,6 +75,7 @@ export class CarteiraAtivoFormComponent {
       ativo: {
         sigla: "",
         nome: "",
+        moeda: Moeda.REAL
       },
       quantidade: 0,
       vlAtual: 0,

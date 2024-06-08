@@ -1,5 +1,5 @@
 import { Component, EventEmitter, Input, Output } from '@angular/core';
-import { CarteiraImpl, ICarteira, ICarteiraAtivo, TipoAtivo } from '../model/ativos.model';
+import { CarteiraImpl, ICarteira, ICarteiraAtivo, Moeda, TipoAtivo } from '../model/ativos.model';
 import { CarteiraService } from '../services/carteira.service';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { CarteiraAtivoFormComponent } from '../carteira-ativo-form/carteira-ativo-form.component';
@@ -188,6 +188,7 @@ export class CarteiraAtivoComponent {
       ativo: {
         sigla: "",
         nome: "",
+        moeda: Moeda.REAL,
       },
       quantidade: 0,
       vlAtual: 0,
