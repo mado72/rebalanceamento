@@ -206,10 +206,12 @@ var Cotacao = new Schema({
     curto: {type: String, required: false}, // Nome curto da cotação
     minima: {type: Number, format: 'double', required: true}, // Minima da cotação
     maxima: {type: Number, format: 'double', required: true}, // Maxima da cotação
-    dividendo: {type: Number, format: 'double', required: true}, // Dividendo da cotação
-    dividendoTaxa: {type: Number, format: 'double', required: true}, // Taxa do dividendo
+    dividendo: {type: Number, format: 'double', required: false}, // Dividendo da cotação
+    dividendoTaxa: {type: Number, format: 'double', required: false}, // Taxa do dividendo
     horaMercado: {type: String, required: true} // Hora do mercado 
 })
+
+Cotacao.index({simbolo: 1, data: 1}, {unique: true});
 
 var StatusColeta = new Schema({
     simbolo: {type: String, required: true}, // Simbolo da coleta,
