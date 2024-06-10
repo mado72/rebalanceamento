@@ -1,10 +1,11 @@
 import { Injectable } from '@angular/core';
 import { CarteiraService } from 'src/app/ativos/services/carteira.service';
-import { YahooService } from './yahoo.service';
 import { Observable, map } from 'rxjs';
 import { CotacaoImpl, ICotacao } from '../models/cotacao.model';
 import { YahooQuote } from 'src/app/ativos/model/yahoo.model';
 import { Moeda, TipoAtivo } from 'src/app/ativos/model/ativos.model';
+import { HttpClient } from '@angular/common/http';
+import { environment } from 'src/environments/environment';
 
 @Injectable({
   providedIn: 'root'
@@ -12,12 +13,13 @@ import { Moeda, TipoAtivo } from 'src/app/ativos/model/ativos.model';
 export class CotacaoService {
 
   constructor(
-    private _yahooService: YahooService, 
+    private _http: HttpClient, 
     private _carteiraService: CarteiraService
   ) { }
 
   obterCotacoes(simbolos: string[]): Observable<CotacaoImpl[]> {
-    return this._yahooService.obterCotacoes(simbolos).pipe(
+    return this._http.get<YahooQuote[]>(`${environment.apiUrl}/cotacao`, {params: {simbolos}})
+    .pipe(
       map((quotes:YahooQuote[])=> quotes.map(quote=>this.converterDeYahooQuote(quote)))
     );
   }
