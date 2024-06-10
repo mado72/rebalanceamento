@@ -10,6 +10,8 @@ var Model = require('../models/model');
 const { exec } = require('child_process');
 const { format } = require('date-fns');
 
+const { Queue } = require('../utils/queue.js')
+
 module.exports.cotacaoYahooGET = function (simbolo) {
     return new Promise((resolve, reject) => {
         // yahooFinance.quoteSummary(simbolo, {}).then((quote)=>{
@@ -34,7 +36,7 @@ module.exports.cotacaoYahooSummaryGET = function (simbolo) {
         this.cotacaoYahooGET(simbolo)
             .then((response) => {
                 if (!!response && response.indexOf('undefined') == 0) {
-                    reject('Não foi possível obter a cotação');
+                    reject(`Não foi possível obter a cotação ${simbolo}`);
                     return;
                 }
                 const quote = JSON.parse(response);
@@ -62,30 +64,41 @@ module.exports.cotacaoYahooSummaryGET = function (simbolo) {
 module.exports.atualizarCotacoesBatchPUT = function () {
     return new Promise(async (resolve, reject) => {
         try {
-            var ativos = Ativo.find({});
-            const siglas = ativos.map((ativo) => ativo.sigla);
+            var ativos = await Ativo.find({});
+            const siglas = ativos
+                .filter(ativo => ['MOEDA', 'ACAO', 'FII', 'FUNDO', 'CDB', 'RF', 'CRIPTO', 'ALTCOINS'].includes(ativo.tipoAtivo))
+                .map((ativo) => ativo.sigla);
+
             const hoje = format(new Date(), 'yyyy-MM-dd');
             siglas.forEach((sigla) => {
-                this.cotacaoYahooSummaryGET(sigla).then(async (response) => {
-                    const now = format(new Date(), "yyyy-MM-dd'T'hh:mm:ss");
-                    await atualizarCotacao(response, hoje, now);
-                    StatusColeta.insertOne({
-                        simbolo: response.simbolo,
-                        data: hoje,
-                        dataColeta: now,
-                        status: 'CONCLUIDA'
-                    })
+                const now = format(new Date(), "yyyy-MM-dd'T'hh:mm:ss");
+                const statusColeta = new StatusColeta({
+                    simbolo: sigla,
+                    data: hoje,
+                    dataColeta: now,
+                    status: 'INICIADA'
                 })
-                .catch((error)=>{
-                    console.error(error);
-                    StatusColeta.insertOne({
-                        simbolo: response.simbolo,
-                        data: hoje,
-                        dataColeta: now,
-                        status: 'ERRO',
-                        mensagem: error.message
-                    })
+
+                const queueResolve = (async (response, data) => {
+                    
+                    await atualizarCotacao(response, data.hoje, data.now);
+                    data.statusColeta.status = 'CONCLUIDA';
+                    data.statusColeta.save();
                 });
+
+                const queueReject = (error, data) => {
+                    console.error(error);
+                    data.statusColeta.status = 'ERRO';
+                    data.statusColeta.mensagem = error.message ? error.message : error;
+                    data.statusColeta.save();
+                };
+
+                Queue.enqueue(
+                    () => this.cotacaoYahooSummaryGET(sigla),
+                    queueResolve,
+                    queueReject,
+                    { simbolo: sigla, hoje, now, statusColeta }
+                )
             });
             resolve(siglas)
         } catch (error) {
@@ -111,17 +124,17 @@ module.exports.atualizarCotacaoBatchPUT = function (sigla) {
                 });
                 status.save();
             })
-            .catch((error)=>{
-                console.error(error);
-                const status = new StatusColeta({
-                    simbolo: sigla,
-                    data: hoje,
-                    dataColeta: now,
-                    status: 'ERRO',
-                    mensagem: error.message
+                .catch((error) => {
+                    console.error(error);
+                    const status = new StatusColeta({
+                        simbolo: sigla,
+                        data: hoje,
+                        dataColeta: now,
+                        status: 'ERRO',
+                        mensagem: error.message
+                    });
+                    status.save();
                 });
-                status.save();
-            });
             resolve(sigla);
         } catch (error) {
             reject(error);
