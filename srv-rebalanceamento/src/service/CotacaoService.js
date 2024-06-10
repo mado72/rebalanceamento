@@ -71,7 +71,7 @@ module.exports.atualizarCotacoesBatchPUT = function () {
 
             const hoje = format(new Date(), 'yyyy-MM-dd');
             siglas.forEach((sigla) => {
-                const now = format(new Date(), "yyyy-MM-dd'T'hh:mm:ss");
+                const now = format(new Date(), "yyyy-MM-dd'T'HH:mm:ss");
                 const statusColeta = new StatusColeta({
                     simbolo: sigla,
                     data: hoje,
@@ -80,7 +80,7 @@ module.exports.atualizarCotacoesBatchPUT = function () {
                 })
 
                 const queueResolve = (async (response, data) => {
-                    
+
                     await atualizarCotacao(response, data.hoje, data.now);
                     data.statusColeta.status = 'CONCLUIDA';
                     data.statusColeta.save();
@@ -111,7 +111,7 @@ module.exports.atualizarCotacaoBatchPUT = function (sigla) {
     return new Promise(async (resolve, reject) => {
         try {
             const hoje = format(new Date(), 'yyyy-MM-dd');
-            const now = format(new Date(), "yyyy-MM-dd'T'hh:mm:ss");
+            const now = format(new Date(), "yyyy-MM-dd'T'HH:mm:ss");
 
             this.cotacaoYahooSummaryGET(sigla).then(async (response) => {
                 await atualizarCotacao(response, hoje, now);
@@ -162,15 +162,28 @@ async function atualizarCotacao(response, hoje, now) {
     }
 }
 
+const MOEDAS = {
+    "BRL": "REAL",
+    "USD": "DOLAR",
+    "USDT": "USDT"
+}
+
+const TIPOS = {
+    "CRYPTOCURRENCY": "CRIPTO",
+    "CURRENCY": "REFERENCIA",
+    "ETF": "FUNDO",
+    "EQUITY": "ACAO",
+    "FUTURE": "RF",
+    "INDEX": "FUNDO",
+    "MUTUALFUND": "FUNDO",
+    "OPTION": "ACAO",
+    undefined: "REFERENCIA"
+}
+
 function responseToCotacao(response, hoje, now) {
-    const moedas = {
-        "BRL": "REAL",
-        "USD": "DOLAR",
-        "USDT": "USDT"
-    }
     return {
         simbolo: response.simbolo,
-        moeda: moedas[response.moeda],
+        moeda: MOEDAS[response.moeda],
         data: hoje,
         dataColeta: now,
         variacao: response.variacao,
@@ -186,3 +199,36 @@ function responseToCotacao(response, hoje, now) {
     };
 }
 
+module.exports.cotacaoGET = function (data, simbolos) {
+    if (typeof simbolos === 'string') {
+        simbolos = simbolos.split(',');
+    }
+
+    return new Promise(async (resolve, reject) => {
+        const filter = {
+            "$match": {
+                simbolo: {
+                    "$in": simbolos
+                }
+            }
+        }
+
+        if (!!data) {
+            filter.$match.data = data;
+        }
+
+        try {
+            const ultimasCotacoes = await Cotacao.aggregate([{"$match": {"simbolo": {"$in": simbolos}}},{"$group":{"_id": "$simbolo", "maxdata": {$min: "$data"}}}]);
+            const fields = ultimasCotacoes.map(cotacao => {
+                return {
+                    simbolo: cotacao._id,
+                    data: cotacao.maxdata
+                }
+            });
+            const cotacoes = await Cotacao.find({"$or": fields});
+            resolve(cotacoes);
+        } catch (error) {
+            reject(error);
+        }
+    });
+}
