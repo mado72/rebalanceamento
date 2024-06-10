@@ -33,7 +33,7 @@ module.exports.atualizarCotacoesBatchPUT = function atualizarCotacoesBatchPUT(re
         });
 }
 
-module.exports.atualizarCotacaoBatchPUT = function atualizarCotacaoBatchPUT(req, res, simbolo) {
+module.exports.atualizarCotacaoBatchPUT = function atualizarCotacaoBatchPUT(req, res, next, simbolo) {
     Cotacao.atualizarCotacaoBatchPUT(simbolo)
         .then(function (response) {
             utils.writeJson(res, response);
