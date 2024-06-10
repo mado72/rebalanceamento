@@ -1151,6 +1151,48 @@ paths:
               schema:
                 type: object
                 x-content-type: application/json
+        
+  /cotacao/batch/cotacoes:
+    put:
+      x-swagger-router-controller: Cotacao
+      operationId: atualizarCotacoesBatchPUT
+      tags:
+      - Cotacao
+      summary: Obtém cotações do Yahoo Finance
+      description: Recupera a cotação atual de um ou mais símbolos
+      responses:
+        "200":
+          description: Obteve cotação
+          content:
+            application/json:
+              schema:
+                type: object
+                x-content-type: application/json
+      
+  /cotacao/batch/cotacao/{simbolo}:
+    put:
+      x-swagger-router-controller: Cotacao
+      operationId: atualizarCotacaoBatchPUT
+      tags:
+      - Cotacao
+      summary: Obtém cotações do Yahoo Finance
+      description: Recupera a cotação atual de um ou mais símbolos
+      parameters: 
+      - name: simbolo
+        in: path
+        description: Símbolo da(s) cotação(ões) a ser(em) pesquisada(s
+        required: true
+        schema:
+          oneOf:
+          - type: string
+      responses:
+        "200":
+          description: Obteve cotação
+          content:
+            application/json:
+              schema:
+                type: object
+                x-content-type: application/json
       
 components:
   schemas:

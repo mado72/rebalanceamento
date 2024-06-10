@@ -43,6 +43,12 @@ const TipoMoeda = Object.freeze({
     USDT : "USDT"
 })
 
+const TipoMoedaSigla = Object.freeze({
+    BRL : "BRL",
+    USD : "USD",
+    USDT : "USDT"
+})
+
 const TipoClasse = Object.freeze({
     MOEDA : "MOEDA",
     ACAO : "ACAO",
@@ -68,6 +74,11 @@ const TipoConsolidado = Object.freeze({
     SWING : "SWING",
     PROVENTO : "PROVENTO",
     RETIRADA : "RETIRADA"
+})
+
+const TipoStatusColeta = Object.freeze({
+    ERRO : "ERRO",
+    CONCLUIDA : "CONCLUIDA"
 })
 
 var Transacao = new Schema({
@@ -182,14 +193,30 @@ var Consolidado = new Schema(
 var Cotacao = new Schema({
     simbolo: {type: String, required: true}, // Simbolo da cotação
     data: {type: String, required: true}, // Data da cotação
-    abertura: {type: Number, format: 'double', required: true}, // Abertura da cotação
+    dataColeta: {type: String, required: true}, // Data hora da coleta da cotação
     maxima: {type: Number, format: 'double', required: true}, // Máxima da cotação
     minima: {type: Number, format: 'double', required: true}, // Mínima da cotação
-    fechamento: {type: Number, format: 'double', required: true}, // Fechamento da cotação
-    volume: {type: Number, format: 'double', required: true}, // Volume da cotação
+    // abertura: {type: Number, format: 'double', required: true}, // Abertura da cotação
+    // fechamento: {type: Number, format: 'double', required: true}, // Fechamento da cotação
+    // volume: {type: Number, format: 'double', required: true}, // Volume da cotação
     moeda: {type: String, required: true, enum: Object.values(TipoMoeda)}, // Moeda da cotação
-    valor: {type: Number, format: 'double', required: true}, // Valor da cotação
+    preco: {type: Number, format: 'double', required: true}, // Valor da cotação
     variacao: {type: Number, format: 'double', required: false}, // Variacao da cotação
+    nome: {type: String, required: false}, // Nome da cotação
+    curto: {type: String, required: false}, // Nome curto da cotação
+    minima: {type: Number, format: 'double', required: true}, // Minima da cotação
+    maxima: {type: Number, format: 'double', required: true}, // Maxima da cotação
+    dividendo: {type: Number, format: 'double', required: true}, // Dividendo da cotação
+    dividendoTaxa: {type: Number, format: 'double', required: true}, // Taxa do dividendo
+    horaMercado: {type: String, required: true} // Hora do mercado 
+})
+
+var StatusColeta = new Schema({
+    simbolo: {type: String, required: true}, // Simbolo da coleta,
+    data: {type: String, required: true}, // Data da coleta,
+    dataColeta: {type: String, required: true}, // Data hora da coleta da cotação,
+    status: {type: String, required: true, enum: Object.values(TipoStatusColeta)}, // Status da coleta
+    mensagem: {type: String, required: false}, // Mensagem da coleta
 })
 
 module.exports = {
@@ -200,4 +227,11 @@ module.exports = {
     'conta': mongoose.model('conta', Conta, 'conta'),
     'consolidado': mongoose.model('consolidado', Consolidado, 'consolidado'),
     'cotacao': mongoose.model('cotacao', Cotacao, 'cotacao'),
+    'status-coleta': mongoose.model('status-coleta', StatusColeta, 'statusColeta'),
+    'tipo-moeda': TipoMoeda,
+    'tipo-moeda-sigla': TipoMoedaSigla,
+    'tipo-conta': TipoConta,
+    'tipo-classe': TipoClasse,
+    'tipo-periodicidade': TipoPeriodicidade,
+    'tipo-liquidacao': TipoLiquidacao,
 }
