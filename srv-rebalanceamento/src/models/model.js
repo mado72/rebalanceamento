@@ -179,6 +179,19 @@ var Consolidado = new Schema(
     }
 )
 
+var Cotacao = new Schema({
+    simbolo: {type: String, required: true}, // Simbolo da cotação
+    data: {type: String, required: true}, // Data da cotação
+    abertura: {type: Number, format: 'double', required: true}, // Abertura da cotação
+    maxima: {type: Number, format: 'double', required: true}, // Máxima da cotação
+    minima: {type: Number, format: 'double', required: true}, // Mínima da cotação
+    fechamento: {type: Number, format: 'double', required: true}, // Fechamento da cotação
+    volume: {type: Number, format: 'double', required: true}, // Volume da cotação
+    moeda: {type: String, required: true, enum: Object.values(TipoMoeda)}, // Moeda da cotação
+    valor: {type: Number, format: 'double', required: true}, // Valor da cotação
+    variacao: {type: Number, format: 'double', required: false}, // Variacao da cotação
+})
+
 module.exports = {
     'ativo': mongoose.model('ativo', Ativo, 'ativo'),
     'transacao': mongoose.model('transacao', Transacao, 'transacao'),
@@ -186,4 +199,5 @@ module.exports = {
     'carteira-ativo': mongoose.model('carteira-ativo', CarteiraAtivo),
     'conta': mongoose.model('conta', Conta, 'conta'),
     'consolidado': mongoose.model('consolidado', Consolidado, 'consolidado'),
+    'cotacao': mongoose.model('cotacao', Cotacao, 'cotacao'),
 }

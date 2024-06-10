@@ -19,6 +19,8 @@ tags:
   description: CRUD para definição de contas
 - name: Consolidado
   description: Mantém o histórico consolidado mensal
+- name: Cotacao
+  description: Mantém cotação
 paths:
   /health-check:
     get:
@@ -1121,6 +1123,34 @@ paths:
       - bearerAuth:
         - write:domain
         - read:domain
+        
+  /cotacao/yahoo/{simbolo}:
+    get:
+      x-swagger-router-controller: Cotacao
+      operationId: cotacaoYahooGET
+      tags:
+      - Cotacao
+      summary: Obtém cotações do Yahoo Finance
+      description: Recupera a cotação atual de um ou mais símbolos
+      parameters: 
+      - name: simbolo
+        in: path
+        description: Símbolo da(s) cotação(ões) a ser(em) pesquisada(s
+        required: true
+        schema:
+          oneOf:
+          - type: string
+          - type: array
+            items:
+              type: object
+      responses:
+        "200":
+          description: Obteve cotação
+          content:
+            application/json:
+              schema:
+                type: object
+                x-content-type: application/json
       
 components:
   schemas:
