@@ -102,6 +102,9 @@ export class CarteiraListaAtivosComponent implements OnDestroy {
   }
 
   itensAlterados(items: ICarteiraAtivo[]) {
+    if (!items.length) {
+      return;
+    }
     Promise.resolve().then(() => {
       const siglas = items.map(item=>item.ativo.sigla);
       this._cotacaoService.obterCotacoes(siglas).subscribe(cotacoes=>{

@@ -13,14 +13,14 @@ import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
 import { ToastrModule } from 'ngx-toastr';
 import { AtivosModule } from './ativos/ativos.module';
+import { CalendarioModule } from './calendario/calendario.module';
 import { ContasModule } from './conta/contas.module';
 import { AuthInterceptor } from './interceptors/auth.interceptor';
 import { HandleErrorInterceptor } from './interceptors/handle-error.interceptor';
 import { MenuComponent } from './menu/menu.component';
 import { PainelComponent } from './painel/painel.component';
-import { UtilModule } from './util/util.module';
 import { PatrimonioModule } from './patrimonio/patrimonio.module';
-import { CalendarioModule } from './calendario/calendario.module';
+import { UtilModule } from './util/util.module';
 
 registerLocaleData(localePt);
 
@@ -34,10 +34,10 @@ registerLocaleData(localePt);
   imports: [
     CommonModule,
     BrowserModule,
+    BrowserAnimationsModule,
     FormsModule,
     HttpClientModule,
     AppRoutingModule,
-    BrowserAnimationsModule,
     ToastrModule.forRoot(),
     NgbModule,
     AtivosModule,

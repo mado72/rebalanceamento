@@ -4,8 +4,9 @@ import { Observable, map } from 'rxjs';
 import { CotacaoImpl, ICotacao } from '../models/cotacao.model';
 import { YahooQuote } from 'src/app/ativos/model/yahoo.model';
 import { Moeda, TipoAtivo } from 'src/app/ativos/model/ativos.model';
-import { HttpClient } from '@angular/common/http';
 import { environment } from 'src/environments/environment';
+import { parse } from 'date-fns';
+import { HttpClient } from '@angular/common/http';
 
 @Injectable({
   providedIn: 'root'
@@ -13,12 +14,12 @@ import { environment } from 'src/environments/environment';
 export class CotacaoService {
 
   constructor(
-    private _http: HttpClient, 
+    private http: HttpClient, 
     private _carteiraService: CarteiraService
   ) { }
 
   obterCotacoes(simbolos: string[]): Observable<CotacaoImpl[]> {
-    return this._http.get<YahooQuote[]>(`${environment.apiUrl}/cotacao`, {params: {simbolos}})
+    return this.http.get<YahooQuote[]>(`${environment.apiUrl}/cotacao`, {params: {simbolos}})
     .pipe(
       map((quotes:YahooQuote[])=> quotes.map(quote=>this.converterDeYahooQuote(quote)))
     );
@@ -27,9 +28,9 @@ export class CotacaoService {
   converterDeYahooQuote(quote:YahooQuote) : CotacaoImpl {
     const data: ICotacao = {
       simbolo: quote.simbolo as string,
-      preco: quote.cotacao as number,
+      preco: quote.preco as number,
       moeda: this.converterDeYahooMoeda(quote.moeda as string),
-      tipo: this.converterDeYahooTipo(quote.tipo as string)
+      data: parse(quote.data, "yyyy-MM-dd", new Date())
     };
     return new CotacaoImpl(data);
   }

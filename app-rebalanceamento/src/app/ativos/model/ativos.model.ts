@@ -42,6 +42,7 @@ export class AtivoImpl {
     _id?: string;
     nome: string;
     sigla: string;
+    siglaYahoo?: string;
     tipoAtivo?: TipoAtivo | undefined;
     moeda: Moeda;
     setor?: string;
@@ -55,6 +56,7 @@ export class AtivoImpl {
         this._id = ativo._id;
         this.nome = ativo.nome;
         this.sigla = ativo.sigla;
+        this.siglaYahoo = ativo.siglaYahoo;
         this.moeda = ativo.moeda || Moeda.REAL;
         this.tipoAtivo = ativo.tipoAtivo;
         this.cotacao = ativo.cotacao;

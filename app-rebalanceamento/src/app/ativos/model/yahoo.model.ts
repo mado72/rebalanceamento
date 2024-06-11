@@ -1,8 +1,16 @@
 export type YahooQuote = {
-    simbolo?: string,
-    moeda?: string,
-    tipo?: "CRYPTOCURRENCY" | "CURRENCY" | "ETF" | "EQUITY" | "FUTURE" | "INDEX" | "MUTUALFUND" | "OPTION",
-    nome?: string,
-    cotacao?: number,
-    variacao?: number
+    "_id"?: string,
+    "simbolo": string,
+    "data": string,
+    "dataColeta": Date,
+    "maxima": number,
+    "minima": number,
+    "moeda": string,
+    "preco": number,
+    "variacao": number,
+    "nome": string,
+    "curto": string,
+    "dividendo": number,
+    "dividendoTaxa": number,
+    "horaMercado": Date
 }
