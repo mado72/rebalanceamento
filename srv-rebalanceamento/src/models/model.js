@@ -140,6 +140,7 @@ var Ativo = new Schema({
     nome: {type: String, required: true, index: true, unique: true}, // Nome do ativo
     moeda: {type: String, required: true, enum: Object.values(TipoMoeda)}, // Moeda do ativo
     sigla: {type: String, required: true, index: true, unique: true}, // Simbolo do ativo
+    siglaYahoo: {type: String, required: false, index: true, unique: true}, // Simbolo do ativo no Yahoo
     descricao: {type: String}, // Descrição do ativo
     setor: {type: String, required: true}, // Setor do ativo
     tipoAtivo: {type: String, required: true, enum: Object.values(TipoClasse)}, // Classe do ativo

@@ -1397,6 +1397,10 @@ components:
           minLength: 1
           type: string
           example: NYSE:GOOGL
+        siglaYahoo:
+          minLength: 1
+          type: string
+          example: NYSE:GOOGL
         nome:
           minLength: 3
           type: string
