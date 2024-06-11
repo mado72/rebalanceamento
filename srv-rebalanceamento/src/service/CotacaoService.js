@@ -47,8 +47,8 @@ module.exports.cotacaoYahooSummaryGET = function (simbolo) {
                     preco: quote.regularMarketPrice,
                     nome: quote.longName,
                     curto: quote.shortName,
-                    minima: quote.regularMarketDayRange.low,
-                    maxima: quote.regularMarketDayRange.high,
+                    minima: quote.regularMarketDayRange ? quote.regularMarketDayRange.low : undefined,
+                    maxima: quote.regularMarketDayRange ? quote.regularMarketDayRange.high : undefined,
                     dividendo: quote.dividendYield,
                     dividendoTaxa: quote.dividendRate,
                     horaMercado: quote.regularMarketTime
@@ -65,9 +65,16 @@ module.exports.atualizarCotacoesBatchPUT = function () {
     return new Promise(async (resolve, reject) => {
         try {
             var ativos = await Ativo.find({siglaYahoo: {$exists: true}, tipoAtivo: {$in:['MOEDA', 'ACAO', 'FII', 'FUNDO', 'CDB', 'RF', 'CRIPTO', 'ALTCOINS']}});
-            const siglas = ativos.map((ativo) => ativo.sigla);
+            var siglas = ativos.map((ativo) => ativo.siglaYahoo);
 
             const hoje = format(new Date(), 'yyyy-MM-dd');
+
+            var siglasComCotacoesHoje = (await Cotacao.find({data: hoje}, {simbolo: 1})).map(item=>item.simbolo);
+
+            if (siglasComCotacoesHoje.length != siglas.length) {
+                siglas = siglas.filter(sigla=>!siglasComCotacoesHoje.includes(sigla))
+            }
+
             siglas.forEach((sigla) => {
                 const now = format(new Date(), "yyyy-MM-dd'T'HH:mm:ss");
                 const statusColeta = new StatusColeta({

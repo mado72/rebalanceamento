@@ -29,17 +29,17 @@ exports.Queue = class Queue {
           .then((value) => {
             this.workingOnPromise = false;
             item.resolve(value, item.data);
-            this.dequeue();
+            this.dequeue(resolve, reject);
           })
           .catch(err => {
             this.workingOnPromise = false;
             item.reject(err, item.data);
-            this.dequeue();
+            this.dequeue(resolve, reject);
           })
       } catch (err) {
         this.workingOnPromise = false;
         item.reject(err, item.data);
-        this.dequeue();
+        this.dequeue(resolve, reject);
       }
       return true;
     } catch (e) {
