@@ -4,6 +4,7 @@ import { AlertService } from 'src/app/services/alert.service';
 import { AtivoImpl, IAtivo, Moeda, MoedaSigla, TipoAtivo } from '../model/ativos.model';
 import { CarteiraService } from '../services/carteira.service';
 import { AtivoModalComponent } from '../ativo-modal/ativo-modal.component';
+import { CotacaoService } from 'src/app/cotacao/services/cotacao.service';
 
 interface Filtro {
   moeda?: Moeda,
@@ -18,6 +19,7 @@ export class AtivosListaComponent implements OnInit {
 
   constructor(
     private _carteiraService: CarteiraService,
+    private _cotacaoService: CotacaoService,
     private _modalService: NgbModal,
     private _alertService: AlertService
   ) { }
@@ -40,6 +42,24 @@ export class AtivosListaComponent implements OnInit {
     this._carteiraService.obterTodosAtivos().subscribe(ativos => {
       this._ativosDisponiveis = ativos;
       this.filtrar();
+
+      new Promise((resolve, reject) => {
+        const elegiveis = this._ativosDisponiveis.filter(ativo => !!ativo.siglaYahoo);
+        const simbolos = elegiveis.map(ativo => ativo.siglaYahoo as string);
+
+        this._cotacaoService.obterCotacoes(simbolos).subscribe(cotacoes => {
+
+          const mapByYahoo = new Map(elegiveis.map(ativo=>[ativo.siglaYahoo as string, ativo]));
+
+          cotacoes.forEach(cotacao=>{
+            const ativo = mapByYahoo.get(cotacao.simbolo);
+            if (ativo) {
+              ativo.cotacao = cotacao;
+            }
+          });
+          resolve(true);
+        });
+      });
     });
   }
 
@@ -80,6 +100,9 @@ export class AtivosListaComponent implements OnInit {
     }));
   }
 
+  atualizarCotacoes() {
+    this._cotacaoService.atualizarCotacoesBatch().subscribe();
+  }
 
   editarAtivo(ativo: AtivoImpl | IAtivo) {
     const modalRef = this._modalService.open(AtivoModalComponent, { size: 'lg' });

@@ -64,10 +64,8 @@ module.exports.cotacaoYahooSummaryGET = function (simbolo) {
 module.exports.atualizarCotacoesBatchPUT = function () {
     return new Promise(async (resolve, reject) => {
         try {
-            var ativos = await Ativo.find({});
-            const siglas = ativos
-                .filter(ativo => ['MOEDA', 'ACAO', 'FII', 'FUNDO', 'CDB', 'RF', 'CRIPTO', 'ALTCOINS'].includes(ativo.tipoAtivo))
-                .map((ativo) => ativo.sigla);
+            var ativos = await Ativo.find({siglaYahoo: {$exists: true}, tipoAtivo: {$in:['MOEDA', 'ACAO', 'FII', 'FUNDO', 'CDB', 'RF', 'CRIPTO', 'ALTCOINS']}});
+            const siglas = ativos.map((ativo) => ativo.sigla);
 
             const hoje = format(new Date(), 'yyyy-MM-dd');
             siglas.forEach((sigla) => {

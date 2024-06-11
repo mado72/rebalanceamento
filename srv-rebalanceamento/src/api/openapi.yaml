@@ -1398,7 +1398,7 @@ components:
           type: string
           example: NYSE:GOOGL
         siglaYahoo:
-          minLength: 1
+          nullable: true
           type: string
           example: NYSE:GOOGL
         nome:

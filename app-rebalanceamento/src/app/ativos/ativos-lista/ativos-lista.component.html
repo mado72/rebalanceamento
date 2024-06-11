@@ -1,9 +1,10 @@
 <div class="text-end ms-auto">
     <div class="d-inline-block m-1">
-        <button type="button" class="btn btn-sm btn-primary" (click)="novoAtivo()">Adicionar</button>
+        <button type="button" class="btn btn-sm btn-primary m-1" (click)="novoAtivo()">Adicionar</button>
+        <button type="button" class="btn btn-sm btn-success m-1" (click)="atualizarCotacoes()">Cotações</button>
     </div>
     <div class="d-inline-block menu-item m-1" ngbDropdown>
-        <button type="button" class="btn btn-sm btn-light" ngbDropdownToggle>
+        <button type="button" class="btn btn-sm btn-light m-1" ngbDropdownToggle>
             Filtrar
         </button>
         <div class="dropdown-menu" ngbDropdownMenu>
@@ -41,7 +42,7 @@
             <td>{{ativo.siglaYahoo}}</td>
             <td>{{ativo.tipoAtivo}}</td>
             <td>{{ativo.moeda}}</td>
-            <td>{{ativo.cotacao}}</td>
+            <td>{{ativo.cotacao?.preco | number:'1.2-6'}}</td>
         </tr>
     </tbody>
 </table>
