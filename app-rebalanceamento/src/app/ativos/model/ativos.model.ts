@@ -3,6 +3,7 @@ import { ICotacao } from "src/app/cotacao/models/cotacao.model";
 
 export enum TipoAtivo {
     REFERENCIA = "REFERENCIA",
+    MOEDA = "MOEDA",
     ACAO = "ACAO",
     FII = "FII",
     RF = "RF",

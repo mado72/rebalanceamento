@@ -100,7 +100,9 @@ export class CarteiraService {
   }
 
   atualizarAtivo(ativo: AtivoImpl) {
-    return this._http.put<IAtivo>(`${environment.apiUrl}/ativo`, ativo)
+    const data = Object.assign({}, ativo);
+    delete data.cotacao;
+    return this._http.put<IAtivo>(`${environment.apiUrl}/ativo`, data)
       .pipe(
         map(ativo => new AtivoImpl(ativo))
       )
