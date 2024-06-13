@@ -1,3 +1,6 @@
+import { Observable, Subscriber } from "rxjs";
+import { ICotacao } from "src/app/cotacao/models/cotacao.model";
+
 export enum TipoAtivo {
     REFERENCIA = "REFERENCIA",
     ACAO = "ACAO",
@@ -32,30 +35,14 @@ export interface ObjetoReferenciado {
     tipoRef: TipoObjetoReferenciado
 }
 
-export interface ICotacao {
-    sigla: string,
-    data: Date,
-    valor: number
+export interface IAtivo extends AtivoImpl {
 }
 
-export interface IAtivo {
-    _id?: string
-    nome: string,
-    sigla: string,
-    tipoAtivo?: TipoAtivo,
-    moeda?: Moeda,
-    setor?: string;
-    cotacao?: ICotacao;
-    referencia?: {
-        tipo: TipoObjetoReferenciado,
-        id: string
-    }
-}
-
-export class AtivoImpl implements IAtivo {
+export class AtivoImpl {
     _id?: string;
     nome: string;
     sigla: string;
+    siglaYahoo?: string;
     tipoAtivo?: TipoAtivo | undefined;
     moeda: Moeda;
     setor?: string;
@@ -69,6 +56,7 @@ export class AtivoImpl implements IAtivo {
         this._id = ativo._id;
         this.nome = ativo.nome;
         this.sigla = ativo.sigla;
+        this.siglaYahoo = ativo.siglaYahoo;
         this.moeda = ativo.moeda || Moeda.REAL;
         this.tipoAtivo = ativo.tipoAtivo;
         this.cotacao = ativo.cotacao;
@@ -106,8 +94,8 @@ export interface TotalCarteira {
     vlAtual: number | undefined;
 }
 
-
 export class CarteiraImpl implements ICarteira {
+    onItemsAlterados : Observable<ICarteiraAtivo[]>;
     _id?: string;
     nome: string;
     private _items: ICarteiraAtivo[] = [];
@@ -116,7 +104,7 @@ export class CarteiraImpl implements ICarteira {
     classe: TipoAtivo;
     moeda: Moeda;
     private _total!: TotalCarteira;
-
+    
     constructor(carteira: Partial<ICarteira>) {
         this._id = carteira._id;
         this.nome = carteira.nome || 'Nova Carteira';
@@ -124,7 +112,14 @@ export class CarteiraImpl implements ICarteira {
         this.classe = carteira.classe || TipoAtivo.ACAO;
         this.moeda = carteira.moeda || Moeda.REAL;
         this._items = carteira.items || [];
+        this.onItemsAlterados = new Observable<ICarteiraAtivo[]>(this.onItemsAlteradosCallback);
     }
+
+    onItemsAlteradosCallback = (observer: Subscriber<ICarteiraAtivo[]>) => {
+        console.log("onItemsAlteradosCallback", observer);
+        observer.next(this.items);
+        observer.complete();
+    };
 
     get items() {
         return this._items;

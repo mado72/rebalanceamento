@@ -19,6 +19,8 @@ tags:
   description: CRUD para definição de contas
 - name: Consolidado
   description: Mantém o histórico consolidado mensal
+- name: Cotacao
+  description: Mantém cotação
 paths:
   /health-check:
     get:
@@ -1121,6 +1123,124 @@ paths:
       - bearerAuth:
         - write:domain
         - read:domain
+        
+  /cotacao/yahoo/{simbolo}:
+    get:
+      x-swagger-router-controller: Cotacao
+      operationId: cotacaoYahooGET
+      tags:
+      - Cotacao
+      summary: Obtém cotações do Yahoo Finance
+      description: Recupera a cotação atual de um ou mais símbolos
+      parameters: 
+      - name: simbolo
+        in: path
+        description: Símbolo da(s) cotação(ões) a ser(em) pesquisada(s
+        required: true
+        schema:
+          oneOf:
+          - type: string
+          - type: array
+            items:
+              type: object
+      responses:
+        "200":
+          description: Obteve cotação
+          content:
+            application/json:
+              schema:
+                type: object
+                x-content-type: application/json
+      security:
+      - bearerAuth:
+        - write:domain
+        - read:domain
+        
+  /cotacao/batch/cotacoes:
+    put:
+      x-swagger-router-controller: Cotacao
+      operationId: atualizarCotacoesBatchPUT
+      tags:
+      - Cotacao
+      summary: Obtém cotações do Yahoo Finance
+      description: Recupera a cotação atual de um ou mais símbolos
+      responses:
+        "200":
+          description: Obteve cotação
+          content:
+            application/json:
+              schema:
+                type: object
+                x-content-type: application/json
+      security:
+      - bearerAuth:
+        - write:domain
+        - read:domain
+      
+  /cotacao/batch/cotacao/{simbolo}:
+    put:
+      x-swagger-router-controller: Cotacao
+      operationId: atualizarCotacaoBatchPUT
+      tags:
+      - Cotacao
+      summary: Obtém cotações do Yahoo Finance
+      description: Recupera a cotação atual de um ou mais símbolos
+      parameters: 
+      - name: simbolo
+        in: path
+        description: Símbolo da(s) cotação(ões) a ser(em) pesquisada(s
+        required: true
+        schema:
+          oneOf:
+          - type: string
+      responses:
+        "200":
+          description: Obteve cotação
+          content:
+            application/json:
+              schema:
+                type: object
+                x-content-type: application/json
+      security:
+      - bearerAuth:
+        - write:domain
+        - read:domain
+      
+  /cotacao:
+    get:
+      x-swagger-router-controller: Cotacao
+      operationId: cotacaoGET
+      tags:
+      - Cotacao
+      summary: Obtém cotações do Yahoo Finance
+      description: Recupera a cotação atual de um ou mais símbolos
+      parameters: 
+      - name: data
+        in: query
+        description: Data da cotação. Quando não informado, assume a data corrente
+        required: false
+        schema:
+          type: string
+          pattern: '^\d{4}-\d{2}-\d{2}$'
+          example: '2024-03-20'
+      - name: simbolo
+        in: query
+        description: Símbolo das cotações a serem pesquisadas, separados por vírgula
+        required: true
+        schema:
+          type: string
+      responses:
+        "200":
+          description: Obteve cotação
+          content:
+            application/json:
+              schema:
+                type: object
+                x-content-type: application/json
+      security:
+      - bearerAuth:
+        - write:domain
+        - read:domain
       
 components:
   schemas:
@@ -1274,6 +1394,10 @@ components:
           type: string
           description: Id do Ativo
         sigla:
+          minLength: 1
+          type: string
+          example: NYSE:GOOGL
+        siglaYahoo:
           minLength: 1
           type: string
           example: NYSE:GOOGL
