@@ -107,7 +107,7 @@ export class SaldosComponent implements OnInit {
       conta: '',
       saldo: 0,
       tipo: TipoConta.CORRENTE,
-      moeda: Moeda.REAL
+      moeda: Moeda.BRL
     }
   }
 

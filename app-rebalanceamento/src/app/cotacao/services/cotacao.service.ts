@@ -49,13 +49,13 @@ export class CotacaoService {
   converterDeYahooMoeda(valor: string): Moeda {
     switch (valor) {
       case "BRL":
-        return Moeda.REAL;
+        return Moeda.BRL;
       case "USD":
-        return Moeda.DOLAR;
+        return Moeda.USD;
       case "USDT":
         return Moeda.USDT;
       default:
-        return Moeda.REAL;
+        return Moeda.BRL;
     }
   }
 }

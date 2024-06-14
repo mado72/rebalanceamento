@@ -33,7 +33,7 @@ describe('ContaFormComponent', () => {
       conta: 'teste',
       saldo: 100,
       tipo: TipoConta.CORRENTE,
-      moeda: Moeda.REAL
+      moeda: Moeda.BRL
     };
     fixture.detectChanges();
   });

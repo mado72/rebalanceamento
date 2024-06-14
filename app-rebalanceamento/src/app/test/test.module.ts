@@ -183,31 +183,31 @@ const ATIVOS : IAtivo[] = [
     nome: 'Ativo 1',
     sigla: 'A1',
     tipoAtivo: TipoAtivo.ACAO,
-    moeda: Moeda.DOLAR
+    moeda: Moeda.USD
   },
   {
     nome: 'Ativo 2',
     sigla: 'A2',
     tipoAtivo: TipoAtivo.ACAO,
-    moeda: Moeda.DOLAR
+    moeda: Moeda.USD
   },
   {
     nome: 'Ativo 3',
     sigla: 'A3',
     tipoAtivo: TipoAtivo.ACAO,
-    moeda: Moeda.REAL
+    moeda: Moeda.BRL
   },
   {
     nome: 'Ativo 4',
     sigla: 'F4',
     tipoAtivo: TipoAtivo.FII,
-    moeda: Moeda.REAL
+    moeda: Moeda.BRL
   },
   {
     nome: 'Ativo 5',
     sigla: 'F5',
     tipoAtivo: TipoAtivo.FII,
-    moeda: Moeda.DOLAR
+    moeda: Moeda.USD
   },
 ]
 

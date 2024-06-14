@@ -94,7 +94,7 @@ export class AtivosListaComponent implements OnInit {
     this.editarAtivo(new AtivoImpl({
       nome: '',
       sigla: '',
-      moeda: Moeda.REAL,
+      moeda: Moeda.BRL,
       tipoAtivo: TipoAtivo.ACAO,
       setor: ''
     }));

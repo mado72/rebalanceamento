@@ -13,14 +13,14 @@ export enum TipoAtivo {
 }
 
 export enum Moeda {
-    REAL = "REAL",
-    DOLAR = "DOLAR",
+    BRL = "BRL",
+    USD = "USD",
     USDT = "USDT"
 }
 
 export const MoedaSigla = {
-    REAL: "R$",
-    DOLAR: "$",
+    BRL: "R$",
+    USD: "$",
     USDT: "USDT"
 }
 
@@ -58,7 +58,7 @@ export class AtivoImpl {
         this.nome = ativo.nome;
         this.sigla = ativo.sigla;
         this.siglaYahoo = ativo.siglaYahoo;
-        this.moeda = ativo.moeda || Moeda.REAL;
+        this.moeda = ativo.moeda || Moeda.BRL;
         this.tipoAtivo = ativo.tipoAtivo;
         this.cotacao = ativo.cotacao;
         this.setor = ativo.setor;
@@ -111,7 +111,7 @@ export class CarteiraImpl implements ICarteira {
         this.nome = carteira.nome || 'Nova Carteira';
         this.objetivo = carteira.objetivo || 0;
         this.classe = carteira.classe || TipoAtivo.ACAO;
-        this.moeda = carteira.moeda || Moeda.REAL;
+        this.moeda = carteira.moeda || Moeda.BRL;
         this._items = carteira.items || [];
         this.onItemsAlterados = new Observable<ICarteiraAtivo[]>(this.onItemsAlteradosCallback);
     }

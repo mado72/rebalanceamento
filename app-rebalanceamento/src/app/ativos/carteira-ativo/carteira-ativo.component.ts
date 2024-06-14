@@ -205,7 +205,7 @@ export class CarteiraAtivoComponent {
       ativo: {
         sigla: "",
         nome: "",
-        moeda: Moeda.REAL,
+        moeda: Moeda.BRL,
       },
       quantidade: 0,
       vlAtual: 0,
