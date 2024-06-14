@@ -1,7 +1,5 @@
-import { Component, EventEmitter, Input, OnDestroy, Output } from '@angular/core';
-import { CarteiraImpl, IAtivo, ICarteiraAtivo } from '../model/ativos.model';
-import { Subscription } from 'rxjs';
-import { CotacaoService } from 'src/app/cotacao/services/cotacao.service';
+import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
+import { CarteiraImpl, ICarteiraAtivo } from '../model/ativos.model';
 
 interface ValorAtivo {
     vlInicial: number | undefined;
@@ -20,9 +18,9 @@ interface ValorAtivo {
   templateUrl: './carteira-lista-ativos.component.html',
   styleUrls: ['./carteira-lista-ativos.component.scss']
 })
-export class CarteiraListaAtivosComponent implements OnDestroy {
+export class CarteiraListaAtivosComponent {
 
-  private _carteira!: CarteiraImpl;
+  @Input() carteira!: CarteiraImpl;
 
   @Input() exibirLinkEdicao: boolean = true;
 
@@ -35,49 +33,6 @@ export class CarteiraListaAtivosComponent implements OnDestroy {
    */
   @Output() itemClicado = new EventEmitter<ICarteiraAtivo>();
   
-  itensSubscriber: Subscription | null = null;
-
-  constructor(
-    private _cotacaoService: CotacaoService
-  ) {}
-
-  ngOnDestroy(): void {
-      if (this.itensSubscriber) {
-        this.itensSubscriber.unsubscribe();
-        this.itensSubscriber = null;
-      }
-  }
-
-  /**
-   * @description
-   * Obtém o objeto da carteira.
-   *
-   * @returns {CarteiraImpl}
-   * @memberof CarteiraListaAtivosComponent
-   */
-  get carteira(): CarteiraImpl {
-    return this._carteira;
-  }
-
-  /**
-   * @description
-   * O objeto da carteira a ser exibido e interagido.
-   *
-   * @type {CarteiraImpl}
-   * @memberof CarteiraListaAtivosComponent
-   */
-  @Input()
-  set carteira(carteira: CarteiraImpl) {
-    if (!!this._carteira) {
-      this.itensSubscriber && this.itensSubscriber.unsubscribe();
-
-    }
-    this._carteira = carteira;
-    if (!!carteira) {
-      this.itensSubscriber = this._carteira.onItemsAlterados.subscribe(items=>this.itensAlterados(items));
-    }
-  }
-
   /**
    * @description
    * Seleciona um item de ativo e emite um evento com o item selecionado.
@@ -101,19 +56,4 @@ export class CarteiraListaAtivosComponent implements OnDestroy {
     return !ativo.vlInicial? NaN : this.resultado(ativo) / ativo.vlInicial;
   }
 
-  itensAlterados(items: ICarteiraAtivo[]) {
-    if (!items.length) {
-      return;
-    }
-    Promise.resolve().then(() => {
-      const siglas = items.map(item=>item.ativo.sigla);
-      this._cotacaoService.obterCotacoes(siglas).subscribe(cotacoes=>{
-        const mapCotacoes = new Map(cotacoes.map(cotacao=>[cotacao.simbolo, cotacao]));
-        items.forEach(item=>{
-          item.ativo.cotacao = mapCotacoes.get(item.ativo.sigla);
-        })
-      });
-      console.log(`Carregando cotações de itens alterados ${this._carteira.nome}`);
-    });
-  }
 }

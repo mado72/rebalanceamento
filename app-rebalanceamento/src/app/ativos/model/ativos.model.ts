@@ -128,7 +128,7 @@ export class CarteiraImpl implements ICarteira {
 
     set items(items: ICarteiraAtivo[]) {
         this._items = Object.assign([], items);
-        this._total = this.calculaTotais();
+        this.calculaTotais();
     }
 
     get total(): TotalCarteira {
@@ -141,11 +141,11 @@ export class CarteiraImpl implements ICarteira {
         return 0;
     }
 
-    diferenca(item: ICarteiraAtivo): number {
-        return (this.percAtivo(item) - item.objetivo) / item.objetivo;
+    diferenca(item: ICarteiraAtivo): number | undefined {
+        return item.objetivo && ((this.percAtivo(item) - item.objetivo) / item.objetivo);
     }
 
-    private calculaTotais(): TotalCarteira {
+    calculaTotais() {
         const totais = (this.items || [])
             .map(item => {
                 return {
@@ -162,9 +162,10 @@ export class CarteiraImpl implements ICarteira {
             vlAtual: 0
         };
         if (!totais.length) {
-            return totalInicial
+            this._total = totalInicial;
+            return;
         }
-        return totais.reduce((acc, item) => {
+        this._total = totais.reduce((acc, item) => {
             return {
                 resultado: acc.resultado + item.resultado,
                 objetivo: acc.objetivo + item.objetivo,

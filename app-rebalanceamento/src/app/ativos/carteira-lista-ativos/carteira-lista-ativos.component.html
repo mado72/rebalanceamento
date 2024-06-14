@@ -14,10 +14,10 @@
             <th>Ativo</th>
             <th class="text-center">Qtd. Atual</th>
             <th class="text-center">Vl. Inicial</th>
-            <th class="text-center">Vl. Unitário</th>
+            <th class="text-center">Cotação</th>
             <th class="text-center">Patrimônio</th>
             <th class="text-center">Resultado</th>
-            <th class="text-center">%Resultado</th>
+            <th class="text-center">% Resultado</th>
             <th class="text-center">% Objetivo</th>
             <th class="text-center">% Atual</th>
             <th class="text-center">% Diferença</th>
@@ -33,13 +33,15 @@
             </td>
             <td class="text-end">{{registro.quantidade | number:'1.0-6'}}</td>
             <td class="text-end">{{registro.vlInicial | number:'1.2-2'}}</td>
-            <td class="text-end">{{vlUnitario(registro) | number:'1.2-2'}}</td>
+            <td class="text-end">
+                <ng-container *ngIf="registro.ativo.cotacao?.preco">{{registro.ativo.cotacao?.preco | number:'1.2-2'}}</ng-container>
+            </td>
             <td class="text-end">{{registro.vlAtual | number:'1.2-2'}}</td>
             <td class="text-end" [negativo]="resultado(registro)">{{resultado(registro) | number:'1.2-2'}}</td>
             <td class="text-end" [negativo]="resultado(registro)">{{resultadoPerc(registro) | percent:'1.2-2'}}</td>
             <td class="text-end">{{registro.objetivo | percent:'1.2-2'}}</td>
             <td class="text-end">{{carteira.percAtivo(registro) | percent:'1.2-2'}}</td>
-            <td class="text-end" [negativo]="carteira.diferenca(registro)">{{carteira.diferenca(registro) | percent:'1.2-2'}}</td>
+            <td class="text-end" [negativo]="carteira.diferenca(registro) || 0">{{carteira.diferenca(registro) | percent:'1.2-2'}}</td>
         </tr>
     </tbody>
     <tfoot *ngIf="carteira.total">
@@ -57,3 +59,4 @@
         </tr>
     </tfoot>
 </table>
+<pre class="debug">{{carteira.total | json}}</pre>

@@ -1,9 +1,10 @@
 import { Component, EventEmitter, Input, Output } from '@angular/core';
-import { CarteiraImpl, ICarteira, ICarteiraAtivo, Moeda, TipoAtivo } from '../model/ativos.model';
-import { CarteiraService } from '../services/carteira.service';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
-import { CarteiraAtivoFormComponent } from '../carteira-ativo-form/carteira-ativo-form.component';
 import { AlertService } from 'src/app/services/alert.service';
+import { CarteiraAtivoFormComponent } from '../carteira-ativo-form/carteira-ativo-form.component';
+import { CarteiraImpl, ICarteiraAtivo, Moeda, TipoAtivo } from '../model/ativos.model';
+import { CarteiraService } from '../services/carteira.service';
+import { CotacaoService } from 'src/app/cotacao/services/cotacao.service';
 
 @Component({
   selector: 'app-carteira-ativo',
@@ -23,6 +24,7 @@ export class CarteiraAtivoComponent {
    */
   constructor(
     private _carteiraService: CarteiraService,
+    private _cotacaoService: CotacaoService,
     private _alertService: AlertService,
     private modalService: NgbModal
   ) {}
@@ -155,9 +157,24 @@ export class CarteiraAtivoComponent {
   }
 
   private obterAtivosCarteira() {
-    Promise.resolve().then(() => this._carteiraService.obterAlocacao(this.carteira).subscribe(items => {
+    this._carteiraService.obterAlocacao(this.carteira).subscribe(items => {
       this.carteira.items = items;
-    }));
+
+      const simbolos = this.carteira.items
+        .filter(item=> !!item.ativo.siglaYahoo)
+        .map(item => { return { sigla: item.ativo.sigla, siglaYahoo: item.ativo.siglaYahoo }; });
+      
+      if (simbolos.length) {
+        this._cotacaoService.obterCotacoes(simbolos).subscribe(mapCotacoes=>{
+          this.carteira.items.forEach(item=>{
+            item.ativo.cotacao = mapCotacoes.get(item.ativo.sigla);
+            (item.ativo.cotacao) && (item.vlAtual = item.quantidade * item.ativo.cotacao.preco);
+          })
+          this.carteira.calculaTotais();
+        });
+      }
+
+    });
   }
 
   /**

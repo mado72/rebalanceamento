@@ -45,18 +45,18 @@ export class AtivosListaComponent implements OnInit {
 
       new Promise((resolve, reject) => {
         const elegiveis = this._ativosDisponiveis.filter(ativo => !!ativo.siglaYahoo);
-        const simbolos = elegiveis.map(ativo => ativo.siglaYahoo as string);
 
-        this._cotacaoService.obterCotacoes(simbolos).subscribe(cotacoes => {
+        this._cotacaoService.obterCotacoes(elegiveis).subscribe(mapCotacoes => {
 
-          const mapByYahoo = new Map(elegiveis.map(ativo=>[ativo.siglaYahoo as string, ativo]));
+          const mapBySigla = new Map(elegiveis.map(ativo=>[ativo.sigla, ativo]));
 
-          cotacoes.forEach(cotacao=>{
-            const ativo = mapByYahoo.get(cotacao.simbolo);
+          Array.from(mapCotacoes.entries()).forEach(entry=> {
+            const ativo = mapBySigla.get(entry[1].simbolo);
             if (ativo) {
-              ativo.cotacao = cotacao;
+              ativo.cotacao = entry[1];
             }
-          });
+          })
+
           resolve(true);
         });
       });

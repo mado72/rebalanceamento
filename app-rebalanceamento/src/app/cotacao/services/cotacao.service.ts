@@ -8,6 +8,11 @@ import { CarteiraService } from 'src/app/ativos/services/carteira.service';
 import { environment } from 'src/environments/environment';
 import { CotacaoImpl, ICotacao } from '../models/cotacao.model';
 
+export interface Simbolos {
+  sigla: string;
+  siglaYahoo?: string;
+}
+
 @Injectable({
   providedIn: 'root'
 })
@@ -22,11 +27,13 @@ export class CotacaoService {
     return this.http.put<string[]>(`${environment.apiUrl}/cotacao/batch/cotacoes`, {});
   }
 
-  obterCotacoes(simbolos: string[]): Observable<CotacaoImpl[]> {
-    const simbolo = encodeURIComponent( simbolos.join(',') );
+  obterCotacoes(simbolos: Simbolos[]): Observable<Map<string, CotacaoImpl>> {
+    const mapSimbolos = new Map(simbolos.filter(simbolo=>!!simbolo.siglaYahoo).map(simbolo=>[simbolo.siglaYahoo as string, simbolo.sigla]));
+    const simbolo = encodeURIComponent( simbolos.map(simbolo=>simbolo.siglaYahoo).join(',') );
     return this.http.get<YahooQuote[]>(`${environment.apiUrl}/cotacao`, {params: {simbolo: simbolo}})
     .pipe(
-      map((quotes:YahooQuote[])=> quotes.map(quote=>this.converterDeYahooQuote(quote)))
+      map((quotes:YahooQuote[])=> quotes.map(quote=>this.converterDeYahooQuote(quote))),
+      map(cotacoes=>new Map(cotacoes.map(cotacao=>[mapSimbolos.get(cotacao.simbolo) as string, cotacao])))
     );
   }
 
