@@ -50,6 +50,7 @@ module.exports.cotacaoGET = function (req, res, next, data, simbolo) {
             utils.writeJson(res, response);
         })
         .catch(function (response) {
+            console.error(`Erro ao consultar simbolo: '${simbolo}'`);
             utils.handleError(res, response);
         });
 }
