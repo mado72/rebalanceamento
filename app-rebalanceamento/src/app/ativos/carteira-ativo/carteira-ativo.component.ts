@@ -1,10 +1,13 @@
-import { Component, EventEmitter, Input, Output } from '@angular/core';
+import { Component, EventEmitter, Input, OnDestroy, OnInit, Output } from '@angular/core';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
+import { Observable, Subscription, forkJoin, map, mergeAll, of, reduce, switchMap, tap } from 'rxjs';
+import { CotacaoImpl } from 'src/app/cotacao/models/cotacao.model';
+import { CotacaoService } from 'src/app/cotacao/services/cotacao.service';
 import { AlertService } from 'src/app/services/alert.service';
+import { CacheService } from 'src/app/util/services/cache.service';
 import { CarteiraAtivoFormComponent } from '../carteira-ativo-form/carteira-ativo-form.component';
 import { CarteiraImpl, ICarteiraAtivo, Moeda, TipoAtivo } from '../model/ativos.model';
 import { CarteiraService } from '../services/carteira.service';
-import { CotacaoService } from 'src/app/cotacao/services/cotacao.service';
 
 @Component({
   selector: 'app-carteira-ativo',
@@ -15,8 +18,10 @@ import { CotacaoService } from 'src/app/cotacao/services/cotacao.service';
  * @descripción Componente para gerenciar um portfólio de ativos.
  * @class CarteiraAtivoComponent
  */
-export class CarteiraAtivoComponent {
-  
+export class CarteiraAtivoComponent implements OnInit, OnDestroy {
+
+  subscriberCotacoes?: Subscription;
+
   /**
    * @descripción Construtor do CarteiraAtivoComponent.
    * @param {CarteiraService} _carteiraService - O serviço para gerenciar o portfólio.
@@ -25,9 +30,31 @@ export class CarteiraAtivoComponent {
   constructor(
     private _carteiraService: CarteiraService,
     private _cotacaoService: CotacaoService,
+    private _cacheService: CacheService,
     private _alertService: AlertService,
     private modalService: NgbModal
-  ) {}
+  ) { }
+
+  ngOnInit(): void {
+    this.subscriberCotacoes = this._cacheService.cache$.subscribe(cache => {
+      if (cache?.key === 'cotacoesMoedas') {
+        const cotacoes = cache.data;
+        this.carteira.items.forEach(item => {
+          const simboloCotacaoMoeda = `${item.ativo.moeda}${this.carteira.moeda}`;
+          const cotacao = cotacoes.get(simboloCotacaoMoeda) || 1;
+          item.vlMoeda = (item.vlAtual || 0 ) * cotacao;
+        });
+      }
+    });
+
+  }
+
+  ngOnDestroy(): void {
+    if (!!this.subscriberCotacoes) {
+      this.subscriberCotacoes.unsubscribe();
+      this.subscriberCotacoes = undefined;
+    }
+  }
 
   /**
    * @descripción O objeto do portfólio.
@@ -71,18 +98,19 @@ export class CarteiraAtivoComponent {
       const component = modalRef.componentInstance as CarteiraAtivoFormComponent;
       component._carteiraAtivo = value;
 
-      component.onCancelar.subscribe(() => modalRef.dismiss({action: 'cancelar'}));
-      component.onExcluir.subscribe(carteiraAtivo => modalRef.close({action: 'excluir', carteiraAtivo}));
-      component.onSalvar.subscribe(carteiraAtivo => modalRef.close({action: 'salvar', carteiraAtivo}));
-      component.onTermoChanged.subscribe(termo=>{
+      component.onCancelar.subscribe(() => modalRef.dismiss({ action: 'cancelar' }));
+      component.onExcluir.subscribe(carteiraAtivo => modalRef.close({ action: 'excluir', carteiraAtivo }));
+      component.onSalvar.subscribe(carteiraAtivo => modalRef.close({ action: 'salvar', carteiraAtivo }));
+      component.onTermoChanged.subscribe(termo => {
         if (!!termo) {
-          this._carteiraService.buscarAtivos(termo).subscribe(ativos=>
-            component.ativos=ativos.filter(ativo=>
-              (ativo.tipoAtivo===this.carteira.classe || ativo.tipoAtivo == TipoAtivo.REFERENCIA) 
-              && (!ativo.moeda || ativo.moeda === this.carteira.moeda)));
+          this._carteiraService.buscarAtivos(termo).subscribe(ativos =>
+            component.ativos = ativos.filter(ativo =>
+              (ativo.tipoAtivo === this.carteira.classe || ativo.tipoAtivo == TipoAtivo.REFERENCIA)
+              // && (!ativo.moeda || ativo.moeda === this.carteira.moeda)
+            ));
         }
       })
-      
+
       modalRef.result.then(result => {
         const ativo = result.carteiraAtivo as ICarteiraAtivo || undefined;
 
@@ -95,44 +123,44 @@ export class CarteiraAtivoComponent {
             });
             return;
           }
-  
-          this.carteira.items = this.carteira.items.filter(alocacao=>alocacao.ativoId != ativo.ativoId)
-            .map(alocacao=>{
-              const {['ativo']: removed, ...postData} = Object.assign({}, alocacao) ;
+
+          this.carteira.items = this.carteira.items.filter(alocacao => alocacao.ativoId != ativo.ativoId)
+            .map(alocacao => {
+              const { ['ativo']: removed, ...postData } = Object.assign({}, alocacao);
               return postData as ICarteiraAtivo;
             });
 
           const resultadoOperacao = (mensagem: string) => {
             this._alertService.alert({
               mensagem,
-              tipo:'sucesso',
+              tipo: 'sucesso',
               titulo: 'Resultado da operação'
             });
           }
 
           if (result.action === 'excluir') {
-            this._carteiraService.atualizarAlocacao(this.carteira).subscribe(()=>{
+            this._carteiraService.atualizarAlocacao(this.carteira).subscribe(() => {
               resultadoOperacao('Ativo excluído com sucesso');
               this.obterAtivosCarteira();
             })
           } else {
-            const {['ativo']: removed, ...postData} = Object.assign({}, ativo);
+            const { ['ativo']: removed, ...postData } = Object.assign({}, ativo);
             this.carteira.items.push(postData as ICarteiraAtivo);
-            
-            this._carteiraService.atualizarAlocacao(this.carteira).subscribe(()=>{
+
+            this._carteiraService.atualizarAlocacao(this.carteira).subscribe(() => {
               resultadoOperacao('Ativo atualizado com sucesso');
               this.obterAtivosCarteira();
             })
           }
         }
-      
+
         delete this._carteiraAtivoSelecionado;
-      }, ()=>{
+      }, () => {
         delete this._carteiraAtivoSelecionado;
       });
     }
   }
-  
+
   /**
    * @descripção Obtém o objeto do portfólio.
    * @returns {CarteiraImpl} O objeto do portfólio.
@@ -141,7 +169,7 @@ export class CarteiraAtivoComponent {
   get carteira(): CarteiraImpl {
     return this._carteira;
   }
-  
+
   /**
    * @descripção Define o objeto do portfólio.
    * @param {CarteiraImpl} carteira - O objeto do portfólio a ser definido.
@@ -150,31 +178,37 @@ export class CarteiraAtivoComponent {
   @Input()
   set carteira(carteira: CarteiraImpl) {
     this._carteira = carteira;
-    if (!! carteira) {
+    if (!!carteira) {
       // TODO Refletir os itens atualizados nos totais de carteira-lista-ativos
       this.obterAtivosCarteira();
     }
   }
 
-  private obterAtivosCarteira() {
-    this._carteiraService.obterAlocacao(this.carteira).subscribe(items => {
+  obterAtivosCarteira() {
+
+    return this._carteiraService.obterAlocacao(this.carteira).pipe(
+      tap(items=> {
       this.carteira.items = items;
 
       const simbolos = this.carteira.items
-        .filter(item=> !!item.ativo.siglaYahoo)
+        .filter(item => !!item.ativo.siglaYahoo)
         .map(item => { return { sigla: item.ativo.sigla, siglaYahoo: item.ativo.siglaYahoo }; });
-      
+
       if (simbolos.length) {
-        this._cotacaoService.obterCotacoes(simbolos).subscribe(mapCotacoes=>{
-          this.carteira.items.forEach(item=>{
+        this._cotacaoService.obterCotacoes(simbolos).subscribe(mapCotacoes => {
+          this.carteira.items.forEach(item => {
             item.ativo.cotacao = mapCotacoes.get(item.ativo.sigla);
-            (item.ativo.cotacao) && (item.vlAtual = item.quantidade * item.ativo.cotacao.preco);
+            if (item.ativo.cotacao) {
+              item.vlAtual = item.quantidade * item.ativo.cotacao.preco;
+            };
           })
+
+          this._cacheService.emit('cotacoesMoedas');
           this.carteira.calculaTotais();
         });
       }
 
-    });
+    })).subscribe();
   }
 
   /**
@@ -185,14 +219,14 @@ export class CarteiraAtivoComponent {
   salvarCarteiraItem(carteiraAtivo: ICarteiraAtivo) {
     console.log(carteiraAtivo);
     delete this.carteiraAtivoSelecionado;
-    const idx = this.carteira.items.findIndex(item=>item.ativo.sigla === carteiraAtivo.ativo.sigla);
+    const idx = this.carteira.items.findIndex(item => item.ativo.sigla === carteiraAtivo.ativo.sigla);
     if (idx < 0) {
       this.carteira.items.push(carteiraAtivo);
     }
     else {
       this.carteira.items[idx] = carteiraAtivo;
     }
-    
+
     // this.carteiraService.salvarCarteiraItem(item).subscribe(item=>this.carteiraAtivo = item);
   }
 
@@ -220,7 +254,7 @@ export class CarteiraAtivoComponent {
    * @memberof CarteiraAtivoComponent
    */
   excluirAtivo(carteiraAtivo: ICarteiraAtivo): void {
-    this.carteira.items = this.carteira.items.filter(item=>item.ativo.sigla!== carteiraAtivo.ativo.sigla);
+    this.carteira.items = this.carteira.items.filter(item => item.ativo.sigla !== carteiraAtivo.ativo.sigla);
     delete this.carteiraAtivoSelecionado;
     // this.carteiraService.excluirCarteiraItem(carteiraAtivo).subscribe(()=>this.carteira.items = this.carteira.items.filter(item=>item.sigla!== carteiraAtivo.sigla));
   }

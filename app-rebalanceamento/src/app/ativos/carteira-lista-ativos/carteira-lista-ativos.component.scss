@@ -1,7 +1,11 @@
 th {
-    width: 9%;
+    width: 8%;
 
     &:first {
-        width: 19%;
+        width: 20%;
     }
+}
+.tooltip {
+    background-color: black;
+    color: var(--text-light)
 }

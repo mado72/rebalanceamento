@@ -20,6 +20,8 @@ interface ValorAtivo {
 })
 export class CarteiraListaAtivosComponent {
 
+  readonly identify = (index: number, item: ICarteiraAtivo) => item.ativoId;
+
   @Input() carteira!: CarteiraImpl;
 
   @Input() exibirLinkEdicao: boolean = true;

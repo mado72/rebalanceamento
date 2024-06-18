@@ -224,13 +224,18 @@ module.exports.cotacaoGET = function (data, simbolos) {
 
         try {
             const ultimasCotacoes = await Cotacao.aggregate([{"$match": {"simbolo": {"$in": simbolos}}},{"$group":{"_id": "$simbolo", "maxdata": {$min: "$data"}}}]);
+            if (!ultimasCotacoes.length) {
+                resolve([]);
+                return;
+            }
             const fields = ultimasCotacoes.map(cotacao => {
                 return {
                     simbolo: cotacao._id,
                     data: cotacao.maxdata
                 }
             });
-            const cotacoes = await Cotacao.find({"$or": fields});
+            const filter = fields.length > 1 ? {"$or": fields} : fields[0];
+            const cotacoes = await Cotacao.find(filter);
             resolve(cotacoes);
         } catch (error) {
             reject(error);

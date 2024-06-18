@@ -38,8 +38,8 @@ const TipoConta = Object.freeze({
 })
 
 const TipoMoeda = Object.freeze({
-    REAL : "REAL",
-    DOLAR : "DOLAR",
+    BRL : "BRL",
+    USD : "USD",
     USDT : "USDT"
 })
 
@@ -226,7 +226,7 @@ module.exports = {
     'ativo': mongoose.model('ativo', Ativo, 'ativo'),
     'transacao': mongoose.model('transacao', Transacao, 'transacao'),
     'carteira': mongoose.model('carteira', Carteira, 'carteira'),
-    'carteira-ativo': mongoose.model('carteira-ativo', CarteiraAtivo),
+    'carteiraAtivo': mongoose.model('carteiraAtivo', CarteiraAtivo),
     'conta': mongoose.model('conta', Conta, 'conta'),
     'consolidado': mongoose.model('consolidado', Consolidado, 'consolidado'),
     'cotacao': mongoose.model('cotacao', Cotacao, 'cotacao'),
