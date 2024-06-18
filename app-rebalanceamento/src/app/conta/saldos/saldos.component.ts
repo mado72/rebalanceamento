@@ -9,6 +9,7 @@ import { AlertService } from 'src/app/services/alert.service';
 import { ContaFormComponent } from '../conta-form/conta-form.component';
 import { Conta, TipoConta } from '../model/conta.model';
 import { ContaService } from '../services/conta.service';
+import { CacheService } from 'src/app/util/services/cache.service';
 
 @Component({
   selector: 'app-saldos',
@@ -31,6 +32,7 @@ export class SaldosComponent implements OnInit {
   constructor (
     private _contaService: ContaService,
     private _patrimonioService: ConsolidadoService,
+    private _cacheService: CacheService,
     private _alertService: AlertService,
     private _modalService: NgbModal,
     private _route: ActivatedRoute,
@@ -42,8 +44,6 @@ export class SaldosComponent implements OnInit {
       this.botoesControle = pBotaoAdicionar;
     }
     this.mesCorrente = new Date();
-
-    // TODO Adiiconar função para pegar os saldos históricos.
   }
 
   get mesCorrente() {
@@ -54,11 +54,22 @@ export class SaldosComponent implements OnInit {
     this._mesCorrente = mesCorrente;
 
     if (isSameMonth(this._mesCorrente, new Date())) {
+      const cotacaoMoedas = this._cacheService.get('cotacoesMoedas');
+
       this._contaService.obterContas().subscribe(contas => {
         if (! this.botoesControle) {
           contas = contas.filter(conta=> conta.tipo != TipoConta.CARTAO)
         }
         this.contas = contas
+
+        this.contas.forEach(conta => {
+          if (conta.moeda == Moeda.BRL) {
+            conta.saldoReal = conta.saldo;
+          }
+          else {
+            conta.saldoReal = conta.saldo * cotacaoMoedas.get(`${conta.moeda}BRL`);
+          }
+        });
       });
     }
     else {

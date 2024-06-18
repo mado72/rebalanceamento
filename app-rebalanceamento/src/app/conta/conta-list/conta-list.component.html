@@ -35,7 +35,7 @@
                 </td>
                 <td class="text-center">{{item.tipo | capitalize }}</td>
                 <td class="text-end"><ng-container [ngTemplateOutlet]="DisplayNum" [ngTemplateOutletContext]="{valor:item.saldo, sigla: sigla(item.moeda)}"/></td>
-                <td class="text-end"><ng-container [ngTemplateOutlet]="DisplayNum" [ngTemplateOutletContext]="{valor:item.saldo, sigla: 'R$'}"/></td>
+                <td class="text-end"><ng-container [ngTemplateOutlet]="DisplayNum" [ngTemplateOutletContext]="{valor:item.saldoReal, sigla: 'R$'}"/></td>
             </tr>
         </tbody>
         <tfoot>
