@@ -1,0 +1,27 @@
+<div class="celula p-2" [ngClass]="{'mes-corrente': mesCorrente, diaCorrente: diaCorrente, dataSelecionada: mesmaDataSelecionada}">
+    <div class="topo">
+        <span class="cell-badge" *ngIf="eventos.length">{{eventos.length}}</span>
+        {{dia}}
+    </div>
+    <div class="meio">
+        <ng-container [ngTemplateOutlet]="templateDataConteudo || defaultDia" [ngTemplateOutletContext]="{dia: dia, data: data, eventos: eventos}"></ng-container>
+    </div>
+    <div class="base">
+        <ng-container [ngTemplateOutlet]="templateListaEventos || defaultListaEventos" [ngTemplateOutletContext]="{dia: dia, data: data, eventos: eventos}"></ng-container>
+    </div>
+</div>
+
+<ng-template #defaultDia></ng-template>
+
+<ng-template #defaultListaEventos let-eventos="eventos" >
+    <div [style.backgroundColor]="evento.cor" class="led tip"
+        *ngFor="let evento of eventos" (click)="eventoClick(evento)">
+        <span class="tiptext" [ngClass]="{'tiptext-right': diaSemana == 6, 'tiptext-left': diaSemana !== 6}"  [style.minWidth]="tipMinWidth">
+            <ng-container [ngTemplateOutlet]="templateEventoDetalhes || defaultEventoDetalhes" [ngTemplateOutletContext]="{evento: evento}"/>
+        </span>
+    </div>
+</ng-template>
+
+<ng-template #defaultEventoDetalhes let-evento="evento">
+    <p class="detalhes">{{evento.descricao}}</p>
+</ng-template>

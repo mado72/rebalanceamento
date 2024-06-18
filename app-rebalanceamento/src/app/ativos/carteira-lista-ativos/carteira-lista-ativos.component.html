@@ -1,0 +1,73 @@
+<pre class="debug">{{carteira | json}}</pre>
+<ng-template #NomeCarteira let-registro="registro">
+    <div class="mx-2" *ngIf="registro.ativo">
+        {{registro.ativo.nome}} ({{registro.ativo.moeda}})
+    </div>
+</ng-template>
+
+<table *ngIf="!! carteira" class="table table-striped">
+    <thead>
+        <tr class="table-dark">
+            <th colspan="11">
+                <ng-container *ngIf="exibirLinkEdicao else SomenteNome">
+                    <a [routerLink]="['/carteira', carteira._id]">{{carteira.nome}}</a>
+                </ng-container>
+                <ng-template #SomenteNome>{{carteira.nome}}</ng-template>
+                ({{carteira.classe}} - {{carteira.moeda}})
+            </th>
+        </tr>
+        <tr>
+            <th>Ativo</th>
+            <th class="text-center">Qtd. Atual</th>
+            <th class="text-center">Vl. Inicial</th>
+            <th class="text-center">Cotação</th>
+            <th class="text-center">Patrimônio</th>
+            <th class="text-center">Patrimônio BRL</th>
+            <th class="text-center">Resultado</th>
+            <th class="text-center">% Resultado</th>
+            <th class="text-center">% Objetivo</th>
+            <th class="text-center">% Atual</th>
+            <th class="text-center">% Diferença</th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr *ngFor="let registro of carteira.items; trackBy: identify; index as index" [ngbTooltip]="NomeCarteira" [tooltipContext]="{registro}" placement="left right">
+            <td>
+                <pre class="debug">{{ registro | json }}</pre>
+                <a (click)="selecionar(registro)" href="javascript:void(0)">
+                    <b>{{registro.ativo && registro.ativo.sigla}}</b>
+                </a>
+            </td>
+            <td class="text-end">{{registro.quantidade | number:'1.0-6'}}</td>
+            <td class="text-end">{{registro.vlInicial | number:'1.2-2'}}</td>
+            <td class="text-end">
+                <ng-container *ngIf="registro.ativo && registro.ativo.cotacao">{{registro.ativo.cotacao.preco | number:'1.2-2'}}</ng-container>
+            </td>
+            <td class="text-end">{{registro.vlAtual | number:'1.2-2'}}</td>
+            <td class="text-end">
+                <ng-container *ngIf="registro.vlMoeda">{{registro.vlMoeda | number:'1.2-2'}}</ng-container>
+            </td>
+            <td class="text-end" [negativo]="resultado(registro)">{{resultado(registro) | number:'1.2-2'}}</td>
+            <td class="text-end" [negativo]="resultado(registro)">{{resultadoPerc(registro) | percent:'1.2-2'}}</td>
+            <td class="text-end">{{registro.objetivo | percent:'1.2-2'}}</td>
+            <td class="text-end">{{carteira.percAtivo(registro) | percent:'1.2-2'}}</td>
+            <td class="text-end" [negativo]="carteira.diferenca(registro) || 0">{{carteira.diferenca(registro) | percent:'1.2-2'}}</td>
+        </tr>
+    </tbody>
+    <tfoot *ngIf="carteira.total">
+        <tr class="table-secondary">
+            <th>Total</th>
+            <td class="text-end"></td>
+            <td class="text-end">{{carteira.total.vlInicial | number: '1.2-2'}}</td>
+            <td class="text-end"></td>
+            <td class="text-end">{{(carteira.total.vlAtual || 0) | number: '1.2-2'}}</td>
+            <td class="text-end">{{(carteira.total.vlMoeda || 0) | number: '1.2-2'}}</td>
+            <td class="text-end" [negativo]="resultado(carteira.total)">{{resultado(carteira.total) | number: '1.2-2'}}</td>
+            <td class="text-end" [negativo]="resultado(carteira.total)">{{resultadoPerc(carteira.total) | percent: '1.2-2'}}</td>
+            <td class="text-end">{{carteira.total.objetivo | percent: '1.2-2'}}</td>
+            <td class="text-end"></td>
+            <td class="text-end"></td>
+        </tr>
+    </tfoot>
+</table>
+<pre class="debug">{{carteira | json}}</pre>

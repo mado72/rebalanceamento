@@ -1,0 +1,26 @@
+<table class="table">
+    <thead>
+        <tr>
+            <th>Resumo</th>
+            <th class="text-center" [style.width]="90/12+'%'" *ngFor="let mes of meses">{{mesesStr[mes-1] | capitalize }}</th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr>
+            <td>Recebimentos</td>
+            <td class="text-end" *ngFor="let mes of meses">{{recebimentos[mes-1] | number: '1.2-2'}}</td>
+        </tr>
+        <tr>
+            <td>Despesas</td>
+            <td class="text-end" *ngFor="let mes of meses">{{-despesas[mes-1] | number: '1.2-2'}}</td>
+        </tr>
+        <tr>
+            <td>Resultado Mensal</td>
+            <td class="text-end" *ngFor="let mes of meses">{{resultadoMensal[mes-1] | number: '1.2-2'}}</td>
+        </tr>
+        <tr>
+            <td>Saldo Mensal</td>
+            <td class="text-end" *ngFor="let mes of meses">{{saldo[mes-1] | number: '1.2-2'}}</td>
+        </tr>
+    </tbody>
+</table>

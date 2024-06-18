@@ -1,0 +1,14 @@
+<h3 *ngIf="botoesControle">Saldos no mês {{mesSelecionado}}</h3>
+<app-conta-list
+    [contas]="contas"
+    (contaClicked)="editarConta($event)"
+    />
+<div class="input-group" *ngIf="botoesControle" style="flex: 0 1 300px">
+    <input type="month" name="mes-corrente" id="mes-corrente" [(ngModel)]="mesStr" class="form-control form-control-sm" [style]="{flex: '0 1 200px'}">
+    <button class="btn btn-sm btn-primary m-2" (click)="adicionarConta()">Adicionar Conta</button>
+</div>
+
+<ng-template #ContaFormTemplate let-contaSelecionada>
+    <pre>Conta Selecionada: {{contaSelecionada | json}}</pre>
+    <div class="modal-header">Edição da conta</div>
+</ng-template>

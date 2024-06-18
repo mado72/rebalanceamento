@@ -1,0 +1,55 @@
+<div class="text-end ms-auto">
+    <div class="d-inline-block m-1">
+        <button type="button" class="btn btn-sm btn-primary m-1" (click)="novoAtivo()">Adicionar</button>
+        <button type="button" class="btn btn-sm btn-success m-1" (click)="atualizarCotacoes()">Cotações</button>
+    </div>
+    <div class="d-inline-block menu-item m-1" ngbDropdown>
+        <button type="button" class="btn btn-sm btn-light m-1" ngbDropdownToggle>
+            Filtrar
+        </button>
+        <div class="dropdown-menu" ngbDropdownMenu>
+            <div class="form-group">
+                <app-ativo-busca
+                    (ativoSelecionado)="editarAtivo($event)"
+                    [provedor]="buscarPorTermo"
+                    />
+            </div>
+            <div class="form-group">
+                <button type="button" ngbDropdownItem *ngFor="let moeda of moedas" (click)="filtrarMoeda(moeda)">{{siglaMoeda(moeda) | capitalize}}</button>
+                <div class="dropdown-divider"></div>
+                <button type="button" ngbDropdownItem *ngFor="let tipoAtivo of tiposAtivo" (click)="filtrarTipoAtivo(tipoAtivo)">{{tipoAtivo | capitalize}}</button>
+            </div>
+        </div>
+    </div>
+</div>
+<table class="table table-striped">
+    <thead class="table-dark">
+        <tr>
+            <th>Nome</th>
+            <th>Sigla</th>
+            <th>Yahoo</th>
+            <th>TipoAtivo</th>
+            <th>Moeda</th>
+            <th>Cotação</th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr *ngFor="let ativo of ativos">
+            <td>
+                <a href="javascript:void(0)" (click)="editarAtivo(ativo)">{{ativo.nome}}</a>
+            </td>
+            <td>{{ativo.sigla}}</td>
+            <td>{{ativo.siglaYahoo}}</td>
+            <td>{{ativo.tipoAtivo}}</td>
+            <td>{{ativo.moeda}}</td>
+            <td class="text-end">
+                <ng-container *ngIf="!!ativo.cotacao; else semCotacao">
+                    {{ativo.cotacao.preco | number:'1.6-6'}}
+                </ng-container>
+                <ng-template #semCotacao>
+                    <i class="fas fa-spinner fa-spin"></i>x
+                </ng-template>
+            </td>
+        </tr>
+    </tbody>
+</table>

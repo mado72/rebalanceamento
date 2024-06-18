@@ -1,0 +1,11 @@
+th {
+    width: 8%;
+
+    &:first {
+        width: 20%;
+    }
+}
+.tooltip {
+    background-color: black;
+    color: var(--text-light)
+}

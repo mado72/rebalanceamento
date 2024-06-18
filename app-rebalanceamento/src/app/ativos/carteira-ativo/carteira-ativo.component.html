@@ -1,0 +1,19 @@
+<div *ngIf="!!carteira">
+    <div class="m-2" *ngIf="!exibirLinkEdicaoCarteira">
+        <button type="button" class="btn btn-sm btn-primary m-1" (click)="editarCarteira()">Editar Carteira</button>
+        <button type="button" class="btn btn-sm btn-primary m-1" (click)="excluirCarteira()">Excluir Carteira</button>
+    </div>
+
+    <app-carteira-lista-ativos 
+        [carteira]="carteira" 
+        (itemClicado)="ativoSelecionado($event)" 
+        [exibirLinkEdicao]="exibirLinkEdicaoCarteira"/>
+
+    <button type="button" class="btn btn-sm btn-primary m-1" (click)="adicionarAtivo()" *ngIf="!exibirLinkEdicaoCarteira">
+        Adicionar Ativo
+    </button>
+    
+</div>
+<pre class="debug">
+    {{carteira | json}}
+</pre>

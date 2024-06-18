@@ -1,0 +1,37 @@
+input {
+    width: 80px;
+    text-align: right;
+}
+a.transacao-valor {
+    text-decoration: none;
+}
+.active {
+    font-weight: bold;
+}
+.debito {
+    color: red;
+}
+.credito {
+    color: green;
+}
+.liquidado {
+    font-weight: bold;
+}
+.credito.projecao {
+    color: lightgreen;
+}
+.debito.projecao {
+    color: orange;
+}
+.semorigem {
+    text-decoration: underline;
+}
+.num-color {
+    & { color: blue; }
+    &.negative {
+        color: red;
+    }
+}
+.tableFixHead          { overflow: auto; height: 100px; }
+.tableFixHead thead th { position: sticky; top: 56px; z-index: 1; }
+.tableFixHead tfoot th { position: sticky; bottom: 0px; z-index: 1; }

@@ -1,0 +1,15 @@
+<div class="p-2">
+    <button *ngIf="!idCarteira" (click)="adicionarCarteira()" class="btn btn-sm btn-primary">Adicionar Carteira</button>
+</div>
+
+<ng-container *ngFor="let carteira of carteiras">
+    <app-carteira-ativo
+        [carteira]="carteira"
+        [exibirLinkEdicaoCarteira]="!idCarteira"
+        (onEditarCarteira)="editarCarteira($event)"
+        (onExcluirCarteira)="excluirCarteira($event)"
+        />
+</ng-container>
+<pre class="debug">
+    {{carteiras | json}}
+</pre>
