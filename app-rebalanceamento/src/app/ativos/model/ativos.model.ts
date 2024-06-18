@@ -133,10 +133,12 @@ export class CarteiraImpl implements ObjetoReferenciado {
         return item.objetivo && ((this.percAtivo(item) - item.objetivo) / item.objetivo);
     }
 
-    calculaTotais(cotacaoMoeda?: {moeda: Moeda; valor: number}) {
+    calculaTotais(cotacoesMoedas?: Map<string, number>) {
         const totais = (this.items || [])
             .map(item => {
-                item.vlMoeda = item.vlMoeda || item.vlAtual;
+                if (cotacoesMoedas) {
+                    item.vlMoeda =  ((item.vlAtual || 0) * (cotacoesMoedas.get(`${item.ativo.moeda}BRL`) || 1));
+                }
                 return {
                     moeda: this.moeda,
                     resultado: item.vlAtual || 0 - (item.vlInicial || 0),
