@@ -3,25 +3,28 @@ import { CarteiraService } from '../services/carteira.service';
 import { CarteiraImpl, ICarteiraAtivo, Moeda, MoedaSigla } from '../model/ativos.model';
 import { ContaService } from 'src/app/conta/services/conta.service';
 import { Observable, forkJoin } from 'rxjs';
+import { CacheService } from 'src/app/util/services/cache.service';
 
-interface IAlocacao {
-  id: string;
-  carteira: string;
-  valor: number;
-  planejado: number;
+interface IAlocacao extends Omit<Alocacao, "totalizacao"> {
+};
+
+interface Total extends IAlocacao {
   atual: number;
-  moeda?: Moeda;
 }
-class Alocacao implements IAlocacao {
-  id: string;
+
+class Alocacao  {
+  id?: string;
   carteira: string;
   valor: number;
+  valorReal?: number;
   planejado: number;
-  totalizacao: IAlocacao;
+  totalizacao: Total;
   moeda?: Moeda;
+  tipo: string;
 
-  constructor(id: string, carteira: string, total: number, planejado: number, totalizacao: IAlocacao, moeda?: Moeda) {
+  constructor(id: string, tipo: string, carteira: string, total: number, planejado: number, totalizacao: Total, moeda?: Moeda) {
     this.id = id;
+    this.tipo = tipo;
     this.carteira = carteira;
     this.valor = total;
     this.planejado = planejado;
@@ -42,11 +45,19 @@ class Alocacao implements IAlocacao {
 export class AlocacaoComponent implements OnInit {
 
   alocacoes: IAlocacao[] = [];
-  total!: IAlocacao;
+  total!: Total;
+  private _expanded: boolean = true;
+  public get expanded(): boolean {
+    return this._expanded;
+  }
+  public set expanded(value: boolean) {
+    this._expanded = value;
+    this.obterAlocacoes();
+  }
 
   constructor(
-    private _contaService: ContaService,
-    private _carteiraService: CarteiraService
+    private _carteiraService: CarteiraService,
+    private _cacheService: CacheService
   ) { }
 
   ngOnInit(): void {
@@ -60,6 +71,7 @@ export class AlocacaoComponent implements OnInit {
       carteiras.sort((a, b) => a.nome.localeCompare(b.nome));
       this.total = {
         id: 'total',
+        tipo: '',
         carteira: 'Total',
         valor: 0,
         planejado: 0,
@@ -67,6 +79,7 @@ export class AlocacaoComponent implements OnInit {
       };
 
       Promise.resolve().then(() => {
+        
         const mapConsultas = carteiras.reduce((acc, carteira) => {
           const key = carteira._id as string;
           acc[key] = {
@@ -75,23 +88,48 @@ export class AlocacaoComponent implements OnInit {
           };
           return acc;
         }, {} as { [key: string]: { ob: Observable<ICarteiraAtivo[]>; carteira: CarteiraImpl; }; });
-
+        
         const mapObservables = Object.keys(mapConsultas).reduce((acc, key) => {
           acc[key] = mapConsultas[key].ob;
           return acc;
         }, {} as { [key: string]: Observable<ICarteiraAtivo[]>; });
-
+        
         forkJoin(mapObservables).subscribe(mapResults => {
+          const cotacaoMoedas = this._cacheService.get('cotacoesMoedas');
+
           Object.keys(mapResults).forEach(key => {
             const carteira = mapConsultas[key].carteira;
-            carteira.items = mapResults[key];
-            this.total.valor += carteira.total?.vlAtual || 0;
-            this.total.planejado += carteira.objetivo;
-            this.alocacoes.push(new Alocacao(carteira._id as string, carteira.nome, carteira.total?.vlAtual || 0, carteira.objetivo, this.total, carteira.moeda));
+
+            if (carteira.objetivo > 0) {
+              carteira.items = mapResults[key];
+              carteira.calculaTotais(cotacaoMoedas);
+              this.total.valor += carteira.total?.vlMoeda || 0;
+              this.total.planejado += carteira.objetivo;
+              const valor = carteira.total.vlMoeda || carteira.total.vlAtual || 0;
+              this.alocacoes.push(new Alocacao(carteira._id as string, 
+                carteira.classe, carteira.nome, valor, carteira.objetivo, this.total, carteira.moeda));
+            }
           });
 
           this.alocacoes.forEach(alocacao => this.total.atual += alocacao.atual);
 
+          if (!this.expanded) {
+            const aux = this.alocacoes.reduce((acc, alocacao)=>{
+              const key = `${alocacao.tipo}-${alocacao.moeda}`;
+              let accAloc = acc.get(key);
+              if (!accAloc) {
+                accAloc = alocacao;
+                acc.set(key, accAloc);
+              }
+              else {
+                accAloc.valor += alocacao.valor;
+                accAloc.planejado += alocacao.planejado;
+              }
+              return acc;
+            }, new Map<string, IAlocacao>());
+
+            this.alocacoes = Array.from(aux.values());
+          }
         });
       });
     });
@@ -99,7 +137,7 @@ export class AlocacaoComponent implements OnInit {
 
   siglaMoeda(alocacao: IAlocacao) {
     if (alocacao.moeda) {
-      return MoedaSigla[alocacao.moeda];
+      return alocacao.moeda;
     } else {
       return 'R$';
     }
