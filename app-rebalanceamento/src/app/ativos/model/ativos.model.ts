@@ -3,6 +3,7 @@ import { ICotacao } from "src/app/cotacao/models/cotacao.model";
 
 export enum TipoAtivo {
     REFERENCIA = "REFERENCIA",
+    MOEDA = "MOEDA",
     ACAO = "ACAO",
     FII = "FII",
     RF = "RF",
@@ -12,14 +13,14 @@ export enum TipoAtivo {
 }
 
 export enum Moeda {
-    REAL = "REAL",
-    DOLAR = "DOLAR",
+    BRL = "BRL",
+    USD = "USD",
     USDT = "USDT"
 }
 
 export const MoedaSigla = {
-    REAL: "R$",
-    DOLAR: "$",
+    BRL: "R$",
+    USD: "$",
     USDT: "USDT"
 }
 
@@ -57,7 +58,7 @@ export class AtivoImpl {
         this.nome = ativo.nome;
         this.sigla = ativo.sigla;
         this.siglaYahoo = ativo.siglaYahoo;
-        this.moeda = ativo.moeda || Moeda.REAL;
+        this.moeda = ativo.moeda || Moeda.BRL;
         this.tipoAtivo = ativo.tipoAtivo;
         this.cotacao = ativo.cotacao;
         this.setor = ativo.setor;
@@ -71,6 +72,7 @@ export interface ICarteiraAtivo {
     objetivo: number,
     vlInicial?: number,
     vlAtual?: number,
+    vlMoeda?: number,
     ativo: IAtivo,
     referencia?: {
         tipo: TipoObjetoReferenciado,
@@ -78,24 +80,18 @@ export interface ICarteiraAtivo {
     }
 }
 
-export interface ICarteira extends ObjetoReferenciado {
-    _id?: string;
-    nome: string,
-    items: ICarteiraAtivo[];
-    objetivo: number;
-    classe: TipoAtivo;
-    moeda?: Moeda;
-}
+export type ICarteira = Omit<CarteiraImpl, "percAtivo" | "diferenca" | "calculaTotais">;
 
 export interface TotalCarteira {
+    moeda: Moeda;
     resultado: number;
     objetivo: number;
     vlInicial: number;
     vlAtual: number | undefined;
+    vlMoeda?: number;
 }
 
-export class CarteiraImpl implements ICarteira {
-    onItemsAlterados : Observable<ICarteiraAtivo[]>;
+export class CarteiraImpl implements ObjetoReferenciado {
     _id?: string;
     nome: string;
     private _items: ICarteiraAtivo[] = [];
@@ -110,16 +106,9 @@ export class CarteiraImpl implements ICarteira {
         this.nome = carteira.nome || 'Nova Carteira';
         this.objetivo = carteira.objetivo || 0;
         this.classe = carteira.classe || TipoAtivo.ACAO;
-        this.moeda = carteira.moeda || Moeda.REAL;
+        this.moeda = carteira.moeda || Moeda.BRL;
         this._items = carteira.items || [];
-        this.onItemsAlterados = new Observable<ICarteiraAtivo[]>(this.onItemsAlteradosCallback);
     }
-
-    onItemsAlteradosCallback = (observer: Subscriber<ICarteiraAtivo[]>) => {
-        console.log("onItemsAlteradosCallback", observer);
-        observer.next(this.items);
-        observer.complete();
-    };
 
     get items() {
         return this._items;
@@ -127,7 +116,7 @@ export class CarteiraImpl implements ICarteira {
 
     set items(items: ICarteiraAtivo[]) {
         this._items = Object.assign([], items);
-        this._total = this.calculaTotais();
+        this.calculaTotais();
     }
 
     get total(): TotalCarteira {
@@ -140,35 +129,44 @@ export class CarteiraImpl implements ICarteira {
         return 0;
     }
 
-    diferenca(item: ICarteiraAtivo): number {
-        return (this.percAtivo(item) - item.objetivo) / item.objetivo;
+    diferenca(item: ICarteiraAtivo): number | undefined {
+        return item.objetivo && ((this.percAtivo(item) - item.objetivo) / item.objetivo);
     }
 
-    private calculaTotais(): TotalCarteira {
+    calculaTotais(cotacoesMoedas?: Map<string, number>) {
         const totais = (this.items || [])
             .map(item => {
+                if (cotacoesMoedas) {
+                    item.vlMoeda =  ((item.vlAtual || 0) * (cotacoesMoedas.get(`${item.ativo.moeda}BRL`) || 1));
+                }
                 return {
+                    moeda: this.moeda,
                     resultado: item.vlAtual || 0 - (item.vlInicial || 0),
                     objetivo: item.objetivo,
                     vlInicial: item.vlInicial || 0,
-                    vlAtual: item.vlAtual || 0
+                    vlAtual: item.vlAtual || 0,
+                    vlMoeda: item.vlMoeda || item.vlAtual || 0,
                 };
             });
         const totalInicial = {
+            moeda: this.moeda,
             resultado: 0,
             objetivo: 0,
             vlInicial: 0,
             vlAtual: 0
         };
         if (!totais.length) {
-            return totalInicial
+            this._total = totalInicial;
+            return;
         }
-        return totais.reduce((acc, item) => {
+        this._total = totais.reduce((acc, item) => {
             return {
+                moeda: acc.moeda,
                 resultado: acc.resultado + item.resultado,
                 objetivo: acc.objetivo + item.objetivo,
                 vlInicial: acc.vlInicial + item.vlInicial || 0,
-                vlAtual: acc.vlAtual + item.vlAtual || 0
+                vlAtual: acc.vlAtual + item.vlAtual || 0,
+                vlMoeda: (acc.vlMoeda || 0) + (item.vlMoeda || 0)
             }
         })
 

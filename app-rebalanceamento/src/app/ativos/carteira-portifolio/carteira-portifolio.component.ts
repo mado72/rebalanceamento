@@ -1,10 +1,13 @@
 import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
-import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
-import { CarteiraFormComponent } from '../carteira-form/carteira-form.component';
+import { AlertService } from 'src/app/services/alert.service';
 import { CarteiraImpl } from '../model/ativos.model';
 import { CarteiraService } from '../services/carteira.service';
-import { AlertService } from 'src/app/services/alert.service';
+
+// type CombinacoesMoedas = "BRLUSD" | "USDBRL" | "BRLUSDT" | "USDTBRL" | "USDTUSD" | "USDUSDT";
+
+// type CombincoesMoedasObservable = Observable<CotacaoImpl | undefined>;
+
 
 @Component({
   selector: 'app-carteira-portifolio',
@@ -22,7 +25,6 @@ export class CarteiraPortifolioComponent implements OnInit{
     private _carteiraService: CarteiraService,
     private _alertService: AlertService,
     private _route: ActivatedRoute,
-    private _modal: NgbModal
   ) {}
 
   ngOnInit(): void {

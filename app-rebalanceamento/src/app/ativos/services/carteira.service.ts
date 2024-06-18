@@ -6,7 +6,7 @@ import { AtivoImpl, CarteiraImpl, IAtivo, ICarteira, ICarteiraAtivo, Moeda, Tipo
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { CarteiraFormComponent } from '../carteira-form/carteira-form.component';
 import { AlertService } from 'src/app/services/alert.service';
-
+import { CacheService } from 'src/app/util/services/cache.service';
 
 type Alocacao = {
   _id?: number;
@@ -25,8 +25,11 @@ export class CarteiraService {
   constructor(
     private _http: HttpClient,
     private _modalService: NgbModal,
+    private _cacheService: CacheService, // usado para cotação do dólar
     private _alertService: AlertService
-  ) { }
+  ) {
+
+  }
 
   obterCarteiras(filtro?: {moeda?: Moeda, classe?: string}): Observable<CarteiraImpl[]> {
     let params = new HttpParams();
@@ -100,7 +103,9 @@ export class CarteiraService {
   }
 
   atualizarAtivo(ativo: AtivoImpl) {
-    return this._http.put<IAtivo>(`${environment.apiUrl}/ativo`, ativo)
+    const data = Object.assign({}, ativo);
+    delete data.cotacao;
+    return this._http.put<IAtivo>(`${environment.apiUrl}/ativo`, data)
       .pipe(
         map(ativo => new AtivoImpl(ativo))
       )
@@ -118,7 +123,7 @@ export class CarteiraService {
   }
 
   removerAtivo(ativo: AtivoImpl) {
-    return this._http.delete<IAtivo>(`${environment.apiUrl}/ativo/${ativo._id}`)
+    return this._http.delete<IAtivo>(`${environment.apiUrl}/ativo/id/${ativo._id}`)
       .pipe(
         map(ativo => new AtivoImpl(ativo))
       )

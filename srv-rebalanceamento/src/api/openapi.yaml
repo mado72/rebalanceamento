@@ -1107,7 +1107,7 @@ paths:
           maximum: 210012
       responses:
         "200":
-          description: Geração realizada
+          description: Geração BRLizada
           content:
             application/json:
               schema:
@@ -1247,8 +1247,8 @@ components:
     Moeda:
       type: string
       enum:
-      - REAL
-      - DOLAR
+      - BRL
+      - USD
       - USDT
     
     Classe:
@@ -1363,10 +1363,10 @@ components:
           example: Ações
         moeda:
           type: string
-          example: REAL
+          example: BRL
           enum:
-          - REAL
-          - DOLAR
+          - BRL
+          - USD
           - USDT
         objetivo:
           type: number
@@ -1378,7 +1378,7 @@ components:
       example:
         objetivo: 0.01
         classe: ACAO
-        moeda: REAL
+        moeda: BRL
         nome: Ações
         id: 100
     Ativo:
@@ -1398,7 +1398,7 @@ components:
           type: string
           example: NYSE:GOOGL
         siglaYahoo:
-          minLength: 1
+          nullable: true
           type: string
           example: NYSE:GOOGL
         nome:
@@ -1407,10 +1407,10 @@ components:
           example: Google na NYSE
         moeda:
           type: string
-          example: REAL
+          example: BRL
           enum:
-          - REAL
-          - DOLAR
+          - BRL
+          - USD
           - USDT
         setor:
           minLength: 3
@@ -1437,7 +1437,7 @@ components:
         setor: Tecnologia
         ativo: GOOGLE
         tipoAtivo: ACAO
-        moeda: REAL
+        moeda: BRL
         id: 100
         descricao: Google na NYSE
     CarteiraAtivos:
@@ -1490,8 +1490,8 @@ components:
         moeda:
           type: string
           enum:
-          - REAL
-          - DOLAR
+          - BRL
+          - USD
           - USDT
         tipo:
           type: string
@@ -1502,7 +1502,7 @@ components:
           - INVESTIMENTO
           - CARTAO
       example:
-        moeda: REAL
+        moeda: BRL
         conta: Itaú
         id: 15
         saldo: 150.23

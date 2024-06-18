@@ -8,7 +8,6 @@ import { Moeda, MoedaSigla } from 'src/app/ativos/model/ativos.model';
   styleUrls: ['./conta-list.component.scss']
 })
 export class ContaListComponent {
-
   
   contasListadas: Conta[] = [];
   
@@ -36,7 +35,7 @@ export class ContaListComponent {
 
   get totais() {
     if (! this.contasListadas.length) return 0;
-    return this.contasListadas.map(conta=>conta.saldo).reduce((acc,vl)=>acc+=vl, 0);
+    return this.contasListadas.map(conta=>conta.saldoReal || 0).reduce((acc,vl)=>acc+=vl, 0);
   }
 
   atualizarListaContas () {
@@ -60,5 +59,7 @@ export class ContaListComponent {
   tipoContaAtivo(tipoConta: TipoConta) {
     return this.tiposContaSelecionados.includes(tipoConta);
   }
+
+    
 
 }

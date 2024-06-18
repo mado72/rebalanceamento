@@ -44,11 +44,13 @@ module.exports.atualizarCotacaoBatchPUT = function atualizarCotacaoBatchPUT(req,
 }
 
 module.exports.cotacaoGET = function (req, res, next, data, simbolo) {
+    simbolo = decodeURIComponent(simbolo);
     Cotacao.cotacaoGET(data, simbolo)
         .then(function (response) {
             utils.writeJson(res, response);
         })
         .catch(function (response) {
+            console.error(`Erro ao consultar simbolo: '${simbolo}'`);
             utils.handleError(res, response);
         });
 }

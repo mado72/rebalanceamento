@@ -47,8 +47,8 @@ module.exports.cotacaoYahooSummaryGET = function (simbolo) {
                     preco: quote.regularMarketPrice,
                     nome: quote.longName,
                     curto: quote.shortName,
-                    minima: quote.regularMarketDayRange.low,
-                    maxima: quote.regularMarketDayRange.high,
+                    minima: quote.regularMarketDayRange ? quote.regularMarketDayRange.low : undefined,
+                    maxima: quote.regularMarketDayRange ? quote.regularMarketDayRange.high : undefined,
                     dividendo: quote.dividendYield,
                     dividendoTaxa: quote.dividendRate,
                     horaMercado: quote.regularMarketTime
@@ -64,12 +64,17 @@ module.exports.cotacaoYahooSummaryGET = function (simbolo) {
 module.exports.atualizarCotacoesBatchPUT = function () {
     return new Promise(async (resolve, reject) => {
         try {
-            var ativos = await Ativo.find({});
-            const siglas = ativos
-                .filter(ativo => ['MOEDA', 'ACAO', 'FII', 'FUNDO', 'CDB', 'RF', 'CRIPTO', 'ALTCOINS'].includes(ativo.tipoAtivo))
-                .map((ativo) => ativo.sigla);
+            var ativos = await Ativo.find({siglaYahoo: {$exists: true}, tipoAtivo: {$in:['MOEDA', 'ACAO', 'FII', 'FUNDO', 'CDB', 'RF', 'CRIPTO', 'ALTCOINS']}});
+            var siglas = ativos.map((ativo) => ativo.siglaYahoo);
 
             const hoje = format(new Date(), 'yyyy-MM-dd');
+
+            var siglasComCotacoesHoje = (await Cotacao.find({data: hoje}, {simbolo: 1})).map(item=>item.simbolo);
+
+            if (siglasComCotacoesHoje.length != siglas.length) {
+                siglas = siglas.filter(sigla=>!siglasComCotacoesHoje.includes(sigla))
+            }
+
             siglas.forEach((sigla) => {
                 const now = format(new Date(), "yyyy-MM-dd'T'HH:mm:ss");
                 const statusColeta = new StatusColeta({
@@ -163,8 +168,8 @@ async function atualizarCotacao(response, hoje, now) {
 }
 
 const MOEDAS = {
-    "BRL": "REAL",
-    "USD": "DOLAR",
+    "BRL": "BRL",
+    "USD": "USD",
     "USDT": "USDT"
 }
 
@@ -219,13 +224,18 @@ module.exports.cotacaoGET = function (data, simbolos) {
 
         try {
             const ultimasCotacoes = await Cotacao.aggregate([{"$match": {"simbolo": {"$in": simbolos}}},{"$group":{"_id": "$simbolo", "maxdata": {$min: "$data"}}}]);
+            if (!ultimasCotacoes.length) {
+                resolve([]);
+                return;
+            }
             const fields = ultimasCotacoes.map(cotacao => {
                 return {
                     simbolo: cotacao._id,
                     data: cotacao.maxdata
                 }
             });
-            const cotacoes = await Cotacao.find({"$or": fields});
+            const filter = fields.length > 1 ? {"$or": fields} : fields[0];
+            const cotacoes = await Cotacao.find(filter);
             resolve(cotacoes);
         } catch (error) {
             reject(error);

@@ -6,18 +6,13 @@ export enum TipoConta {
     POUPANCA = "POUPANCA",
     CARTAO = "CARTAO"
 }
-export interface IConta {
-    _id?: string,
-    conta: string,
-    saldo: number,
-    tipo: TipoConta,
-    moeda: Moeda
-}
+export interface IConta extends Conta {}
 
-export class Conta implements IConta {
+export class Conta {
     _id?: string;
     conta!: string;
     saldo!: number;
+    saldoReal?: number;
     tipo!: TipoConta;
     moeda!: Moeda;
     constructor(valor: IConta) {

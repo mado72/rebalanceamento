@@ -4,7 +4,7 @@ var mongoose = require('mongoose');
 const { respondWithCode } = require('../utils/writer');
 const Ativo = mongoose.model('ativo');
 const Carteira = mongoose.model('carteira');
-const CarteiraAtivo = mongoose.model('carteira-ativo');
+const CarteiraAtivo = mongoose.model('carteiraAtivo');
 
 /**
  * Lista os ativos disponíveis

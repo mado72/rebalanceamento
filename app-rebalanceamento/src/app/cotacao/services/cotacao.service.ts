@@ -1,12 +1,17 @@
-import { Injectable } from '@angular/core';
-import { CarteiraService } from 'src/app/ativos/services/carteira.service';
-import { Observable, map } from 'rxjs';
-import { CotacaoImpl, ICotacao } from '../models/cotacao.model';
-import { YahooQuote } from 'src/app/ativos/model/yahoo.model';
-import { Moeda, TipoAtivo } from 'src/app/ativos/model/ativos.model';
-import { environment } from 'src/environments/environment';
-import { parse } from 'date-fns';
 import { HttpClient } from '@angular/common/http';
+import { Injectable } from '@angular/core';
+import { parse } from 'date-fns';
+import { Observable, forkJoin, map, mergeAll, of } from 'rxjs';
+import { Moeda } from 'src/app/ativos/model/ativos.model';
+import { YahooQuote } from 'src/app/ativos/model/yahoo.model';
+import { CarteiraService } from 'src/app/ativos/services/carteira.service';
+import { environment } from 'src/environments/environment';
+import { CotacaoImpl, ICotacao } from '../models/cotacao.model';
+
+export interface Simbolos {
+  sigla: string;
+  siglaYahoo?: string;
+}
 
 @Injectable({
   providedIn: 'root'
@@ -14,18 +19,24 @@ import { HttpClient } from '@angular/common/http';
 export class CotacaoService {
 
   constructor(
-    private http: HttpClient, 
-    private _carteiraService: CarteiraService
+    private http: HttpClient,
   ) { }
 
-  obterCotacoes(simbolos: string[]): Observable<CotacaoImpl[]> {
-    return this.http.get<YahooQuote[]>(`${environment.apiUrl}/cotacao`, {params: {simbolos}})
-    .pipe(
-      map((quotes:YahooQuote[])=> quotes.map(quote=>this.converterDeYahooQuote(quote)))
-    );
+  atualizarCotacoesBatch() {
+    return this.http.put<string[]>(`${environment.apiUrl}/cotacao/batch/cotacoes`, {});
   }
 
-  converterDeYahooQuote(quote:YahooQuote) : CotacaoImpl {
+  obterCotacoes(simbolos: Simbolos[]): Observable<Map<string, CotacaoImpl>> {
+    const mapSimbolos = new Map(simbolos.filter(simbolo => !!simbolo.siglaYahoo).map(simbolo => [simbolo.siglaYahoo as string, simbolo.sigla]));
+    const simbolo = encodeURIComponent(simbolos.map(simbolo => simbolo.siglaYahoo).join(','));
+    return this.http.get<YahooQuote[]>(`${environment.apiUrl}/cotacao`, { params: { simbolo: simbolo } })
+      .pipe(
+        map((quotes: YahooQuote[]) => quotes.map(quote => this.converterDeYahooQuote(quote))),
+        map(cotacoes => new Map(cotacoes.map(cotacao => [mapSimbolos.get(cotacao.simbolo) as string, cotacao])))
+      );
+  }
+
+  converterDeYahooQuote(quote: YahooQuote): CotacaoImpl {
     const data: ICotacao = {
       simbolo: quote.simbolo as string,
       preco: quote.preco as number,
@@ -37,35 +48,96 @@ export class CotacaoService {
   converterDeYahooMoeda(valor: string): Moeda {
     switch (valor) {
       case "BRL":
-        return Moeda.REAL;
+        return Moeda.BRL;
       case "USD":
-        return Moeda.DOLAR;
+        return Moeda.USD;
       case "USDT":
         return Moeda.USDT;
       default:
-        return Moeda.REAL;
+        return Moeda.BRL;
     }
   }
-  converterDeYahooTipo(valor: string): TipoAtivo {
-    switch (valor) {
-      case "CRYPTOCURRENCY":
-        return TipoAtivo.CRIPTO;
-      case "CURRENCY":
-        return TipoAtivo.REFERENCIA;
-      case "ETF":
-        return TipoAtivo.FUNDO;
-      case "EQUITY":
-        return TipoAtivo.ACAO;
-      case "FUTURE":
-        return TipoAtivo.RF;
-      case "INDEX":
-        return TipoAtivo.FUNDO;
-      case "MUTUALFUND":
-        return TipoAtivo.FUNDO;
-      case "OPTION":
-        return TipoAtivo.ACAO;
+
+  obterCotacaoUSDBRL() {
+    return this.obterCotacoes([{
+      sigla: "USD",
+      siglaYahoo: "BRL=X"
+    }]).pipe(
+      map(cotacoes => new Array(...cotacoes.values()).find((_, i) => i === 0))
+    );
+  }
+
+  obterCotacaoUSDTUSD() {
+    return this.obterCotacoes([{
+      sigla: "USDT",
+      siglaYahoo: "USDT-USD"
+    }]).pipe(
+      map(cotacoes => new Array(...cotacoes.values()).find((_, i) => i === 0))
+    );
+  }
+
+  obterCotacaoUSDTBRL() {
+    return forkJoin({
+      USDBRL: this.obterCotacaoUSDBRL(),
+      USDBTUSD: this.obterCotacaoUSDTUSD()
+    }).pipe(
+      map(cotacoes => {
+        const { USDBRL, USDBTUSD } = cotacoes;
+        return new CotacaoImpl({
+          simbolo: "USDTBRL",
+          moeda: Moeda.BRL,
+          preco: USDBTUSD && USDBRL ? USDBTUSD.preco * USDBRL.preco : 0,
+          data: new Date()
+        });
+      })
+    )
+  }
+
+  obterCotacaoMoeda(de: Moeda, para: Moeda): Observable<CotacaoImpl | undefined> {
+    if (de === para) return of(new CotacaoImpl({
+      simbolo: `${de}${para}`,
+      moeda: de,
+      preco: 1,
+      data: new Date()
+    }));
+
+    switch (de) {
+      case Moeda.BRL:
+        switch (para) {
+          case Moeda.USD:
+            return this.obterCotacaoUSDBRL().pipe(map(cotacao=>{
+              return cotacao && new CotacaoImpl({
+                simbolo: `${de}${para}`,
+                moeda: de,
+                preco: 1 / cotacao.preco,
+                data: new Date()
+              });
+            }));
+          case Moeda.USDT:
+            return this.obterCotacaoUSDTBRL();
+          default:
+            return of(undefined);
+        }
+      case Moeda.USD:
+        switch (para) {
+          case Moeda.BRL:
+            return this.obterCotacaoUSDBRL();
+          case Moeda.USDT:
+            return this.obterCotacaoUSDTUSD();
+          default:
+            return of(undefined);
+        }
+      case Moeda.USDT:
+        switch (para) {
+          case Moeda.BRL:
+            return this.obterCotacaoUSDTBRL();
+          case Moeda.USD:
+            return this.obterCotacaoUSDTUSD();
+          default:
+            return of(undefined);
+          }
       default:
-        return TipoAtivo.REFERENCIA;
+        return of(undefined);
     }
   }
 }

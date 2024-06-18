@@ -4,7 +4,10 @@
         <button type="button" class="btn btn-sm btn-primary m-1" (click)="excluirCarteira()">Excluir Carteira</button>
     </div>
 
-    <app-carteira-lista-ativos [carteira]="carteira" (itemClicado)="ativoSelecionado($event)" [exibirLinkEdicao]="exibirLinkEdicaoCarteira"/>
+    <app-carteira-lista-ativos 
+        [carteira]="carteira" 
+        (itemClicado)="ativoSelecionado($event)" 
+        [exibirLinkEdicao]="exibirLinkEdicaoCarteira"/>
 
     <button type="button" class="btn btn-sm btn-primary m-1" (click)="adicionarAtivo()" *ngIf="!exibirLinkEdicaoCarteira">
         Adicionar Ativo

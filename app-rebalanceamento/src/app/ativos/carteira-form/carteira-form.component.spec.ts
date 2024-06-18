@@ -27,7 +27,7 @@ describe('CarteiraFormComponent', () => {
       nome: 'Carteira',
       objetivo: 0.10,
       classe: TipoAtivo.ACAO,
-      moeda: Moeda.REAL,
+      moeda: Moeda.BRL,
       items: []
     });
     fixture.detectChanges();

@@ -1,9 +1,10 @@
 <div class="text-end ms-auto">
     <div class="d-inline-block m-1">
-        <button type="button" class="btn btn-sm btn-primary" (click)="novoAtivo()">Adicionar</button>
+        <button type="button" class="btn btn-sm btn-primary m-1" (click)="novoAtivo()">Adicionar</button>
+        <button type="button" class="btn btn-sm btn-success m-1" (click)="atualizarCotacoes()">Cotações</button>
     </div>
     <div class="d-inline-block menu-item m-1" ngbDropdown>
-        <button type="button" class="btn btn-sm btn-light" ngbDropdownToggle>
+        <button type="button" class="btn btn-sm btn-light m-1" ngbDropdownToggle>
             Filtrar
         </button>
         <div class="dropdown-menu" ngbDropdownMenu>
@@ -41,7 +42,14 @@
             <td>{{ativo.siglaYahoo}}</td>
             <td>{{ativo.tipoAtivo}}</td>
             <td>{{ativo.moeda}}</td>
-            <td>{{ativo.cotacao}}</td>
+            <td class="text-end">
+                <ng-container *ngIf="!!ativo.cotacao; else semCotacao">
+                    {{ativo.cotacao.preco | number:'1.6-6'}}
+                </ng-container>
+                <ng-template #semCotacao>
+                    <i class="fas fa-spinner fa-spin"></i>x
+                </ng-template>
+            </td>
         </tr>
     </tbody>
 </table>

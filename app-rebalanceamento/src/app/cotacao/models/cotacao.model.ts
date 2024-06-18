@@ -3,6 +3,7 @@ import { Moeda, TipoAtivo } from "src/app/ativos/model/ativos.model";
 export class CotacaoImpl {
     simbolo: string;
     preco: number;
+    precoBRL?: number;
     moeda: Moeda;
     data: Date;
 
@@ -12,7 +13,10 @@ export class CotacaoImpl {
         this.moeda = cotacao.moeda;
         this.data = cotacao.data;
     }
+
+    atualizarCotacaoMoeda(cotacaoMoeda: number) {
+        this.precoBRL = this.preco * cotacaoMoeda;
+    }
 }
 
-export interface ICotacao extends CotacaoImpl {
-}
+export type ICotacao = Omit<CotacaoImpl, "atualizarCotacaoMoeda">;

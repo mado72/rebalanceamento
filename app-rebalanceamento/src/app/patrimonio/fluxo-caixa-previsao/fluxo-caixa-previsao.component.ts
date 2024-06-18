@@ -52,7 +52,7 @@ export class FluxoCaixaPrevisaoComponent implements OnInit {
     }).subscribe(res => {
       const saldoInicial = res.conta
         .filter(conta => [TipoConta.CORRENTE, TipoConta.POUPANCA].includes(conta.tipo))
-        .reduce((acc, conta) => acc += this._contaService.converterSaldoParaMoeda(conta, Moeda.REAL), 0);
+        .reduce((acc, conta) => acc += this._contaService.converterSaldoParaMoeda(conta, Moeda.BRL), 0);
 
       const intervalos = [1].concat(
         res.transacoes

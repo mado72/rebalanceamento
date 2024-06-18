@@ -1,3 +1,4 @@
+<input type="checkbox" name="expandido" id="expandido" [(ngModel)]="expanded">
 <table class="table table-striped" *ngIf="total">
     <thead>
         <tr class="table-dark">
@@ -11,11 +12,16 @@
     <tbody>
         <tr *ngFor="let alocacao of alocacoes">
             <th>
-                <a href="javascript:void(0)" (click)="editarCarteira(alocacao.id)">
-                    {{alocacao.carteira}}
-                </a>
+                <ng-container *ngIf="expanded; else TipoCarteira">
+                    <a href="javascript:void(0)" (click)="alocacao.id && editarCarteira(alocacao.id)">
+                        {{alocacao.carteira}}
+                    </a>
+                </ng-container>
+                <ng-template #TipoCarteira>
+                    {{alocacao.tipo}} - {{alocacao.moeda}}
+                </ng-template>
             </th>
-            <td class="text-end">{{alocacao.valor | currency:siglaMoeda(alocacao)}}</td>
+            <td class="text-end">{{alocacao.valor | currency:'BRL'}}</td>
             <td class="text-end">{{alocacao.planejado | percent:'1.2-4'}}</td>
             <td class="text-end">{{alocacao.atual | percent:'1.2-4'}}</td>
             <td class="text-end" [negativo]="diferencaPerc(alocacao)">{{diferencaPerc(alocacao)| percent:'1.2'}}</td>

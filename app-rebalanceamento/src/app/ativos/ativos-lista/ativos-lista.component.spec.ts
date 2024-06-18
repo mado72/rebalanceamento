@@ -52,12 +52,12 @@ describe('AtivosListaComponent', () => {
   it('Deve acrescentar/remover filtro por moeda', () => {
     component.filtro.moeda = undefined;
 
-    component.filtrarMoeda(Moeda.DOLAR);
+    component.filtrarMoeda(Moeda.USD);
     expect(component.filtro.moeda).toBeTruthy();
     if (component.filtro.moeda) {
-      expect(component.filtro.moeda).toBe(Moeda.DOLAR);
+      expect(component.filtro.moeda).toBe(Moeda.USD);
     }
-    component.filtrarMoeda(Moeda.DOLAR);
+    component.filtrarMoeda(Moeda.USD);
     expect(component.filtro.moeda).toBeFalsy();
   })
 
@@ -72,7 +72,7 @@ describe('AtivosListaComponent', () => {
   })
 
   it('Filtrando por DOLAR deve listar 3 ativos', () => {
-    component.filtrarMoeda(Moeda.DOLAR);
+    component.filtrarMoeda(Moeda.USD);
     expect(component.ativos).toBeTruthy();
     expect(component.ativos.length).toBe(3);
   })
@@ -85,7 +85,7 @@ describe('AtivosListaComponent', () => {
 
   it('Filtrando por FII e REAL deve listar 1 ativo', () => {
     component.filtrarTipoAtivo(TipoAtivo.FII);
-    component.filtrarMoeda(Moeda.REAL);
+    component.filtrarMoeda(Moeda.BRL);
     expect(component.ativos).toBeTruthy();
     expect(component.ativos.length).toBe(1);
   })
