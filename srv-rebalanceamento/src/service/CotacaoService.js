@@ -168,8 +168,8 @@ async function atualizarCotacao(response, hoje, now) {
 }
 
 const MOEDAS = {
-    "BRL": "REAL",
-    "USD": "DOLAR",
+    "BRL": "BRL",
+    "USD": "USD",
     "USDT": "USDT"
 }
 
